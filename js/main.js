@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton;
 
 var initMenu = function() {
     container = document.createElement('div');
@@ -15,12 +15,12 @@ var initMenu = function() {
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
-    var expertLocked = true;
+    expertLocked = true;
     for(var i = 0; i < buttonNames.length; i++) {
         buttons[buttonNames[i]] = new Button(buttonNames[i], 50, 50 + 100 * (i + (expertLocked && i >= 1 ? 1 : 0)));
     }
     if(expertLocked) {
-        new ButtonLocked('expert', 50, 150);
+        expertButton = new ButtonLocked('expert', 50, 150);
     }
     buttonIndex = -1;
     menuControlledByMouse = true;
@@ -53,7 +53,29 @@ var unpause = function() {
     last = Date.now();
 }
 
+var removeAllButtons = function() {
+    for(var i = 0; i < buttonNames.length; i++) {
+        buttons[buttonNames[i]].hide();
+    }
+    if(expertLocked) {
+        expertButton.button.style.display = 'none';
+        expertButton.isShowing = false;
+    }
+}
+
+var showAllButtons = function() {
+    for(var i = 0; i < buttonNames.length; i++) {
+        buttons[buttonNames[i]].show();
+    }
+    if(expertLocked) {
+        expertButton.button.style.display = 'block';
+        expertButton.isShowing = true;
+    }
+}
+
 function ButtonLocked(name, x, y) {
+    this.isShowing = true;
+    this.name = name;
     var button = this.button = document.createElement('div');
     button.style.position = 'absolute';
     button.style.left = x + 'px';
@@ -65,6 +87,7 @@ function ButtonLocked(name, x, y) {
 }
 
 function Button(name, x, y) {
+    this.isShowing = true;
     this.name = name;
     this.mouseOver = false;
     var button = this.button = document.createElement('div');
@@ -84,6 +107,16 @@ Button.prototype.highlightColor = '#ff0';
 Button.prototype.defaultColor = '#f0f';
 Button.prototype.mainColor = '#f0f';
 
+Button.prototype.hide = function() {
+    this.button.style.display = 'none';
+    this.isShowing = false;
+}
+
+Button.prototype.show = function() {
+    this.button.style.display = 'block';
+    this.isShowing = true;
+}
+
 Button.prototype.highlight = function() {
     this.button.style.backgroundColor = this.highlightColor;
 }
@@ -93,7 +126,9 @@ Button.prototype.unhighlight = function() {
 }
 
 Button.prototype.select = function() {
-    console.log("select name = " + this.name);
+    if(this.isShowing) {
+        console.log("select name = " + this.name);
+    }
 }
 Button.prototype.containsMouse = function() {
     return this.mouseOver;
