@@ -139,6 +139,11 @@ window.onkeydown = function(e) {
         case 40:
             menuSelector(1);
             break;
+        case 13:
+            if(!menuControlledByMouse) {
+                buttons[buttonNames[buttonIndex]].select();
+            }
+            break;
         }
     }
 }
