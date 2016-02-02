@@ -8,14 +8,19 @@ var initMenu = function() {
     container.style.width = '820px';
     container.style.height = '640px';
     container.style.backgroundColor = '#000';
+    container.style.backgroundImage = 'url(img/clouds.jpg)';
     document.body.appendChild(container);
     paused = false;
     menu = true;
     last = Date.now();
     buttons = {};
-    buttonNames = ['play', 'options', 'help', 'about'];
+    buttonNames = ['story', 'options', 'help', 'about'];
+    var expertLocked = true;
     for(var i = 0; i < buttonNames.length; i++) {
-        buttons[buttonNames[i]] = new Button(buttonNames[i], 50, 50 + 100 * i);
+        buttons[buttonNames[i]] = new Button(buttonNames[i], 50, 50 + 100 * (i + (expertLocked && i >= 1 ? 1 : 0)));
+    }
+    if(expertLocked) {
+        new ButtonLocked('expert', 50, 150);
     }
     buttonIndex = -1;
     menuControlledByMouse = true;
@@ -48,7 +53,19 @@ var unpause = function() {
     last = Date.now();
 }
 
+function ButtonLocked(name, x, y) {
+    var button = this.button = document.createElement('div');
+    button.style.position = 'absolute';
+    button.style.left = x + 'px';
+    button.style.top = y + 'px';
+    button.style.width = '200px';
+    button.style.height = '50px';
+    button.style.backgroundColor = '#555';
+    container.appendChild(button);
+}
+
 function Button(name, x, y) {
+    this.name = name;
     this.mouseOver = false;
     var button = this.button = document.createElement('div');
     button.style.position = 'absolute';
@@ -56,23 +73,27 @@ function Button(name, x, y) {
     button.style.top = y + 'px';
     button.style.width = '200px';
     button.style.height = '50px';
-    button.style.backgroundColor = '#f0f';
+    button.style.backgroundColor = this.defaultColor;
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
     button.setAttribute('onmousedown', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
     container.appendChild(button);
 }
 
+Button.prototype.highlightColor = '#ff0';
+Button.prototype.defaultColor = '#f0f';
+Button.prototype.mainColor = '#f0f';
+
 Button.prototype.highlight = function() {
-    this.button.style.backgroundColor = '#ff0';
+    this.button.style.backgroundColor = this.highlightColor;
 }
 
 Button.prototype.unhighlight = function() {
-    this.button.style.backgroundColor = '#f0f';
+    this.button.style.backgroundColor = this.defaultColor;
 }
 
 Button.prototype.select = function() {
-    alert("click");
+    console.log("select name = " + this.name);
 }
 Button.prototype.containsMouse = function() {
     return this.mouseOver;
