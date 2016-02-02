@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, alternateMenuTextDiv;
 
 var initMenu = function() {
     container = document.createElement('div');
@@ -24,6 +24,22 @@ var initMenu = function() {
     }
     buttonIndex = -1;
     menuControlledByMouse = true;
+    alternateMenu = false;
+    alternateMenuDiv = document.createElement('div');
+    alternateMenuDiv.style.position = 'absolute';
+    alternateMenuDiv.style.left = '300px';
+    alternateMenuDiv.style.top = '200px';
+    alternateMenuDiv.style.width = (820 - 300 - 50) + "px";
+    alternateMenuDiv.style.height = '100px';
+    //alternateMenuDiv.style.backgroundColor = '#f0f';
+    //alternateMenuTextDiv = document.createElement('div');
+    //alternateMenuTextDiv.style.padding = '10px';
+    //alternateMenuTextDiv.innerHTML = 'hello world';
+    //alternateMenuDiv.innerHTML = alternateMenuTextDiv.outerHTML;
+    //container.appendChild(alternateMenuDiv);
+    
+    //alternateMenuDiv.innerHTML = 'hello world';
+    container.appendChild(alternateMenuDiv);
 }
 
 var loop = function() {
@@ -99,7 +115,7 @@ function Button(name, x, y) {
     button.style.backgroundColor = this.defaultColor;
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
-    button.setAttribute('onmousedown', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
+    button.setAttribute('onmousedown', 'menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
     container.appendChild(button);
 }
 
@@ -115,6 +131,9 @@ Button.prototype.hide = function() {
 Button.prototype.show = function() {
     this.button.style.display = 'block';
     this.isShowing = true;
+    if(menuControlledByMouse) {
+        this.unhighlight();
+    }
 }
 
 Button.prototype.highlight = function() {
@@ -127,11 +146,46 @@ Button.prototype.unhighlight = function() {
 
 Button.prototype.select = function() {
     if(this.isShowing) {
-        console.log("select name = " + this.name);
+        if(buttonNames.indexOf(this.name) == -1) {
+            console.log('We\'ve got a bit of an issue here');
+            return;
+        }
+        if(menuControlledByMouse) {
+            buttonIndex = -1;
+        }
+        switch(this.name) {
+        case 'story':
+            switchMenuAlternate('Entering story mode');
+            break;
+        case 'expert':
+            switchMenuAlternate('Entering expert mode');
+            break;
+        case 'options':
+            switchMenuAlternate('Here are your options');
+            break;
+        case 'help':
+            switchMenuAlternate('Here is help');
+            break;
+        case 'about':
+            switchMenuAlternate('Coded by Josh Humpherys in Janurary/February of 2016<br />Why? Play story mode to find out!');
+            break;
+        }
     }
 }
 Button.prototype.containsMouse = function() {
     return this.mouseOver;
+}
+
+var switchMenuAlternate = function(s) {
+    alternateMenu = true;
+    removeAllButtons();
+    alternateMenuDiv.innerHTML = s + '<br /><br />Press any key to return to the main menu';
+}
+
+var switchMenuMain = function() {
+    alternateMenu = false;
+    showAllButtons();
+    alternateMenuDiv.innerHTML = '';
 }
 
 window.onmousemove = function(e) {
@@ -181,7 +235,10 @@ window.onkeydown = function(e) {
     
     //alert(key);
     
-    if(menu) {
+    if(menu && alternateMenu) {
+        switchMenuMain();
+    }
+    else if(menu) {
         switch(key) {
         case 37:
             menuSelector(-1);
