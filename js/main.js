@@ -1,12 +1,8 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, alternateMenuTextDiv;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv;
+//var alternateMenuTextDiv;
 
 var initMenu = function() {
-    container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = (document.body.clientWidth-820)/2 + 'px';
-    container.style.top = 50 + 'px';
-    container.style.width = '820px';
-    container.style.height = '640px';
+    container = initContainer();
     container.style.backgroundColor = '#000';
     container.style.backgroundImage = 'url(img/clouds.jpg)';
     document.body.appendChild(container);
@@ -40,6 +36,55 @@ var initMenu = function() {
     
     //alternateMenuDiv.innerHTML = 'hello world';
     container.appendChild(alternateMenuDiv);
+}
+
+var initIntroScreen = function() {
+    document.getElementById('container').remove();
+    container = initContainer();
+    document.body.appendChild(container);
+    introScreenText = ['screen1text', 'screen2text', 'screen3text'];
+    introScreenTextDiv = document.createElement('div');
+    introScreenTextDiv.style.backgroundColor = '#000';
+    introScreenTextDiv.style.width = '100%';
+    introScreenTextDiv.style.height = '100px';
+    introScreenTextDiv.style.textAlign = 'center';
+    introScreenTextDivChild = document.createElement('div');
+    introScreenTextDivChild.style.color = '#fff';
+    introScreenTextDivChild.style.padding = '10px';
+    introScreenTextDivChild.style.margin = '0 auto';
+    introScreenTextDiv.appendChild(introScreenTextDivChild);
+    container.appendChild(introScreenTextDiv);
+    introScreenIndex = 0;
+    setIntroScreen(0);
+}
+
+var setIntroScreen = function(i) {
+    introScreen = true;
+    if(i >= introScreenText.length) {
+        initGame();
+        return;
+    }
+    container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
+    introScreenTextDivChild.innerHTML = introScreenText[i];
+}
+
+var nextIntroScreen = function() {
+    setIntroScreen(++introScreenIndex);
+}
+
+var initGame = function() {
+    alert("starting game");
+}
+
+var initContainer = function() {
+    var container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = (document.body.clientWidth-820)/2 + 'px';
+    container.style.top = 50 + 'px';
+    container.style.width = '820px';
+    container.style.height = '640px';
+    container.setAttribute('id','container');
+    return container;
 }
 
 var loop = function() {
@@ -155,7 +200,7 @@ Button.prototype.select = function() {
         }
         switch(this.name) {
         case 'story':
-            switchMenuAlternate('Entering story mode');
+            initIntroScreen();
             break;
         case 'expert':
             switchMenuAlternate('Entering expert mode');
@@ -188,6 +233,15 @@ var switchMenuMain = function() {
     alternateMenuDiv.innerHTML = '';
 }
 
+window.onmousedown = function(e) {
+//    if(introScreen) {
+//        nextIntroScreen();
+//    }
+//    else if(alternateMenu) {
+//        switchMenuMain();
+//    }
+}
+
 window.onmousemove = function(e) {
     if(menu && !menuControlledByMouse) {
         menuControlledByMouse = true;
@@ -211,9 +265,11 @@ window.onkeydown = function(e) {
     var key = e.keyCode ? e.keyCode : e.which;
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
-        menuControlledByMouse = false;
-        for(var i = 0; i < buttonNames.length; i++) {
-            buttons[buttonNames[i]].unhighlight();
+        if(menu) {
+            menuControlledByMouse = false;
+            for(var i = 0; i < buttonNames.length; i++) {
+                buttons[buttonNames[i]].unhighlight();
+            }
         }
     }
     var menuSelector = function(i) {
@@ -234,8 +290,15 @@ window.onkeydown = function(e) {
     }
     
     //alert(key);
-    
-    if(menu && alternateMenu) {
+    if(introScreen) {
+        if(key == 83) {
+            initGame();
+        }
+        else {
+            nextIntroScreen();
+        }
+    }
+    else if(menu && alternateMenu) {
         switchMenuMain();
     }
     else if(menu) {
