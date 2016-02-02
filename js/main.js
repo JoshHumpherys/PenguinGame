@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx;
 //var alternateMenuTextDiv;
 
 var initMenu = function() {
@@ -74,6 +74,9 @@ var nextIntroScreen = function() {
 }
 
 var initGame = function() {
+    introScreen = false;
+    right = left = false;
+
     // init main container
     document.getElementById('container').remove();
     container = initContainer();
@@ -81,10 +84,13 @@ var initGame = function() {
     container.style.backgroundImage = 'url(img/bg.jpg)';
     
     // init penguin and add to container
-    var penguin = document.createElement('div');
+    penguin = document.createElement('div');
     penguin.style.position = 'absolute';
-    penguin.style.left = '100px';
-    penguin.style.top = '200px';
+    px = 100;
+    py = 200;
+    dx = 180;
+    penguin.style.left = px + 'px';
+    penguin.style.top = py + 'px';
     penguin.style.width = '20px';
     penguin.style.height = '20px';
     var penguinImg = document.createElement('img');
@@ -191,7 +197,7 @@ var initBlocks = function(map) {
 }
 
 var loop = function() {
-    setTimeout(loop, 40);
+    setTimeout(loop, 17);
     if(!paused) {
         var now = Date.now();
         update(now - last);
@@ -199,12 +205,15 @@ var loop = function() {
     }
 }
 
-var update = function(delta) {
-    if(menu) {
-    
-    }	
-    else {
-        //console.log(delta / 1000);        
+var update = function(delta) {	
+    if(!menu && !introScreen) {
+        // move left/right
+        if(right && !left) {
+            moveRight(delta / 1000);
+        }
+        else if(left && !right) {
+            moveLeft(delta / 1000);
+        }
     }
 }
 
@@ -215,6 +224,22 @@ var pause = function() {
 var unpause = function() {
     paused = false;
     last = Date.now();
+}
+
+var moveRight = function(delta) {
+    px += dx * delta;
+    
+    // move penguin div
+    penguin.style.left = Math.round(px) + 'px';
+    console.log('move right ' + Math.round(px));
+}
+
+var moveLeft = function(delta) {
+    px -= dx * delta;
+    
+    // move penguin div
+    penguin.style.left = Math.round(px) + 'px';
+    console.log('move left ' + Math.round(px));
 }
 
 var removeAllButtons = function() {
@@ -393,7 +418,7 @@ window.onmousemove = function(e) {
 }
 
 window.onkeydown = function(e) {
-    var key = e.keyCode ? e.keyCode : e.which;
+    var key = e.keyCode ? e.keyCode : e.which;    
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
         if(menu) {
@@ -451,6 +476,26 @@ window.onkeydown = function(e) {
                 buttons[buttonNames[buttonIndex]].select();
             }
             break;
+        }
+    }
+    else { // game
+        if(key == 37) {
+            left = true;
+        }
+        else if(key == 39) {
+            right = true;
+        }
+    }
+}
+
+window.onkeyup = function(e) {
+    var key = e.keyCode ? e.keyCode : e.which;    
+    if(!menu && !introScreen) { // game
+        if(key == 37) {
+            left = false;
+        }
+        else if(key == 39) {
+            right = false;
         }
     }
 }
