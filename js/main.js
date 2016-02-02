@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse;
 
 var initMenu = function() {
     container = document.createElement('div');
@@ -13,10 +13,12 @@ var initMenu = function() {
     menu = true;
     last = Date.now();
     buttons = {};
-    var buttonNames = ['play', 'options', 'help', 'about'];
+    buttonNames = ['play', 'options', 'help', 'about'];
     for(var i = 0; i < buttonNames.length; i++) {
         buttons[buttonNames[i]] = new Button(buttonNames[i], 50, 50 + 100 * i);
     }
+    buttonIndex = -1;
+    menuControlledByMouse = true;
 }
 
 var loop = function() {
@@ -31,7 +33,7 @@ var loop = function() {
 var update = function(delta) {
     if(menu) {
     
-    }
+    }	
     else {
         
     }
@@ -47,6 +49,7 @@ var unpause = function() {
 }
 
 function Button(name, x, y) {
+    this.mouseOver = false;
     var button = this.button = document.createElement('div');
     button.style.position = 'absolute';
     button.style.left = x + 'px';
@@ -54,22 +57,90 @@ function Button(name, x, y) {
     button.style.width = '200px';
     button.style.height = '50px';
     button.style.backgroundColor = '#f0f';
-    button.setAttribute('onmouseenter', 'buttons[\''+name+'\'].mouseEnter()');
-    button.setAttribute('onmouseout', 'buttons[\''+name+'\'].mouseOut()');
-    button.setAttribute('onmousedown', 'buttons[\''+name+'\'].mouseDown()');
+    button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
+    button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
+    button.setAttribute('onmousedown', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
     container.appendChild(button);
 }
 
-Button.prototype.mouseEnter = function() {
+Button.prototype.highlight = function() {
     this.button.style.backgroundColor = '#ff0';
 }
 
-Button.prototype.mouseOut = function() {
+Button.prototype.unhighlight = function() {
     this.button.style.backgroundColor = '#f0f';
 }
 
-Button.prototype.mouseDown = function() {
+Button.prototype.select = function() {
     alert("click");
+}
+Button.prototype.containsMouse = function() {
+    return this.mouseOver;
+}
+
+window.onmousemove = function(e) {
+    if(menu && !menuControlledByMouse) {
+        menuControlledByMouse = true;
+        var indexChanged = false;
+        for(var i = 0; i < buttonNames.length; i++) {
+            if(buttons[buttonNames[i]].containsMouse()) {
+                buttons[buttonNames[i]].highlight();
+                indexChanged = true;
+            }
+            else {
+                buttons[buttonNames[buttonIndex]].unhighlight();
+            }
+        }
+        if(!indexChanged) {
+            buttonIndex = -1;
+        }
+    }
+}
+
+window.onkeydown = function(e) {
+    var key = e.keyCode ? e.keyCode : e.which;
+    if([37,38,39,40].indexOf(key) != -1) {
+        e.preventDefault();
+        menuControlledByMouse = false;
+        for(var i = 0; i < buttonNames.length; i++) {
+            buttons[buttonNames[i]].unhighlight();
+        }
+    }
+    var menuSelector = function(i) {
+        if(buttonIndex == -1) {
+            if(i == 1) {
+                buttonIndex = -1;
+            }
+            else {
+                buttonIndex = 0;
+            }
+        }
+        else {
+            buttons[buttonNames[buttonIndex]].unhighlight();
+        }
+        buttonIndex += i;
+        buttonIndex = ((buttonIndex%buttonNames.length)+buttonNames.length)%buttonNames.length;
+        buttons[buttonNames[buttonIndex]].highlight();
+    }
+    
+    //alert(key);
+    
+    if(menu) {
+        switch(key) {
+        case 37:
+            menuSelector(-1);
+            break;
+        case 38:
+            menuSelector(-1);
+            break;
+        case 39:
+            menuSelector(1);
+            break;
+        case 40:
+            menuSelector(1);
+            break;
+        }
+    }
 }
 
 initMenu();
