@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels;
 //var alternateMenuTextDiv;
 
 var initMenu = function() {
@@ -39,6 +39,7 @@ var initMenu = function() {
 }
 
 var initIntroScreen = function() {
+    menu = false;
     document.getElementById('container').remove();
     container = initContainer();
     document.body.appendChild(container);
@@ -73,7 +74,38 @@ var nextIntroScreen = function() {
 }
 
 var initGame = function() {
-    alert("starting game");
+    // init main container
+    document.getElementById('container').remove();
+    container = initContainer();
+    document.body.appendChild(container);
+    container.style.backgroundImage = 'url(img/bg.jpg)';
+    
+    // init penguin and add to container
+    var penguin = document.createElement('div');
+    penguin.style.position = 'absolute';
+    penguin.style.left = '100px';
+    penguin.style.top = '200px';
+    penguin.style.width = '21px';
+    penguin.style.height = '21px';
+    var penguinImg = document.createElement('img');
+    penguinImg.setAttribute('src','img/penguin.png');
+    penguinImg.style.height = penguin.style.height;
+    penguinImg.style.display = 'block';
+    penguinImg.style.margin = 'auto';
+    penguin.innerHTML = penguinImg.outerHTML;
+    container.appendChild(penguin);
+    
+    // init room, level vars
+    room = 0;
+    levels = [0, 2, 4, 6];
+    for(var i = 0; i < levels.length; i++) {
+        if(room < levels[i]) {
+            room = levels[i - 1];
+        }
+    }
+    
+    // init all blocks
+    initBlocks();
 }
 
 var initContainer = function() {
@@ -101,7 +133,7 @@ var update = function(delta) {
     
     }	
     else {
-        
+        //console.log(delta / 1000);        
     }
 }
 
