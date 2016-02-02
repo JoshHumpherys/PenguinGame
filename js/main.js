@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData;
 //var alternateMenuTextDiv;
 
 var initMenu = function() {
@@ -89,6 +89,10 @@ var initGame = function() {
     px = 100;
     py = 200;
     dx = 180;
+    a = 100;
+    v0 = -100;
+    y0 = py;
+    inAir = false;
     penguin.style.left = px + 'px';
     penguin.style.top = py + 'px';
     penguin.style.width = '20px';
@@ -127,7 +131,6 @@ var initContainer = function() {
 }
 
 var initBlocks = function(map) {
-    var mapData;
     switch(map) {
     case 0:
         mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -140,7 +143,7 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -162,7 +165,7 @@ var initBlocks = function(map) {
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
         break;
     default:
-        console.log('This is not good');
+        console.log('This is not good');i
         return;
     }
     for(var i = 0; i < mapData.length; i++) {
@@ -205,15 +208,42 @@ var loop = function() {
     }
 }
 
-var update = function(delta) {	
+var update = function(delta) {
     if(!menu && !introScreen) {
-        // move left/right
+        var npx = px + 3;
+        var nw = 20 - 3 * 2;
+        
         if(right && !left) {
-            moveRight(delta / 1000);
+            npx += dx * delta / 1000;
+            //moveRight(delta / 1000);
         }
         else if(left && !right) {
-            moveLeft(delta / 1000);
+            npx -= dx * delta / 1000;
+            //moveLeft(delta / 1000);
         }
+        
+        var hCollision = false;
+        if(right != left) {
+            if(right) {
+                var blockRight = mapData[Math.floor(py/20)][Math.ceil(px/20)];
+                if((blockRight == '1' || blockRight == '2') && npx + nw > Math.ceil(px/20)*20) {
+                    npx = Math.ceil(px/20)*20 - nw;
+                    hCollision = true;
+                }
+            }
+            else if(left) {
+                var blockLeft = mapData[Math.floor(py/20)][Math.floor(px/20)];
+                if((blockLeft == '1' || blockLeft == '2') && npx < (Math.floor(px/20) + 1)*20) {
+                    npx = (Math.floor(px/20) + 1)*20;
+                    hCollision = true;
+                }
+            }
+        }
+        
+        //console.log(hCollision);
+        
+        px = npx - 3;
+        penguin.style.left = px + 'px';
     }
 }
 
@@ -224,22 +254,6 @@ var pause = function() {
 var unpause = function() {
     paused = false;
     last = Date.now();
-}
-
-var moveRight = function(delta) {
-    px += dx * delta;
-    
-    // move penguin div
-    penguin.style.left = Math.round(px) + 'px';
-    console.log('move right ' + Math.round(px));
-}
-
-var moveLeft = function(delta) {
-    px -= dx * delta;
-    
-    // move penguin div
-    penguin.style.left = Math.round(px) + 'px';
-    console.log('move left ' + Math.round(px));
 }
 
 var removeAllButtons = function() {
