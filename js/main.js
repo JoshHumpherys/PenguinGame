@@ -115,6 +115,7 @@ var initContainer = function() {
     container.style.top = 50 + 'px';
     container.style.width = '800px';
     container.style.height = '600px';
+    container.style.cursor = 'initial';
     container.setAttribute('id','container');
     return container;
 }
@@ -275,12 +276,28 @@ function Button(name, x, y) {
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
     button.setAttribute('onmousedown', 'menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
+    
+//    var inner = document.createElement('div');
+//    inner.style.width = '180px';
+//    inner.style.height = '30px';
+//    inner.style.display = 'block';
+//    inner.style.margin = 'auto';
+//    inner.style.backgroundColor = this.innerColor;
+//    inner.innerHTML = name.toUpperCase();
+//    button.innerHTML = inner.outerHTML;
+
+    button.style.cursor = 'pointer';
+    button.style.color = '#fff';
+    button.style.fontSize = '30px';
+    button.style.textAlign = 'center';
+    button.style.fontFamily = 'Verdana, Geneva, sans-serif';
+    button.style.lineHeight = '50px';
+    button.innerHTML = name.toUpperCase();
     container.appendChild(button);
 }
 
-Button.prototype.highlightColor = '#ff0';
-Button.prototype.defaultColor = '#f0f';
-Button.prototype.mainColor = '#f0f';
+Button.prototype.highlightColor = '#008080';
+Button.prototype.defaultColor = '#7ec0ee';
 
 Button.prototype.hide = function() {
     this.button.style.display = 'none';
