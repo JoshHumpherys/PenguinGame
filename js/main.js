@@ -25,7 +25,7 @@ var initMenu = function() {
     alternateMenuDiv.style.position = 'absolute';
     alternateMenuDiv.style.left = '300px';
     alternateMenuDiv.style.top = '200px';
-    alternateMenuDiv.style.width = (820 - 300 - 50) + "px";
+    alternateMenuDiv.style.width = (800 - 300 - 50) + "px";
     alternateMenuDiv.style.height = '100px';
     //alternateMenuDiv.style.backgroundColor = '#f0f';
     //alternateMenuTextDiv = document.createElement('div');
@@ -85,8 +85,8 @@ var initGame = function() {
     penguin.style.position = 'absolute';
     penguin.style.left = '100px';
     penguin.style.top = '200px';
-    penguin.style.width = '21px';
-    penguin.style.height = '21px';
+    penguin.style.width = '20px';
+    penguin.style.height = '20px';
     var penguinImg = document.createElement('img');
     penguinImg.setAttribute('src','img/penguin.png');
     penguinImg.style.height = penguin.style.height;
@@ -98,25 +98,95 @@ var initGame = function() {
     // init room, level vars
     room = 0;
     levels = [0, 2, 4, 6];
-    for(var i = 0; i < levels.length; i++) {
-        if(room < levels[i]) {
-            room = levels[i - 1];
-        }
-    }
+//    for(var i = 0; i < levels.length; i++) {
+//        if(room < levels[i]) {
+//            room = levels[i - 1];
+//        }
+//    }
     
     // init all blocks
-    initBlocks();
+    initBlocks(room);
 }
 
 var initContainer = function() {
     var container = document.createElement('div');
     container.style.position = 'absolute';
-    container.style.left = (document.body.clientWidth-820)/2 + 'px';
+    container.style.left = (document.body.clientWidth-800)/2 + 'px';
     container.style.top = 50 + 'px';
-    container.style.width = '820px';
-    container.style.height = '640px';
+    container.style.width = '800px';
+    container.style.height = '600px';
     container.setAttribute('id','container');
     return container;
+}
+
+var initBlocks = function(map) {
+    var mapData;
+    switch(map) {
+    case 0:
+        mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+        break;
+    default:
+        console.log('This is not good');
+        return;
+    }
+    for(var i = 0; i < mapData.length; i++) {
+        for(var j = 0; j < mapData[i].length; j++) {
+            if(mapData[i][j] == 1) {
+                container.appendChild(new Block(j, i, 20, true));
+            }
+        }
+    }
+
+/*
+    //var blob = new Blob(["This is my blob content"], {type : "text/plain"});
+    var blob;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'maps/map' + map); // add .txt?
+    xhr.responseType = 'blob';
+    xhr.onload = function() {
+        blob = xhr.response;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            alert('success');
+            console.log(e.target.result);
+        }
+        reader.onerror = function(e) {
+            alert(e.target.error);
+        }
+        reader.readAsText(blob);
+    }
+    xhr.send();
+//    reader.readAsText(new File('/maps/map'+map+'.txt'));
+*/
 }
 
 var loop = function() {
@@ -164,6 +234,18 @@ var showAllButtons = function() {
         expertButton.button.style.display = 'block';
         expertButton.isShowing = true;
     }
+}
+
+function Block(x, y, w, visible) {
+    var block = this.block = document.createElement('div');
+    block.style.position = 'absolute';
+    block.style.left = x * w + 'px';
+    block.style.top = y * w + 'px';
+    block.style.width = block.style.height = w + 'px';
+//    block.style.backgroundColor = '#008080';
+    block.style.backgroundColor = '#7ec0ee';
+    block.style.display = visible ? 'block' : 'none';
+    return block;
 }
 
 function ButtonLocked(name, x, y) {
