@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences;
 //var alternateMenuTextDiv;
 
 var initMenu = function() {
@@ -143,8 +143,8 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+                   [1,0,0,0,0,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -168,11 +168,20 @@ var initBlocks = function(map) {
         console.log('This is not good');i
         return;
     }
+    mapReferences = new Array(30);
+    for(var i = 0; i < 30; i++) {
+        mapReferences[i] = new Array(40);
+    }
     for(var i = 0; i < mapData.length; i++) {
         for(var j = 0; j < mapData[i].length; j++) {
+            var block;
             if(mapData[i][j] == 1) {
-                container.appendChild(new Block(j, i, 20, true));
+                container.appendChild((block = new Block(j, i, 20, true)).block);
             }
+            else if(mapData[i][j] == 2) {
+                container.appendChild((block = new Block(j, i, 20, false)).block);
+            }
+            mapReferences[i][j] = block;
         }
     }
 
@@ -229,6 +238,7 @@ var update = function(delta) {
                 if((blockRight == '1' || blockRight == '2') && npx + nw > Math.ceil(px/20)*20) {
                     npx = Math.ceil(px/20)*20 - nw;
                     hCollision = true;
+                    mapReferences[Math.floor(py/20)][Math.ceil(px/20)].show();
                 }
             }
             else if(left) {
@@ -236,6 +246,7 @@ var update = function(delta) {
                 if((blockLeft == '1' || blockLeft == '2') && npx < (Math.floor(px/20) + 1)*20) {
                     npx = (Math.floor(px/20) + 1)*20;
                     hCollision = true;
+                    mapReferences[Math.floor(py/20)][Math.floor(px/20)].show();
                 }
             }
         }
@@ -278,6 +289,8 @@ var showAllButtons = function() {
 
 function Block(x, y, w, visible) {
     var block = this.block = document.createElement('div');
+    this.visible = visible;
+    this.initVisible = visible;
     block.style.position = 'absolute';
     block.style.left = x * w + 'px';
     block.style.top = y * w + 'px';
@@ -285,7 +298,16 @@ function Block(x, y, w, visible) {
 //    block.style.backgroundColor = '#008080';
     block.style.backgroundColor = '#7ec0ee';
     block.style.display = visible ? 'block' : 'none';
-    return block;
+}
+
+Block.prototype.show = function() {
+    this.visible = true;
+    this.block.style.display = 'block';
+}
+
+Block.prototype.hide = function() {
+    this.visible = false;
+    this.block.style.display = 'none';
 }
 
 function ButtonLocked(name, x, y) {
