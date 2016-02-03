@@ -159,7 +159,7 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -298,13 +298,15 @@ var update = function(delta) {
             else if(dy < 0) {
                 var blockUpLeft = mapData[Math.floor(npy/20)][Math.floor(npx/20)];
                 var blockUpRight = mapData[Math.floor(npy/20)][Math.ceil(npx/20)];
-                if((blockUpLeft == '1' || blockUpLeft == '2') && npy < Math.floor(npy/20)) {
+                if((blockUpLeft == '1' || blockUpLeft == '2') && npy < (Math.floor(npy/20) + 1)*20) {
+                    console.log('asdf');
                     nnpy = Math.floor(npy/20 + 1)*20;
                     yCollision = true;
                     mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].show();
                     potentialHitCeiling = true;
                 }
-                if((blockUpRight == '1' || blockUpRight == '2') && npy < Math.floor(npy/20)) {
+                if((blockUpRight == '1' || blockUpRight == '2') && npy < (Math.floor(npy/20) + 1)*20) {
+                    console.log('asdf2');
                     nnpy = Math.floor(npy/20 + 1)*20;
                     yCollision = true;
                     mapReferences[Math.floor(npy/20)][Math.ceil(npx/20)].show();
@@ -372,7 +374,7 @@ var update = function(delta) {
 //            }
         }
         
-        if(penguin.style.top > container.style.height) {
+        if(py > container.style.height) {
             alert('We\'ve encountered a bit of a problem. Please refresh the page to restart the game.');
             pause();
         }
@@ -608,7 +610,10 @@ window.onmousemove = function(e) {
 }
 
 window.onkeydown = function(e) {
-    var key = e.keyCode ? e.keyCode : e.which;    
+    var key = e.keyCode ? e.keyCode : e.which;
+    if(key == 32) {
+        e.preventDefault();
+    }    
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
         if(menu) {
@@ -674,6 +679,9 @@ window.onkeydown = function(e) {
         }
         else if(key == 39) {
             right = true;
+        }
+        else if(key == 32) {
+            jump();
         }
     }
 }
