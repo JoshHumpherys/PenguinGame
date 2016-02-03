@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime;
 //var alternateMenuTextDiv;
 
 var initMenu = function() {
@@ -89,10 +89,12 @@ var initGame = function() {
     px = 100;
     py = 200;
     dx = 180;
-    a = 100;
-    v0 = -100;
+    a = 12;
+    v0 = -5;
     y0 = py;
     inAir = false;
+    jumpCount = 0;
+    //jump(); // TODO don't jump on start
     penguin.style.left = px + 'px';
     penguin.style.top = py + 'px';
     penguin.style.width = '20px';
@@ -134,16 +136,16 @@ var initBlocks = function(map) {
     switch(map) {
     case 0:
         mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+                   [1,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [2,0,0,0,2,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
                    [1,0,0,0,0,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -161,7 +163,7 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
         break;
     default:
@@ -221,50 +223,202 @@ var update = function(delta) {
     if(!menu && !introScreen) {
         var npx = px + 3;
         var nw = 20 - 3 * 2;
+        var npy = py;
+        var nnpy, nnpx;
         
+        // calculate new x
         if(right && !left) {
             npx += dx * delta / 1000;
-            //moveRight(delta / 1000);
         }
         else if(left && !right) {
             npx -= dx * delta / 1000;
-            //moveLeft(delta / 1000);
         }
         
-        var hCollision = false;
+        // calculate new y, dy
+        var dy = a * (Date.now() - jumpStartTime) / 1000 + v0;
+        if(inAir) {
+            // dy/dt = a * t + v0
+            npy += dy;
+        }
+        
+        var xCollision = false;
         if(right != left) {
             if(right) {
-                var blockRight = mapData[Math.floor(py/20)][Math.ceil(px/20)];
-                if((blockRight == '1' || blockRight == '2') && npx + nw > Math.ceil(px/20)*20) {
-                    npx = Math.ceil(px/20)*20 - nw;
-                    hCollision = true;
-                    mapReferences[Math.floor(py/20)][Math.ceil(px/20)].show();
+                var blockRightTop = mapData[Math.floor(npy/20)][Math.ceil(npx/20)];
+                var blockRightBottom = mapData[Math.ceil(npy/20)][Math.ceil(npx/20)];
+                if((blockRightTop == '1' || blockRightTop == '2') && npx + nw > Math.ceil(npx/20)*20) {
+                    nnpx = Math.ceil(npx/20)*20 - nw;
+                    xCollision = true;
+                    mapReferences[Math.floor(npy/20)][Math.ceil(npx/20)].show();
+                }
+                if((blockRightBottom == '1' || blockRightBottom == '2') && npx + nw > Math.ceil(npx/20)*20) {
+                    nnpx = Math.ceil(npx/20)*20 - nw;
+                    xCollision = true;
+                    mapReferences[Math.ceil(npy/20)][Math.ceil(npx/20)].show();
                 }
             }
             else if(left) {
-                var blockLeft = mapData[Math.floor(py/20)][Math.floor(px/20)];
-                if((blockLeft == '1' || blockLeft == '2') && npx < (Math.floor(px/20) + 1)*20) {
-                    npx = (Math.floor(px/20) + 1)*20;
-                    hCollision = true;
-                    mapReferences[Math.floor(py/20)][Math.floor(px/20)].show();
+                var blockLeftTop = mapData[Math.floor(npy/20)][Math.floor(npx/20)];
+                var blockLeftBottom = mapData[Math.ceil(npy/20)][Math.floor(npx/20)];
+                if((blockLeftTop == '1' || blockLeftTop == '2') && npx < (Math.floor(npx/20) + 1)*20) {
+                    nnpx = (Math.floor(npx/20) + 1)*20;
+                    xCollision = true;
+                    mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].show();
+                }
+                if((blockLeftBottom == '1' || blockLeftBottom == '2') && npx < (Math.floor(npx/20) + 1)*20) {
+                    nnpx = (Math.floor(npx/20) + 1)*20;
+                    xCollision = true;
+                    mapReferences[Math.ceil(npy/20)][Math.floor(npx/20)].show();
                 }
             }
         }
         
-        //console.log(hCollision);
         
-        px = npx - 3;
-        penguin.style.left = px + 'px';
+        var yCollision = false;
+        var potentialLand = false;
+        var potentialHitCeiling = false;
+        var needsToFall = false;
+        if(inAir) { // if stopped by block, then adjust and land            
+            if(dy > 0) {
+                var blockDownLeft = mapData[Math.ceil(npy/20)][Math.floor(npx/20)];
+                var blockDownRight = mapData[Math.ceil(npy/20)][Math.ceil(npx/20)];
+                if((blockDownLeft == '1' || blockDownLeft == '2') && npy + 20 > Math.ceil(npy/20)*20) {
+                    nnpy = Math.ceil(npy/20)*20 - 20;
+                    yCollision = true;
+                    mapReferences[Math.ceil(npy/20)][Math.floor(npx/20)].show();
+                    potentialLand = true;
+                }
+                if((blockDownRight == '1' || blockDownRight == '2') && npy + 20 > Math.ceil(npy/20)*20) {
+                    nnpy = Math.ceil(npy/20)*20 - 20;
+                    yCollision = true;
+                    mapReferences[Math.ceil(npy/20)][Math.ceil(npx/20)].show();
+                    potentialLand = true;
+                }
+            }
+            else if(dy < 0) {
+                var blockUpLeft = mapData[Math.floor(npy/20)][Math.floor(npx/20)];
+                var blockUpRight = mapData[Math.floor(npy/20)][Math.ceil(npx/20)];
+                if((blockUpLeft == '1' || blockUpLeft == '2') && npy < Math.floor(npy/20)) {
+                    nnpy = Math.floor(npy/20 + 1)*20;
+                    yCollision = true;
+                    mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].show();
+                    potentialHitCeiling = true;
+                }
+                if((blockUpRight == '1' || blockUpRight == '2') && npy < Math.floor(npy/20)) {
+                    nnpy = Math.floor(npy/20 + 1)*20;
+                    yCollision = true;
+                    mapReferences[Math.floor(npy/20)][Math.ceil(npx/20)].show();
+                    potentialHitCeiling = true;
+                }
+            }
+        }
+        else { // if needs to fall, then fall, else show
+//            console.log('testing for fall' + Date.now() +", y = " + Math.ceil(npy/20) + ", xLeft = " + Math.floor(npx/20) + ", xRight = " + Math.ceil(npx/20));
+            var blockDownLeft = mapData[Math.ceil(npy/20) + 1][Math.floor(npx/20)];
+            var blockDownRight = mapData[Math.ceil(npy/20) + 1][Math.ceil(npx/20)];
+            if((blockDownLeft == '1' || blockDownLeft == '2') && npy + 20 > Math.ceil(npy/20)*20) {
+                nnpy = (Math.ceil(npy/20) + 1)*20 - 20;
+                yCollision = true;
+                mapReferences[Math.ceil(npy/20) + 1][Math.floor(npx/20)].show();
+            }
+            if((blockDownRight == '1' || blockDownRight == '2') && npy + 20 > Math.ceil(npy/20)*20) {
+                nnpy = (Math.ceil(npy/20) + 1)*20 - 20;
+                yCollision = true;
+                mapReferences[Math.ceil(npy/20) + 1][Math.ceil(npx/20)].show();
+            }
+            if(!yCollision) {
+                needsToFall = true;
+            }
+        }
+        
+        if(xCollision && yCollision) {
+            // this is where it gets complicated
+            // we need to use one of nnpx and nnpy and one of npx and npy (one adjusted, one non-adjusted)... or both if corner
+//            console.log('both x and y collisions');
+            console.log("inAir = " + inAir + "\npotentialLand = " + potentialLand + "\npotentialHitCeling = " + potentialHitCeiling + "\nneedsToFall = " + needsToFall);
+        }
+        else {
+            var date = Date.now();
+            if(xCollision) {
+            //    console.log("xCollision, " + date);
+            }
+            if(yCollision) {
+            //    console.log("yCollision, " + date);
+            }
+            if(!yCollision) {
+                nnpy = npy;
+            }
+            if(!xCollision) {
+                nnpx = npx;
+            }
+//            if(!yCollision) {
+                px = nnpx - 3;
+                penguin.style.left = px + 'px';
+//                console.log('no y collision. changing x');
+//            }
+//            if(!xCollision) {
+            if(needsToFall) {
+                fall();
+            }
+            else if(potentialLand) {
+                land();
+            }
+            else if(potentialHitCeiling) {
+                hitCeiling();
+            }
+            py = nnpy;
+            penguin.style.top = py + 'px';
+//                console.log('no x collision. changing y');
+//            }
+        }
+        
+        if(penguin.style.top > container.style.height) {
+            alert('We\'ve encountered a bit of a problem. Please refresh the page to restart the game.');
+            pause();
+        }
     }
 }
 
 var pause = function() {
     paused = true;
+    pauseStartTime = Date.now();
 }
 
 var unpause = function() {
     paused = false;
     last = Date.now();
+    jumpStartTime += pauseStartTime;
+}
+
+var jump = function() {
+    if(jumpCount < 2) {
+        jumpStartTime = Date.now();
+        jumpCount++;
+        inAir = true;
+    }
+}
+
+var land = function() {
+    jumpCount = 0;
+    inAir = false;
+}
+
+var fall = function() {
+    console.log('starting fall');
+    inAir = true;
+    jumpCount++;
+    // y = 1/2 * a * t^2 + v0 * t + y0
+    // dy/dt  = a * t + v0
+    // dy/dt = 0 = a * t + v0
+    // t = -v0 / a
+    // jumpStartTime = now - t;
+    jumpStartTime = Date.now() + 1000 * v0 / a;
+}
+
+var hitCeiling = function() {
+    fall();
+    jumpCount--;
+    console.log('but not actually a fall');
 }
 
 var removeAllButtons = function() {
