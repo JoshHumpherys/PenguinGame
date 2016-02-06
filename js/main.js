@@ -1,5 +1,4 @@
 var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, up, down;
-//var alternateMenuTextDiv;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -29,14 +28,6 @@ var initMenu = function() {
     alternateMenuDiv.style.top = '200px';
     alternateMenuDiv.style.width = (800 - 300 - 50) + "px";
     alternateMenuDiv.style.height = '100px';
-    //alternateMenuDiv.style.backgroundColor = '#f0f';
-    //alternateMenuTextDiv = document.createElement('div');
-    //alternateMenuTextDiv.style.padding = '10px';
-    //alternateMenuTextDiv.innerHTML = 'hello world';
-    //alternateMenuDiv.innerHTML = alternateMenuTextDiv.outerHTML;
-    //container.appendChild(alternateMenuDiv);
-    
-    //alternateMenuDiv.innerHTML = 'hello world';
     container.appendChild(alternateMenuDiv);
 }
 
@@ -229,24 +220,6 @@ var loop = function() {
 
 var update = function(delta) {
     if(!menu && !introScreen) {
-        /*
-        // store updated x and y
-        
-        // check if new coordinates cause x collision
-        // check if new coordinates cause y collision
-        
-        // if no collisions, set x and y to updated
-        // else if only x collision, adjust x, set y to updated
-        // else if only y collision, adjust y, set x to updated
-        // else if both x and y collisions
-            // if x collision with (old x, old y) AND (old x, new y)
-                // adjust y, set x to updated
-            // else if y collision with (old x, old y) AND (new x, old y)
-                // adjust x, set y to update
-            // else if BOTH above are true, adjust both (corner)
-            // else if NEITHER above are true, adjust whichever hit first, set the other to updated
-        */
-    
         // store updated x and y
         var npx = px;
         var npy = py;
@@ -279,11 +252,6 @@ var update = function(delta) {
         var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
         var blockDownRight = blockDownLeft && blockTopRight;
         
-//        console.log("1 tl = " + blockTopLeft);
-//        console.log("1 dl = " + blockDownLeft);
-//        console.log("1 tr = " + blockTopRight);
-//        console.log("1 dr = " + blockDownRight);
-        
         if(blockTopLeft) {
             blockTopLeft = checkCollision(npx, npy, pw, 0, 0);
         }
@@ -296,59 +264,44 @@ var update = function(delta) {
         if(blockDownRight) {
             blockDownRight = checkCollision(npx, npy, pw, 1, 1);
         }
-        
-//        console.log("2 tl = " + blockTopLeft);
-//        console.log("2 dl = " + blockDownLeft);
-//        console.log("2 tr = " + blockTopRight);
-//        console.log("2 dr = " + blockDownRight);
 
         if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
-//            console.log('case 1');
             px = npx;
             py = npy;
         }
         else if(blockDownLeft && blockDownRight && !blockTopLeft && !blockTopRight) {
-//            console.log('case 2');
             px = npx;
             shiftYUp(npy);
         }
         else if(blockTopLeft && blockTopRight && !blockDownLeft && !blockDownRight) {
-//            console.log('case 3');
             px = npx;
             shiftYDown(npy);
         }
         else if(blockTopLeft && blockDownLeft && !blockTopRight && !blockDownRight) {
-//            console.log('case 4');
             shiftXRight(npx);
             py = npy;
         }
         else if(blockTopRight && blockDownRight && !blockTopLeft && !blockDownLeft) {
-//            console.log('case 5');
             shiftXLeft(npx);
             py = npy;
         }
         else if(blockDownLeft && blockDownRight && blockTopLeft && !blockTopRight) {
-//            console.log('case 6');
             shiftXRight(npx);
             shiftYUp(npy);
         }
         else if(blockDownLeft && blockDownRight && blockTopRight && !blockTopLeft) {
-//            console.log('case 7');
             shiftXLeft(npx);
             shiftYUp(npy);
         }
         else if(blockDownLeft && blockTopLeft && blockTopRight && !blockDownRight) {
-//            console.log('case 8');
             shiftXRight(npx);
             shiftYDown(npy);
         }
         else if(blockDownRight && blockTopLeft && blockTopRight && !blockDownLeft) {
-//            console.log('case 9');
             shiftXLeft(npx);
             shiftYDown(npy);
         }
         else if(blockDownRight && blockTopLeft) {
-//            console.log('case 14');
             if(dy > 0) {
                 shiftXRight(npx);
                 shiftYUp(npy);
@@ -359,7 +312,6 @@ var update = function(delta) {
             }
         }
         else if(blockDownLeft && blockTopRight) {
-//            console.log('case 15');
             if(dy > 0) {
                 shiftXLeft(npx);
                 shiftYUp(npy);
@@ -374,168 +326,57 @@ var update = function(delta) {
             var yCollisionBefore = checkYCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
             if(blockDownLeft) {
                 if(xCollisionBefore && !yCollisionBefore) {
-//                    console.log('case 10a');
                     px = npx;
                     shiftYUp(npy);
                 }
                 else if(yCollisionBefore && !xCollisionBefore) {
-//                    console.log('case 10b');
                     shiftXRight(npx);
                     py = npy;
                 }
                 else {
-//                    console.log('case 10c');
                     adjustAdvanced(npx, npy, dy);
                 }
             }
             else if(blockDownRight) {
                 if(xCollisionBefore && !yCollisionBefore) {
-//                    console.log('case 11a');
                     px = npx;
                     shiftYUp(npy);
                 }
                 else if(yCollisionBefore && !xCollisionBefore) {
-//                    console.log('case 11b');
                     shiftXLeft(npx);
                     py = npy;
                 }
                 else {
-//                    console.log('case 11c');
                     adjustAdvanced(npx, npy, dy);
                 }
             }
             else if(blockTopLeft) {
                 if(xCollisionBefore && !yCollisionBefore) {
-//                    console.log('case 12a');
                     px = npx;
                     shiftYDown(npy);
                 }
                 else if(yCollisionBefore && !xCollisionBefore) {
-//                    console.log('case 12b');
                     shiftXRight(npx);
                     py = npy;
                 }
                 else {
-//                    console.log('case 12c');
                     adjustAdvanced(npx, npy, dy);
                 }
             }
             else if(blockTopRight) {
                 if(xCollisionBefore && !yCollisionBefore) {
-//                    console.log('case 13a');
                     px = npx;
                     shiftYDown(npy);
                 }
                 else if(yCollisionBefore && !xCollisionBefore) {
-//                    console.log('case 13b');
                     shiftXLeft(npx);
                     py = npy;
                 }
                 else {
-//                    console.log('case 13c');
                     adjustAdvanced(npx, npy, dy);
                 }
             }
         }
-        
-        /*
-        //var newXCollisionTop, newXCollisionDown, oldXCollisionTop, oldXCollisionDown, newYCollisionLeft, newYCollisionRight, oldYCollisionLeft, oldYCollisionRight;
-        var newXCollisionTop = checkXCollision(npx, npy, pw, right ? 1 : 0, 0);
-        var newXCollisionDown = inAir ? checkXCollision(npx, npy, pw, right ? 1 : 0, 1) : false;
-        var oldXCollisionTop = (left == right) ? newXCollisionTop : checkXCollision(px, npy, pw, right ? 1 : 0, 0);
-        var oldXCollisionDown = inAir ? ((left == right) ? newXCollisionDown : checkXCollision(px, npy, pw, right ? 1 : 0, 1)) : false;
-        var newYCollisionLeft = checkYCollision(npx, npy, pw, 0, (!inAir || dy > 0) ? 1 : 0);
-        var newYCollisionRight = (px % 20 == 0) ? false : checkYCollision(npx, npy, pw, 1, (!inAir || dy > 0) ? 1 : 0);
-        var oldYCollisionLeft = !inAir ? newYCollisionLeft : checkYCollision(npx, py, pw, 0, (!inAir || dy > 0) ? 1 : 0);
-        var oldYCollisionRight = (px % 20 == 0) ? false : (!inAir ? newYCollisionRight : checkYCollision(npx, py, pw, 1, (!inAir || dy > 0) ? 1 : 0));
-        
-        var blockUnderneathLeft = (!(!inAir || dy > 0)) ? newYCollisionLeft : checkYCollision(npx, npy, pw, 0, 1);
-        var blockUnderneathRight = (px % 20 == 0) ? false : ((!(!inAir || dy > 0)) ? newYCollisionRight : checkYCollision(npx, npy, pw, 1, 1));
-        
-//        if(newXCollisionTop) {
-//            mapReferences[Math.floor(py/20)][Math.floor(px/20) + right ? 1 : 0];
-//        }
-//        if(newXCollisionDown) {
-//            mapReferences[Math.floor(py/20)+1][Math.floor(px/20) + right ? 1 : 0];
-//        }
-//        if(newYCollisionLeft) {
-//            mapReferences[Mmath.floor(py/20) + !inAir
-//        }
-//        if(newYCollisionRight) {
-//        
-//        }        
-
-        
-        //console.log('');
-        //console.log("newXCollisionTop = " + newXCollisionTop);
-        //console.log("newXCollisionDown = " + newXCollisionDown);
-        //console.log("oldXCollisionTop = " + oldXCollisionTop);
-        //console.log("oldXCollisionDown = " + oldXCollisionDown);
-        //console.log("newYColilsionLeft = " + newYCollisionLeft);
-        //console.log("newYCollisionRight = " + newYCollisionRight);
-        //console.log("oldYCollisionLeft = " + oldYCollisionLeft);
-        //console.log("oldYCollisionRight = " + oldYCollisionRight);
-        
-        if(!newXCollisionTop && !newXCollisionDown && !newYCollisionLeft && !newYCollisionRight) {
-            px = npx;
-            //if(!blockUnderneathLeft && !blockUnderneathRight) {
-            //    if(!inAir) {
-            //        fall();
-            //    }
-            //}
-//            else {
-//                mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].block.style.backgroundColor = '#f0f';
-//            }
-            py = npy;
-        }
-        else if(!inAir && left != right) {
-            if(newXCollisionTop && !oldXCollisionTop) {
-                if(left) {
-                    px = (Math.ceil(npx / 20)) * 20;
-                }
-                else {
-                    px = Math.floor((npx + pw) / 20) * 20 - pw;
-                }
-            }
-            else {
-                px = npx;
-            }
-        }
-        else if(inAir && left == right) {
-            if((newYCollisionLeft || newYCollisionRight) && (!oldYCollisionLeft || !oldYCollisionRight)) {
-                if(dy < 0) {
-                    py = Math.ceil(npy / 20) * 20;
-                    hitCeiling();
-                }
-                else {
-                    py = Math.floor((npy / 20)) * 20;
-                    land();
-                }
-            }
-            else {
-                py = npy;
-            }
-        }
-        
-        var newXCollision;
-        var newYCollision;
-        // check if new coordinates cause x or y collisions
-        //var xCollision = (left != right) ? checkCollision(npx, npy, nw, right ? 1 : 0, 0) || checkCollision(npx, npy, nw, right ? 1 : 0, 1) : false;
-        //var yCollision = (inAir) ? checkCollision(npx, npy, nw, 0, dy > 0 ? 1 : 0) || checkCollision(npx, npy, nw, 1, dy > 0 ? 1 : 0) : false;
-        
-//        console.log(xCollision + ", " + yCollision);
-        
-        // if no collisions, set x and y to updated
-        // else if only x collision, adjust x, set y to updated
-        // else if only y collision, adjust y, set x to updated
-        // else if both x and y collisions
-            // if x collision with (old x, old y) AND (old x, new y)
-                // adjust y, set x to updated
-            // else if y collision with (old x, old y) AND (new x, old y)
-                // adjust x, set y to update
-            // else if BOTH above are true, adjust both (corner)
-            // else if NEITHER above are true, adjust whichever hit first, set the other to updated
-        */
         
         movePenguinDiv();
     }
