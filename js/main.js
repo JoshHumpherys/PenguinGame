@@ -1,5 +1,7 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, up, down;
 //var alternateMenuTextDiv;
+var step = false; // TODO remove this
+var stepping = false; // TODO remove this also
 
 var initMenu = function() {
     container = initContainer();
@@ -76,6 +78,7 @@ var nextIntroScreen = function() {
 var initGame = function() {
     introScreen = false;
     right = left = false;
+    up = down = false;
 
     // init main container
     document.getElementById('container').remove();
@@ -86,7 +89,9 @@ var initGame = function() {
     // init penguin and add to container
     penguin = document.createElement('div');
     penguin.style.position = 'absolute';
-    px = 100;
+    pw = 14;
+    ps = (20 - pw) / 2;
+    px = 100 + ps;
     py = 200;
     dx = 180;
     a = 12;
@@ -94,8 +99,7 @@ var initGame = function() {
     y0 = py;
     inAir = false;
     jumpCount = 0;
-    //jump(); // TODO don't jump on start
-    penguin.style.left = px + 'px';
+    penguin.style.left = (px - ps) + 'px';
     penguin.style.top = py + 'px';
     penguin.style.width = '20px';
     penguin.style.height = '20px';
@@ -144,9 +148,9 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [2,0,0,0,2,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-                   [1,0,0,0,0,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+                   [1,1,1,1,1,1,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -167,7 +171,7 @@ var initBlocks = function(map) {
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
         break;
     default:
-        console.log('This is not good');i
+        console.log('This is not good');
         return;
     }
     mapReferences = new Array(30);
@@ -215,16 +219,37 @@ var loop = function() {
     if(!paused) {
         var now = Date.now();
         update(now - last);
+//        if(step || stepping) {
+//            step = false;
+//            update(17); // TODO not this
+//        }
         last = now;
     }
 }
 
 var update = function(delta) {
     if(!menu && !introScreen) {
-        var npx = px + 3;
-        var nw = 20 - 3 * 2;
+        /*
+        // store updated x and y
+        
+        // check if new coordinates cause x collision
+        // check if new coordinates cause y collision
+        
+        // if no collisions, set x and y to updated
+        // else if only x collision, adjust x, set y to updated
+        // else if only y collision, adjust y, set x to updated
+        // else if both x and y collisions
+            // if x collision with (old x, old y) AND (old x, new y)
+                // adjust y, set x to updated
+            // else if y collision with (old x, old y) AND (new x, old y)
+                // adjust x, set y to update
+            // else if BOTH above are true, adjust both (corner)
+            // else if NEITHER above are true, adjust whichever hit first, set the other to updated
+        */
+    
+        // store updated x and y
+        var npx = px;
         var npy = py;
-        var nnpy, nnpx;
         
         // calculate new x
         if(right && !left) {
@@ -234,151 +259,374 @@ var update = function(delta) {
             npx -= dx * delta / 1000;
         }
         
+        if(up && !down) {
+            npy -= dx * delta / 1000;
+        }
+        else if(down && !up) {
+            npy += dx * delta / 1000;
+        }
+        
         // calculate new y, dy
-        var dy = a * (Date.now() - jumpStartTime) / 1000 + v0;
+        msSinceJump += delta;
+        // dy/dt = a * t + v0
+        var dy = a * msSinceJump / 1000 + v0;
         if(inAir) {
-            // dy/dt = a * t + v0
             npy += dy;
         }
         
-        var xCollision = false;
-        if(right != left) {
-            if(right) {
-                var blockRightTop = mapData[Math.floor(npy/20)][Math.ceil(npx/20)];
-                var blockRightBottom = mapData[Math.ceil(npy/20)][Math.ceil(npx/20)];
-                if((blockRightTop == '1' || blockRightTop == '2') && npx + nw > Math.ceil(npx/20)*20) {
-                    nnpx = Math.ceil(npx/20)*20 - nw;
-                    xCollision = true;
-                    mapReferences[Math.floor(npy/20)][Math.ceil(npx/20)].show();
-                }
-                if((blockRightBottom == '1' || blockRightBottom == '2') && npx + nw > Math.ceil(npx/20)*20) {
-                    nnpx = Math.ceil(npx/20)*20 - nw;
-                    xCollision = true;
-                    mapReferences[Math.ceil(npy/20)][Math.ceil(npx/20)].show();
-                }
-            }
-            else if(left) {
-                var blockLeftTop = mapData[Math.floor(npy/20)][Math.floor(npx/20)];
-                var blockLeftBottom = mapData[Math.ceil(npy/20)][Math.floor(npx/20)];
-                if((blockLeftTop == '1' || blockLeftTop == '2') && npx < (Math.floor(npx/20) + 1)*20) {
-                    nnpx = (Math.floor(npx/20) + 1)*20;
-                    xCollision = true;
-                    mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].show();
-                }
-                if((blockLeftBottom == '1' || blockLeftBottom == '2') && npx < (Math.floor(npx/20) + 1)*20) {
-                    nnpx = (Math.floor(npx/20) + 1)*20;
-                    xCollision = true;
-                    mapReferences[Math.ceil(npy/20)][Math.floor(npx/20)].show();
-                }
-            }
+        var blockTopLeft = true;
+        var blockDownLeft = npy % 20 != 0;
+        var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
+        var blockDownRight = blockDownLeft && blockTopRight;
+        
+//        console.log("1 tl = " + blockTopLeft);
+//        console.log("1 dl = " + blockDownLeft);
+//        console.log("1 tr = " + blockTopRight);
+//        console.log("1 dr = " + blockDownRight);
+        
+        if(blockTopLeft) {
+            blockTopLeft = checkCollision(npx, npy, pw, 0, 0);
+        }
+        if(blockDownLeft) {
+            blockDownLeft = checkCollision(npx, npy, pw, 0, 1);
+        }
+        if(blockTopRight) {
+            blockTopRight = checkCollision(npx, npy, pw, 1, 0);
+        }
+        if(blockDownRight) {
+            blockDownRight = checkCollision(npx, npy, pw, 1, 1);
         }
         
-        
-        var yCollision = false;
-        var potentialLand = false;
-        var potentialHitCeiling = false;
-        var needsToFall = false;
-        if(inAir) { // if stopped by block, then adjust and land            
+//        console.log("2 tl = " + blockTopLeft);
+//        console.log("2 dl = " + blockDownLeft);
+//        console.log("2 tr = " + blockTopRight);
+//        console.log("2 dr = " + blockDownRight);
+
+        if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
+//            console.log('case 1');
+            px = npx;
+            py = npy;
+        }
+        else if(blockDownLeft && blockDownRight && !blockTopLeft && !blockTopRight) {
+//            console.log('case 2');
+            px = npx;
+            shiftYUp(npy);
+        }
+        else if(blockTopLeft && blockTopRight && !blockDownLeft && !blockDownRight) {
+//            console.log('case 3');
+            px = npx;
+            shiftYDown(npy);
+        }
+        else if(blockTopLeft && blockDownLeft && !blockTopRight && !blockDownRight) {
+//            console.log('case 4');
+            shiftXRight(npx);
+            py = npy;
+        }
+        else if(blockTopRight && blockDownRight && !blockTopLeft && !blockDownLeft) {
+//            console.log('case 5');
+            shiftXLeft(npx);
+            py = npy;
+        }
+        else if(blockDownLeft && blockDownRight && blockTopLeft && !blockTopRight) {
+//            console.log('case 6');
+            shiftXRight(npx);
+            shiftYUp(npy);
+        }
+        else if(blockDownLeft && blockDownRight && blockTopRight && !blockTopLeft) {
+//            console.log('case 7');
+            shiftXLeft(npx);
+            shiftYUp(npy);
+        }
+        else if(blockDownLeft && blockTopLeft && blockTopRight && !blockDownRight) {
+//            console.log('case 8');
+            shiftXRight(npx);
+            shiftYDown(npy);
+        }
+        else if(blockDownRight && blockTopLeft && blockTopRight && !blockDownLeft) {
+//            console.log('case 9');
+            shiftXLeft(npx);
+            shiftYDown(npy);
+        }
+        else if(blockDownRight && blockTopLeft) {
+//            console.log('case 14');
             if(dy > 0) {
-                var blockDownLeft = mapData[Math.ceil(npy/20)][Math.floor(npx/20)];
-                var blockDownRight = mapData[Math.ceil(npy/20)][Math.ceil(npx/20)];
-                if((blockDownLeft == '1' || blockDownLeft == '2') && npy + 20 > Math.ceil(npy/20)*20) {
-                    nnpy = Math.ceil(npy/20)*20 - 20;
-                    yCollision = true;
-                    mapReferences[Math.ceil(npy/20)][Math.floor(npx/20)].show();
-                    potentialLand = true;
-                }
-                if((blockDownRight == '1' || blockDownRight == '2') && npy + 20 > Math.ceil(npy/20)*20) {
-                    nnpy = Math.ceil(npy/20)*20 - 20;
-                    yCollision = true;
-                    mapReferences[Math.ceil(npy/20)][Math.ceil(npx/20)].show();
-                    potentialLand = true;
-                }
+                shiftXRight(npx);
+                shiftYUp(npy);
             }
-            else if(dy < 0) {
-                var blockUpLeft = mapData[Math.floor(npy/20)][Math.floor(npx/20)];
-                var blockUpRight = mapData[Math.floor(npy/20)][Math.ceil(npx/20)];
-                if((blockUpLeft == '1' || blockUpLeft == '2') && npy < (Math.floor(npy/20) + 1)*20) {
-                    console.log('asdf');
-                    nnpy = Math.floor(npy/20 + 1)*20;
-                    yCollision = true;
-                    mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].show();
-                    potentialHitCeiling = true;
-                }
-                if((blockUpRight == '1' || blockUpRight == '2') && npy < (Math.floor(npy/20) + 1)*20) {
-                    console.log('asdf2');
-                    nnpy = Math.floor(npy/20 + 1)*20;
-                    yCollision = true;
-                    mapReferences[Math.floor(npy/20)][Math.ceil(npx/20)].show();
-                    potentialHitCeiling = true;
-                }
+            else {
+                shiftXLeft(npx);
+                shiftYDown(npy);
             }
         }
-        else { // if needs to fall, then fall, else show
-//            console.log('testing for fall' + Date.now() +", y = " + Math.ceil(npy/20) + ", xLeft = " + Math.floor(npx/20) + ", xRight = " + Math.ceil(npx/20));
-            var blockDownLeft = mapData[Math.ceil(npy/20) + 1][Math.floor(npx/20)];
-            var blockDownRight = mapData[Math.ceil(npy/20) + 1][Math.ceil(npx/20)];
-            if((blockDownLeft == '1' || blockDownLeft == '2') && npy + 20 > Math.ceil(npy/20)*20) {
-                nnpy = (Math.ceil(npy/20) + 1)*20 - 20;
-                yCollision = true;
-                mapReferences[Math.ceil(npy/20) + 1][Math.floor(npx/20)].show();
+        else if(blockDownLeft && blockTopRight) {
+//            console.log('case 15');
+            if(dy > 0) {
+                shiftXLeft(npx);
+                shiftYUp(npy);
             }
-            if((blockDownRight == '1' || blockDownRight == '2') && npy + 20 > Math.ceil(npy/20)*20) {
-                nnpy = (Math.ceil(npy/20) + 1)*20 - 20;
-                yCollision = true;
-                mapReferences[Math.ceil(npy/20) + 1][Math.ceil(npx/20)].show();
+            else {
+                shiftXRight(npx);
+                shiftYDown(npy);
             }
-            if(!yCollision) {
-                needsToFall = true;
-            }
-        }
-        
-        if(xCollision && yCollision) {
-            // this is where it gets complicated
-            // we need to use one of nnpx and nnpy and one of npx and npy (one adjusted, one non-adjusted)... or both if corner
-//            console.log('both x and y collisions');
-            console.log("inAir = " + inAir + "\npotentialLand = " + potentialLand + "\npotentialHitCeling = " + potentialHitCeiling + "\nneedsToFall = " + needsToFall);
         }
         else {
-            var date = Date.now();
-            if(xCollision) {
-            //    console.log("xCollision, " + date);
+            var xCollisionBefore = checkXCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+            var yCollisionBefore = checkYCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+            if(blockDownLeft) {
+                if(xCollisionBefore && !yCollisionBefore) {
+//                    console.log('case 10a');
+                    px = npx;
+                    shiftYUp(npy);
+                }
+                else if(yCollisionBefore && !xCollisionBefore) {
+//                    console.log('case 10b');
+                    shiftXRight(npx);
+                    py = npy;
+                }
+                else {
+//                    console.log('case 10c');
+                    adjustAdvanced(npx, npy, dy);
+                }
             }
-            if(yCollision) {
-            //    console.log("yCollision, " + date);
+            else if(blockDownRight) {
+                if(xCollisionBefore && !yCollisionBefore) {
+//                    console.log('case 11a');
+                    px = npx;
+                    shiftYUp(npy);
+                }
+                else if(yCollisionBefore && !xCollisionBefore) {
+//                    console.log('case 11b');
+                    shiftXLeft(npx);
+                    py = npy;
+                }
+                else {
+//                    console.log('case 11c');
+                    adjustAdvanced(npx, npy, dy);
+                }
             }
-            if(!yCollision) {
-                nnpy = npy;
+            else if(blockTopLeft) {
+                if(xCollisionBefore && !yCollisionBefore) {
+//                    console.log('case 12a');
+                    px = npx;
+                    shiftYDown(npy);
+                }
+                else if(yCollisionBefore && !xCollisionBefore) {
+//                    console.log('case 12b');
+                    shiftXRight(npx);
+                    py = npy;
+                }
+                else {
+//                    console.log('case 12c');
+                    adjustAdvanced(npx, npy, dy);
+                }
             }
-            if(!xCollision) {
-                nnpx = npx;
+            else if(blockTopRight) {
+                if(xCollisionBefore && !yCollisionBefore) {
+//                    console.log('case 13a');
+                    px = npx;
+                    shiftYDown(npy);
+                }
+                else if(yCollisionBefore && !xCollisionBefore) {
+//                    console.log('case 13b');
+                    shiftXLeft(npx);
+                    py = npy;
+                }
+                else {
+//                    console.log('case 13c');
+                    adjustAdvanced(npx, npy, dy);
+                }
             }
-//            if(!yCollision) {
-                px = nnpx - 3;
-                penguin.style.left = px + 'px';
-//                console.log('no y collision. changing x');
-//            }
-//            if(!xCollision) {
-            if(needsToFall) {
-                fall();
-            }
-            else if(potentialLand) {
-                land();
-            }
-            else if(potentialHitCeiling) {
-                hitCeiling();
-            }
-            py = nnpy;
-            penguin.style.top = py + 'px';
-//                console.log('no x collision. changing y');
-//            }
         }
         
-        if(py > container.style.height) {
-            alert('We\'ve encountered a bit of a problem. Please refresh the page to restart the game.');
-            pause();
+        /*
+        //var newXCollisionTop, newXCollisionDown, oldXCollisionTop, oldXCollisionDown, newYCollisionLeft, newYCollisionRight, oldYCollisionLeft, oldYCollisionRight;
+        var newXCollisionTop = checkXCollision(npx, npy, pw, right ? 1 : 0, 0);
+        var newXCollisionDown = inAir ? checkXCollision(npx, npy, pw, right ? 1 : 0, 1) : false;
+        var oldXCollisionTop = (left == right) ? newXCollisionTop : checkXCollision(px, npy, pw, right ? 1 : 0, 0);
+        var oldXCollisionDown = inAir ? ((left == right) ? newXCollisionDown : checkXCollision(px, npy, pw, right ? 1 : 0, 1)) : false;
+        var newYCollisionLeft = checkYCollision(npx, npy, pw, 0, (!inAir || dy > 0) ? 1 : 0);
+        var newYCollisionRight = (px % 20 == 0) ? false : checkYCollision(npx, npy, pw, 1, (!inAir || dy > 0) ? 1 : 0);
+        var oldYCollisionLeft = !inAir ? newYCollisionLeft : checkYCollision(npx, py, pw, 0, (!inAir || dy > 0) ? 1 : 0);
+        var oldYCollisionRight = (px % 20 == 0) ? false : (!inAir ? newYCollisionRight : checkYCollision(npx, py, pw, 1, (!inAir || dy > 0) ? 1 : 0));
+        
+        var blockUnderneathLeft = (!(!inAir || dy > 0)) ? newYCollisionLeft : checkYCollision(npx, npy, pw, 0, 1);
+        var blockUnderneathRight = (px % 20 == 0) ? false : ((!(!inAir || dy > 0)) ? newYCollisionRight : checkYCollision(npx, npy, pw, 1, 1));
+        
+//        if(newXCollisionTop) {
+//            mapReferences[Math.floor(py/20)][Math.floor(px/20) + right ? 1 : 0];
+//        }
+//        if(newXCollisionDown) {
+//            mapReferences[Math.floor(py/20)+1][Math.floor(px/20) + right ? 1 : 0];
+//        }
+//        if(newYCollisionLeft) {
+//            mapReferences[Mmath.floor(py/20) + !inAir
+//        }
+//        if(newYCollisionRight) {
+//        
+//        }        
+
+        
+        //console.log('');
+        //console.log("newXCollisionTop = " + newXCollisionTop);
+        //console.log("newXCollisionDown = " + newXCollisionDown);
+        //console.log("oldXCollisionTop = " + oldXCollisionTop);
+        //console.log("oldXCollisionDown = " + oldXCollisionDown);
+        //console.log("newYColilsionLeft = " + newYCollisionLeft);
+        //console.log("newYCollisionRight = " + newYCollisionRight);
+        //console.log("oldYCollisionLeft = " + oldYCollisionLeft);
+        //console.log("oldYCollisionRight = " + oldYCollisionRight);
+        
+        if(!newXCollisionTop && !newXCollisionDown && !newYCollisionLeft && !newYCollisionRight) {
+            px = npx;
+            //if(!blockUnderneathLeft && !blockUnderneathRight) {
+            //    if(!inAir) {
+            //        fall();
+            //    }
+            //}
+//            else {
+//                mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].block.style.backgroundColor = '#f0f';
+//            }
+            py = npy;
         }
+        else if(!inAir && left != right) {
+            if(newXCollisionTop && !oldXCollisionTop) {
+                if(left) {
+                    px = (Math.ceil(npx / 20)) * 20;
+                }
+                else {
+                    px = Math.floor((npx + pw) / 20) * 20 - pw;
+                }
+            }
+            else {
+                px = npx;
+            }
+        }
+        else if(inAir && left == right) {
+            if((newYCollisionLeft || newYCollisionRight) && (!oldYCollisionLeft || !oldYCollisionRight)) {
+                if(dy < 0) {
+                    py = Math.ceil(npy / 20) * 20;
+                    hitCeiling();
+                }
+                else {
+                    py = Math.floor((npy / 20)) * 20;
+                    land();
+                }
+            }
+            else {
+                py = npy;
+            }
+        }
+        
+        var newXCollision;
+        var newYCollision;
+        // check if new coordinates cause x or y collisions
+        //var xCollision = (left != right) ? checkCollision(npx, npy, nw, right ? 1 : 0, 0) || checkCollision(npx, npy, nw, right ? 1 : 0, 1) : false;
+        //var yCollision = (inAir) ? checkCollision(npx, npy, nw, 0, dy > 0 ? 1 : 0) || checkCollision(npx, npy, nw, 1, dy > 0 ? 1 : 0) : false;
+        
+//        console.log(xCollision + ", " + yCollision);
+        
+        // if no collisions, set x and y to updated
+        // else if only x collision, adjust x, set y to updated
+        // else if only y collision, adjust y, set x to updated
+        // else if both x and y collisions
+            // if x collision with (old x, old y) AND (old x, new y)
+                // adjust y, set x to updated
+            // else if y collision with (old x, old y) AND (new x, old y)
+                // adjust x, set y to update
+            // else if BOTH above are true, adjust both (corner)
+            // else if NEITHER above are true, adjust whichever hit first, set the other to updated
+        */
+        
+        movePenguinDiv();
     }
+}
+
+// h = 0 for right blocks, h = 1 for left blocks
+// v = 0 for top blocks, v = 1 for down blocks
+var checkCollision = function(x, y, w, h, v) {
+    // 00 10
+    // 01 11
+    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
+    if(blockType == 0) {
+        return false;
+    }
+    var bx = 20 * (Math.floor(x/20) + h);
+    var by = 20 * (Math.floor(y/20) + v);
+    return x < bx + 20 && x + w > bx && y < by + 20 && y + 20 > by;
+}
+
+// h = 0 for right blocks, h = 1 for left blocks
+// v = 0 for top blocks, v = 1 for down blocks
+var checkXCollision = function(x, y, w, h, v) {
+    // 00 10
+    // 01 11
+    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
+    if(blockType == 0) {
+        return false;
+    }
+    var bx = 20 * (Math.floor(x/20) + h);
+    return x < bx + 20 && x + w > bx;
+}
+
+// h = 0 for right blocks, h = 1 for left blocks
+// v = 0 for top blocks, v = 1 for down blocks
+var checkYCollision = function(x, y, w, h, v) {
+    // 00 10
+    // 01 11
+    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
+    if(blockType == 0) {
+        return false;
+    }
+    var by = 20 * (Math.floor(y/20) + v);
+    return y < by + 20 && y + 20 > by;
+}
+
+// h = 0 for right blocks, h = 1 for left blocks
+// v = 0 for top blocks, v = 1 for down blocks
+var checkXCollisionBefore = function(x, y, w, h, v) {
+    // 00 10
+    // 01 11
+    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
+    if(blockType == 0) {
+        return false;
+    }
+    var bx = 20 * (Math.floor(x/20) + h);
+    return px < bx + 20 && px + w > bx;
+}
+
+// h = 0 for right blocks, h = 1 for left blocks
+// v = 0 for top blocks, v = 1 for down blocks
+var checkYCollisionBefore = function(x, y, w, h, v) {
+    // 00 10
+    // 01 11
+    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
+    if(blockType == 0) {
+        return false;
+    }
+    var by = 20 * (Math.floor(y/20) + v);
+    return py < by + 20 && py + 20 > by;
+}
+
+var shiftXLeft = function(npx) {
+    px = 20 * Math.ceil(npx / 20) - pw;
+}
+
+var shiftXRight = function(npx) {
+    px = 20 * Math.ceil(npx / 20);
+}
+
+var shiftYUp = function(npy) {
+    py = 20 * Math.ceil(npy / 20 - 1);
+    land();
+}
+
+var shiftYDown = function(npy) {
+    py = 20 * Math.ceil(npy / 20);
+    hitCeiling();
+}
+
+var adjustAdvanced = function(npx, npy, dy) {
+    console.log('advanced');
 }
 
 var pause = function() {
@@ -389,12 +637,11 @@ var pause = function() {
 var unpause = function() {
     paused = false;
     last = Date.now();
-    jumpStartTime += pauseStartTime;
 }
 
 var jump = function() {
     if(jumpCount < 2) {
-        jumpStartTime = Date.now();
+        msSinceJump = 0;
         jumpCount++;
         inAir = true;
     }
@@ -406,21 +653,23 @@ var land = function() {
 }
 
 var fall = function() {
-    console.log('starting fall');
     inAir = true;
     jumpCount++;
     // y = 1/2 * a * t^2 + v0 * t + y0
     // dy/dt  = a * t + v0
     // dy/dt = 0 = a * t + v0
     // t = -v0 / a
-    // jumpStartTime = now - t;
-    jumpStartTime = Date.now() + 1000 * v0 / a;
+    msSinceJump = -1000 * v0 / a;
 }
 
 var hitCeiling = function() {
     fall();
     jumpCount--;
-    console.log('but not actually a fall');
+}
+
+var movePenguinDiv = function() {
+    penguin.style.left = px - ps + 'px';
+    penguin.style.top = py + 'px';
 }
 
 var removeAllButtons = function() {
@@ -613,7 +862,13 @@ window.onkeydown = function(e) {
     var key = e.keyCode ? e.keyCode : e.which;
     if(key == 32) {
         e.preventDefault();
-    }    
+    }
+    if(key == 83) { // TODO remove this
+        step = true;
+    }
+    if(key == 65) {
+        stepping = !stepping;
+    }
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
         if(menu) {
@@ -683,6 +938,12 @@ window.onkeydown = function(e) {
         else if(key == 32) {
             jump();
         }
+        else if(key == 38) {
+            up = true;
+        }
+        else if(key == 40) {
+            down = true;
+        }
     }
 }
 
@@ -694,6 +955,12 @@ window.onkeyup = function(e) {
         }
         else if(key == 39) {
             right = false;
+        }
+        else if(key == 38) {
+            up = false;
+        }
+        else if(key == 40) {
+            down = false;
         }
     }
 }
