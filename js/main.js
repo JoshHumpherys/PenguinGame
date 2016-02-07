@@ -334,7 +334,7 @@ var update = function(delta) {
                     py = npy;
                 }
                 else {
-                    adjustAdvanced(npx, npy, dy);
+                    adjustAdvanced(npx, npy, dy, 1, -1);
                 }
             }
             else if(blockDownRight) {
@@ -347,7 +347,7 @@ var update = function(delta) {
                     py = npy;
                 }
                 else {
-                    adjustAdvanced(npx, npy, dy);
+                    adjustAdvanced(npx, npy, dy, -1, -1);
                 }
             }
             else if(blockTopLeft) {
@@ -360,7 +360,7 @@ var update = function(delta) {
                     py = npy;
                 }
                 else {
-                    adjustAdvanced(npx, npy, dy);
+                    adjustAdvanced(npx, npy, dy, 1, 1);
                 }
             }
             else if(blockTopRight) {
@@ -373,13 +373,13 @@ var update = function(delta) {
                     py = npy;
                 }
                 else {
-                    adjustAdvanced(npx, npy, dy);
+                    adjustAdvanced(npx, npy, dy, -1, 1);
                 }
             }
         }
         
         // check if finish here BEFORE logic to show blocks
-        
+
         if(!inAir) {
             var blockUnderneathLeft = mapData[Math.floor(py/20) + 1][Math.floor(px/20)] != 0;
             if(Math.floor((px+pw)/20) == Math.floor(px/20)) {
@@ -537,8 +537,32 @@ var shiftYDown = function(npy) {
     hitCeiling();
 }
 
-var adjustAdvanced = function(npx, npy, dy) {
+// xDir == 1 for right, xDir == -1 for left
+// yDir == 1 for down, yDir == -1 for up
+var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
     console.log('advanced');
+    // v = dx/dt
+    // x = vt
+    // t = x / v
+    // approximation with constant velocity in y direction for small dt
+    if(Math.abs((px - npx) / dx) < Math.abs((py - npy) / dy)) {
+        py = npy;
+        if(xDir > 0) {
+            shiftXRight(npx);
+        }
+        else {
+            shiftXLeft(npx);
+        }
+    }
+    else {
+        px = npx;
+        if(yDir > 0) {
+            shiftYDown(npy);
+        }
+        else {
+            shiftYUp(npy);
+        }
+    }
 }
 
 var pause = function() {
