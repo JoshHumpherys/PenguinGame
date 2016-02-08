@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, up, down;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -68,8 +68,7 @@ var nextIntroScreen = function() {
 
 var initGame = function() {
     introScreen = false;
-    right = left = false;
-    up = down = false;
+    right = left = jumpKeyDown = false;
 
     // init main container
     document.getElementById('container').remove();
@@ -208,13 +207,13 @@ var initBlocks = function(map) {
 var loop = function() {
     setTimeout(loop, 17);
     if(!paused) {
-//        var now = Date.now();
-//        update(now - last);
-        if(step || stepping) {
-            step = false;
-            update(17); // TODO not this
-        }
-//        last = now;
+        var now = Date.now();
+        update(now - last);
+//        if(step || stepping) {
+//            step = false;
+//            update(17); // TODO not this
+//        }
+        last = now;
     }
 }
 
@@ -230,13 +229,6 @@ var update = function(delta) {
         }
         else if(left && !right) {
             npx -= dx * delta / 1000;
-        }
-        
-        if(up && !down) {
-            npy -= dx * delta / 1000;
-        }
-        else if(down && !up) {
-            npy += dx * delta / 1000;
         }
         
         // calculate new y, dy
@@ -381,7 +373,7 @@ var update = function(delta) {
         // check if finish here BEFORE logic to show blocks
 
         if(!inAir) {
-            var blockUnderneathLeft = mapData[Math.floor(py/20) + 1][Math.floor(px/20)] != 0;
+            var blockUnderneathLeft = collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20)));
             if(Math.floor((px+pw)/20) == Math.floor(px/20)) {
                 if(blockUnderneathLeft) {
                     mapReferences[Math.floor(npy/20) + 1][Math.floor(npx/20)].show();
@@ -391,7 +383,7 @@ var update = function(delta) {
                 }
             }
             else {
-                var blockUnderneathRight = mapData[Math.floor(py/20) + 1][Math.floor(px/20) + 1] != 0;
+                var blockUnderneathRight = collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20) + 1));
                 if(!blockUnderneathLeft && !blockUnderneathRight) {
                     fall();
                 }
@@ -405,11 +397,11 @@ var update = function(delta) {
                 }
             }
             
-            if(mapData[Math.floor(py/20) - 1][Math.floor(px/20)] != '0') {
+            if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20)))) {
                 mapReferences[Math.floor(py/20) - 1][Math.floor(px/20)].show();
             }
             if(Math.floor((px+pw)/20) > Math.floor(px/20)) {
-                if(mapData[Math.floor(py/20) - 1][Math.floor(px/20) + 1] != '0') {
+                if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20) + 1))) {
                     mapReferences[Math.floor(py/20) - 1][Math.floor(px/20) + 1].show();
                 }
             }
@@ -429,21 +421,21 @@ var update = function(delta) {
         }
         
         if(px % 20 == 0) {
-            if(mapData[Math.floor(py/20)][Math.floor(px/20) - 1] != '0') {
+            if(collision(getMapData(Math.floor(py/20), Math.floor(px/20) - 1))) {
                 mapReferences[Math.floor(py/20)][Math.floor(px/20) - 1].show();
             }
             if(inAir) {
-                if(mapData[Math.floor(py/20) + 1][Math.floor(px/20) - 1] != '0') {
+                if(collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20) - 1))) {
                     mapReferences[Math.floor(py/20) + 1][Math.floor(px/20) - 1].show();
                 }
             }
         }
         if((npx + pw) % 20 == 0) {
-            if(mapData[Math.floor(py/20)][Math.floor(px/20) + 1] != '0') {
+            if(collision(getMapData(Math.floor(py/20), Math.floor(px/20) + 1))) {
                 mapReferences[Math.floor(py/20)][Math.floor(px/20) + 1].show();
             }
             if(inAir) {
-                if(mapData[Math.floor(py/20) + 1][Math.floor(px/20) + 1] != '0') {
+                if(collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20) + 1))) {
                     mapReferences[Math.floor(py/20) + 1][Math.floor(px/20) + 1].show();
                 }
             }
@@ -458,8 +450,8 @@ var update = function(delta) {
 var checkCollision = function(x, y, w, h, v) {
     // 00 10
     // 01 11
-    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
-    if(blockType == 0) {
+    var blockType = getMapData(Math.floor(y/20) + v, Math.floor(x/20) + h);
+    if(!collision(blockType)) {
         return false;
     }
     var bx = 20 * (Math.floor(x/20) + h);
@@ -472,8 +464,8 @@ var checkCollision = function(x, y, w, h, v) {
 var checkXCollision = function(x, y, w, h, v) {
     // 00 10
     // 01 11
-    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
-    if(blockType == 0) {
+    var blockType = getMapData(Math.floor(y/20) + v, Math.floor(x/20) + h);
+    if(!collision(blockType)) {
         return false;
     }
     var bx = 20 * (Math.floor(x/20) + h);
@@ -485,8 +477,8 @@ var checkXCollision = function(x, y, w, h, v) {
 var checkYCollision = function(x, y, w, h, v) {
     // 00 10
     // 01 11
-    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
-    if(blockType == 0) {
+    var blockType = getMapData(Math.floor(y/20) + v, Math.floor(x/20) + h);
+    if(!collision(blockType)) {
         return false;
     }
     var by = 20 * (Math.floor(y/20) + v);
@@ -498,8 +490,8 @@ var checkYCollision = function(x, y, w, h, v) {
 var checkXCollisionBefore = function(x, y, w, h, v) {
     // 00 10
     // 01 11
-    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
-    if(blockType == 0) {
+    var blockType = getMapData(Math.floor(y/20) + v, Math.floor(x/20) + h);
+    if(!collision(blockType)) {
         return false;
     }
     var bx = 20 * (Math.floor(x/20) + h);
@@ -511,8 +503,8 @@ var checkXCollisionBefore = function(x, y, w, h, v) {
 var checkYCollisionBefore = function(x, y, w, h, v) {
     // 00 10
     // 01 11
-    var blockType = mapData[Math.floor(y/20) + v][Math.floor(x/20) + h];
-    if(blockType == 0) {
+    var blockType = getMapData(Math.floor(y/20) + v, Math.floor(x/20) + h);
+    if(!collision(blockType)) {
         return false;
     }
     var by = 20 * (Math.floor(y/20) + v);
@@ -563,6 +555,22 @@ var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
             shiftYUp(npy);
         }
     }
+}
+
+var getMapData = function(y, x) {
+    if(y >= mapData.length) {
+        console.log('out of bounds 1');
+        return -1;
+    }
+    if(x >= mapData[y].length) {
+        console.log('out of bounds 2');
+        return -1;
+    }
+    return mapData[y][x];
+}
+
+var collision = function(i) {
+    return i > 0;
 }
 
 var pause = function() {
@@ -799,12 +807,12 @@ window.onkeydown = function(e) {
     if(key == 32) {
         e.preventDefault();
     }
-    if(key == 83) { // TODO remove this
-        step = true;
-    }
-    if(key == 65) {
-        stepping = !stepping;
-    }
+//    if(key == 83) { // TODO remove this
+//        step = true;
+//    }
+//    if(key == 65) {
+//        stepping = !stepping;
+//    }
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
         if(menu) {
@@ -871,14 +879,13 @@ window.onkeydown = function(e) {
         else if(key == 39) {
             right = true;
         }
-        else if(key == 32) {
-            jump();
-        }
-        else if(key == 38) {
-            up = true;
-        }
-        else if(key == 40) {
-            down = true;
+        else if(key == 32 || key == 38) {
+            // won't work for up held and space press or space held and up press
+            // don't really care though, that's not gonna happen
+            if(!jumpKeyDown) {
+                jumpKeyDown = true;
+                jump();
+            }
         }
     }
 }
@@ -892,11 +899,8 @@ window.onkeyup = function(e) {
         else if(key == 39) {
             right = false;
         }
-        else if(key == 38) {
-            up = false;
-        }
-        else if(key == 40) {
-            down = false;
+        else if(key == 32 || key == 38) {
+            jumpKeyDown = false;
         }
     }
 }
