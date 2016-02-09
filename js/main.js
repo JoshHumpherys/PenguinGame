@@ -1,14 +1,20 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
 var initMenu = function() {
+    container = document.getElementById('container');
+    if(container != null) {
+        container.remove();
+    }
     container = initContainer();
     container.style.backgroundColor = '#000';
     container.style.backgroundImage = 'url(img/clouds.jpg)';
     document.body.appendChild(container);
     paused = false;
     menu = true;
+    game = false;
+    introScreen = false;
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
@@ -33,6 +39,8 @@ var initMenu = function() {
 
 var initIntroScreen = function() {
     menu = false;
+    game = false;
+    introScreen = true;
     document.getElementById('container').remove();
     container = initContainer();
     document.body.appendChild(container);
@@ -55,7 +63,7 @@ var initIntroScreen = function() {
 var setIntroScreen = function(i) {
     introScreen = true;
     if(i >= introScreenText.length) {
-        initGame();
+        preInitGame(true);
         return;
     }
     container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
@@ -66,8 +74,11 @@ var nextIntroScreen = function() {
     setIntroScreen(++introScreenIndex);
 }
 
-var initGame = function() {
+var preInitGame = function(forward) {
+//var preInitGame = function() {
+    menu = false;
     introScreen = false;
+    changingRooms = true;
     right = left = jumpKeyDown = false;
 
     // init main container
@@ -81,14 +92,13 @@ var initGame = function() {
     penguin.style.position = 'absolute';
     pw = 14;
     ps = (20 - pw) / 2;
-    px = 100 + ps;
-    py = 200;
+//    px = 100 + ps;
+//    py = 200;
     dx = 180;
     a = 12;
     v0 = -5;
     y0 = py;
-    inAir = false;
-    jumpCount = 0;
+
     penguin.style.left = (px - ps) + 'px';
     penguin.style.top = py + 'px';
     penguin.style.width = '20px';
@@ -102,16 +112,37 @@ var initGame = function() {
     container.appendChild(penguin);
     
     // init room, level vars
-    room = 0;
-    levels = [0, 2, 4, 6];
+    if(room == undefined) {
+        room = 0; // TODO retrieve from cookie.. and set cookie for that matter
+    }
+//    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
 //        if(room < levels[i]) {
 //            room = levels[i - 1];
 //        }
 //    }
+
+//    initGame(true);
+    initGame(forward);
+}
+
+var initGame = function(forward) {
+    inAir = false;
+    jumpCount = 0;
+    
+    // init main container
+    document.getElementById('container').remove();
+    container = initContainer();
+    document.body.appendChild(container);
+    container.style.backgroundImage = 'url(img/bg.jpg)';
+    container.appendChild(penguin);
     
     // init all blocks
-    initBlocks(room);
+    initBlocks(room, forward);
+
+    movePenguinDiv();
+    
+    unpause();
 }
 
 var initContainer = function() {
@@ -126,7 +157,7 @@ var initContainer = function() {
     return container;
 }
 
-var initBlocks = function(map) {
+var initBlocks = function(map, forward) {
     switch(map) {
     case 0:
         mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -137,15 +168,15 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [5,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
                    [1,2,2,1,1,1,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -160,8 +191,48 @@ var initBlocks = function(map) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
         break;
+    case 1:
+        mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                   [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+                   [1,2,2,1,1,1,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+        break;
     default:
-        console.log('This is not good');
+        if(map < 0) {
+            alert('We\'re sorry. Something went wrong.\nLevel will restart.');
+            room = 0;
+            preInitGame(true);
+        }
+        else {
+            alert('Congratulations! You completed the last level!\nRedirecting to main menu.');
+            initMenu();
+        }
         return;
     }
     mapReferences = new Array(30);
@@ -171,11 +242,38 @@ var initBlocks = function(map) {
     for(var i = 0; i < mapData.length; i++) {
         for(var j = 0; j < mapData[i].length; j++) {
             var block;
-            if(mapData[i][j] == 1) {
+            switch(mapData[i][j]) {
+            case 0:
+                // empty
+                break;
+            case 1:
+                // visible block
                 container.appendChild((block = new Block(j, i, 20, true)).block);
-            }
-            else if(mapData[i][j] == 2) {
+                break;
+            case 2:
+                // invisible block
                 container.appendChild((block = new Block(j, i, 20, false)).block);
+                break;
+            case 3:
+                // previous room
+                break;
+            case 4:
+                // next room
+                break;
+            case 5:
+                // initial penguin position for next level or game start
+                if(forward) {
+                    px = j * 20 + ps;
+                    py = i * 20;
+                }
+                break;
+            case 6:
+                // initial penguin position for previous level
+                if(!forward) {
+                    px = j * 20 + ps;
+                    py = i * 20;
+                }
+                break;
             }
             mapReferences[i][j] = block;
         }
@@ -205,16 +303,20 @@ var initBlocks = function(map) {
 }
 
 var loop = function() {
-    setTimeout(loop, 17);
     if(!paused) {
-        var now = Date.now();
-        update(now - last);
-//        if(step || stepping) {
-//            step = false;
-//            update(17); // TODO not this
-//        }
-        last = now;
+//        var now = Date.now();
+//        update(now - last);
+        if(step || stepping) {
+            step = false;
+            update(17); // TODO not this
+        }
+//        last = now;
     }
+    if(roomChangeQueued) {
+        roomChangeQueued = false;
+        initGame(forward);
+    }
+    setTimeout(loop, 17);
 }
 
 var update = function(delta) {
@@ -369,8 +471,6 @@ var update = function(delta) {
                 }
             }
         }
-        
-        // check if finish here BEFORE logic to show blocks
 
         if(!inAir) {
             var blockUnderneathLeft = collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20)));
@@ -559,18 +659,68 @@ var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
 
 var getMapData = function(y, x) {
     if(y >= mapData.length) {
-        console.log('out of bounds 1');
+        outOfBoundsY(y, x);
+        return -1;
+    }
+    else if(y < 0) {
+        outOfBoundsY(y, x);
         return -1;
     }
     if(x >= mapData[y].length) {
-        console.log('out of bounds 2');
+        outOfBoundsX(y, x);
+        return -1;
+    }
+    else if(x < 0) {
+        outOfBoundsX(y, x);
         return -1;
     }
     return mapData[y][x];
 }
 
+var outOfBoundsX = function(y, x) {
+    var type = mapData[y][x < 0 ? x + 1 : x - 1];
+    if(type == 3 || type == 5) {
+        previousRoom();
+    }
+    else if(type == 4) {
+        nextRoom();
+    }
+}
+
+var outOfBoundsY = function(y, x) {
+    var type = mapData[y < 0 ? y + 1 : y - 1][x];
+    if(type == 3 || type == 5) {
+        previousRoom();
+    }
+    else if(type == 4) {
+        nextRoom();
+    }
+}
+
+// warning: ensure first room has no exit or no way of accessing exit
+var previousRoom = function() {
+    if(!roomChangeQueued) {
+        pause();
+        room--;
+    //    initGame(false);
+        roomChangeQueued = true;
+        forward = false;
+    }
+}
+
+var nextRoom = function() {
+    if(!roomChangeQueued) {
+        pause();
+        room++;
+    //    initGame(true);
+    //    preInitGame(true);
+        roomChangeQueued = true;
+        forward = true;
+    }
+}
+
 var collision = function(i) {
-    return i > 0;
+    return i == 1 || i == 2;
 }
 
 var pause = function() {
@@ -807,12 +957,12 @@ window.onkeydown = function(e) {
     if(key == 32) {
         e.preventDefault();
     }
-//    if(key == 83) { // TODO remove this
-//        step = true;
-//    }
-//    if(key == 65) {
-//        stepping = !stepping;
-//    }
+    if(key == 83) { // TODO remove this
+        step = true;
+    }
+    if(key == 65) {
+        stepping = !stepping;
+    }
     if([37,38,39,40].indexOf(key) != -1) {
         e.preventDefault();
         if(menu) {
@@ -842,7 +992,7 @@ window.onkeydown = function(e) {
     //alert(key);
     if(introScreen) {
         if(key == 83) {
-            initGame();
+            preInitGame(true);
         }
         else {
             nextIntroScreen();
