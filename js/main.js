@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -80,6 +80,7 @@ var preInitGame = function(forward) {
     introScreen = false;
     changingRooms = true;
     right = left = jumpKeyDown = false;
+    icicles = [];
 
     // init main container
     document.getElementById('container').remove();
@@ -251,18 +252,18 @@ var initBlocks = function(map, forward) {
     }
     for(var i = 0; i < mapData.length; i++) {
         for(var j = 0; j < mapData[i].length; j++) {
-            var block;
+            var obj;
             switch(mapData[i][j]) {
             case 0:
                 // empty
                 break;
             case 1:
                 // visible block
-                container.appendChild((block = new Block(j, i, 20, true)).block);
+                container.appendChild((obj = new Block(j, i, 20, true)).block);
                 break;
             case 2:
                 // invisible block
-                container.appendChild((block = new Block(j, i, 20, false)).block);
+                container.appendChild((obj = new Block(j, i, 20, false)).block);
                 break;
             case 3:
                 // previous room
@@ -284,8 +285,13 @@ var initBlocks = function(map, forward) {
                     py = i * 20;
                 }
                 break;
+            case 7:
+                obj = new Icicle(j, i);
+                icicles[icicles.length] = obj;
+                container.appendChild(obj.icicle);
+                break;
             }
-            mapReferences[i][j] = block;
+            mapReferences[i][j] = obj;
         }
     }
 
@@ -314,13 +320,13 @@ var initBlocks = function(map, forward) {
 
 var loop = function() {
     if(!paused) {
-//        var now = Date.now();
-//        update(now - last);
-        if(step || stepping) {
-            step = false;
-            update(17); // TODO not this
-        }
-//        last = now;
+        var now = Date.now();
+        update(now - last);
+//        if(step || stepping) {
+//            step = false;
+//            update(17); // TODO not this
+//        }
+        last = now;
     }
     if(roomChangeQueued) {
         roomChangeQueued = false;
@@ -794,6 +800,23 @@ var showAllButtons = function() {
         expertButton.button.style.display = 'block';
         expertButton.isShowing = true;
     }
+}
+
+function Icicle(x, y) {
+    var icicle = this.icicle = document.createElement('div');
+    this.x = x;
+    this.y = y;
+    this.falling = false;
+    icicle.style.position = 'absolute';
+    icicle.style.left = x * 20 + 'px';
+    icicle.style.top = y * 20 + 'px';
+    icicle.style.width = icicle.style.height = '20px';
+    var icicleImg = document.createElement('img');
+    icicleImg.setAttribute('src','img/icicle.png');
+    icicleImg.style.height = penguin.style.height;
+    icicleImg.style.display = 'block';
+    icicleImg.style.margin = 'auto';
+    icicle.innerHTML = icicleImg.outerHTML;
 }
 
 function Block(x, y, w, visible) {
