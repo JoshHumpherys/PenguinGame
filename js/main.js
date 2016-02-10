@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -740,13 +740,17 @@ var collision = function(i) {
 }
 
 var pause = function() {
-    paused = true;
-    pauseStartTime = Date.now();
+    if(!paused) {
+        paused = true;
+        pauseStartTime = Date.now();
+    }
 }
 
 var unpause = function() {
-    paused = false;
-    last = Date.now();
+    if(paused) {
+        paused = false;
+        last = Date.now();
+    }
 }
 
 var jump = function() {
@@ -955,6 +959,61 @@ Button.prototype.containsMouse = function() {
     return this.mouseOver;
 }
 
+var showAlert = function(text, x, y, w, h) {
+    if(alertShowing) {
+        return;
+    }
+    alertShowing = true;
+    pause();
+    if(alertBox == null) {
+        alertBox = document.createElement('div');
+        alertBox.style.position = 'absolute';
+        alertBox.style.backgroundColor = Button.prototype.highlightColor;
+        alertBox.style.display = 'block';
+        alertBox.style.color = "#fff";
+        alertBox.style.textAlign = 'center';
+        alertBox.style.fontFamily = 'Verdana, Geneva, sans-serif';
+        //alertBox.style.lineHeight = '50px';
+        alertBox.style.borderRadius = '10px';
+        alertBox.style.zIndex = '1';
+        innerBox = document.createElement('div');
+        innerBox.style.position = 'absolute';
+        innerBox.style.backgroundColor = Button.prototype.defaultColor;
+        innerBox.style.display = 'block';
+        innerBox.style.borderRadius = '10px';
+
+//showAlert('hello world', 200, 100, 200, 100);
+    }
+    shade = document.createElement('div');
+    shade.style.position = 'absolute';
+    shade.style.width = '100%';
+    shade.style.height = '100%';
+    shade.style.overflow = 'hidden';
+    shade.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+    container.appendChild(shade);
+    
+    alertBox.style.width = w + 'px';
+    alertBox.style.height = h + 'px';
+    alertBox.style.left = x + 'px';
+    alertBox.style.top = y + 'px';
+    innerBox.style.width = (w - 10) + 'px';
+    innerBox.style.height = (h - 10) + 'px';
+    innerBox.style.top = '5px';
+    innerBox.style.left = '5px';
+    innerBox.innerHTML = '<p>'+text+'</p>';
+    alertBox.innerHTML = innerBox.outerHTML;
+    container.appendChild(alertBox);
+}
+
+var hideAlert = function() {
+    if(alertBox != null && alertShowing) {
+        alertShowing = false;
+        alertBox.remove();
+        shade.remove();
+        unpause();
+    }
+}
+
 var switchMenuAlternate = function(s) {
     alternateMenu = true;
     removeAllButtons();
@@ -1032,7 +1091,6 @@ window.onkeydown = function(e) {
         buttons[buttonNames[buttonIndex]].highlight();
     }
     
-    //alert(key);
     if(introScreen) {
         if(key == 83) {
             preInitGame(true);
@@ -1066,6 +1124,15 @@ window.onkeydown = function(e) {
         }
     }
     else { // game
+        if(!paused && key == 80) {
+            pause();
+            showAlert('Game paused<br /><br />Press any key to continue', 200, 200, 400, 100);
+        }
+        else if(paused) {
+            hideAlert();
+            unpause();
+        }
+
         if(key == 37) {
             left = true;
         }
@@ -1099,8 +1166,10 @@ window.onkeyup = function(e) {
 }
 
 window.onfocus = function(e) {
-    unpause();
-    left = right = false;
+    if(!alertShowing) {
+        unpause();
+        left = right = false;
+    }
 }
 
 window.onblur = function(e) {
