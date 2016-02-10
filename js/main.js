@@ -1098,5 +1098,15 @@ window.onkeyup = function(e) {
     }
 }
 
+window.onfocus = function(e) {
+    unpause();
+}
+
+window.onblur = function(e) {
+    pause();
+}
+
+window
+
 initMenu();
 loop();
