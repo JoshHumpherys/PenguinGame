@@ -1100,13 +1100,12 @@ window.onkeyup = function(e) {
 
 window.onfocus = function(e) {
     unpause();
+    left = right = false;
 }
 
 window.onblur = function(e) {
     pause();
 }
-
-window
 
 initMenu();
 loop();
