@@ -135,18 +135,13 @@ var preInitGame = function(forward) {
 
 //    initGame(true);
     initGame(forward);
-
-    var continueString = '<br /><br />(enter to continue)';
-    helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120},
-                    {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120}];
 }
 
 var initGame = function(forward) {
     inAir = false;
     jumpCount = 0;
+    right = left = jumpKeyDown = false;
+    icicles = [];
     
     // init main container
     document.getElementById('container').remove();
@@ -157,6 +152,14 @@ var initGame = function(forward) {
     
     // init all blocks
     initBlocks(room, forward);
+
+
+    var continueString = '<br /><br />(enter to continue)';
+    helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120},
+                    {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120}];
 
     movePenguinDiv();
     
@@ -376,6 +379,10 @@ var update = function(delta) {
         var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
         var blockDownRight = blockDownLeft && blockTopRight;
         
+        // check if they're icicles and if then they collide
+        
+
+        // check if collides with blocks
         if(blockTopLeft) {
             blockTopLeft = checkCollision(npx, npy, pw, 0, 0);
         }
@@ -815,6 +822,10 @@ var fall = function() {
 var hitCeiling = function() {
     fall();
     jumpCount--;
+}
+
+var kill = function() {
+    initGame(true);
 }
 
 var movePenguinDiv = function() {
