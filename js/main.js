@@ -852,6 +852,14 @@ function ButtonLocked(name, x, y) {
     button.style.width = '200px';
     button.style.height = '50px';
     button.style.backgroundColor = '#555';
+    button.style.borderRadius = '10px';
+
+    button.style.color = '#fff';
+    button.style.fontSize = '30px';
+    button.style.textAlign = 'center';
+    button.style.fontFamily = 'Verdana, Geneva, sans-serif';
+    button.style.lineHeight = '50px';
+    button.innerHTML = name.toUpperCase();
     container.appendChild(button);
 }
 
@@ -866,6 +874,8 @@ function Button(name, x, y) {
     button.style.width = '200px';
     button.style.height = '50px';
     button.style.backgroundColor = this.defaultColor;
+    button.style.borderRadius = '10px';
+    button.style.transition = 'background-color 0.25s ease';
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
     button.setAttribute('onmousedown', 'menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
