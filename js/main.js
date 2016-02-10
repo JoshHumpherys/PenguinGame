@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -135,6 +135,13 @@ var preInitGame = function(forward) {
 
 //    initGame(true);
     initGame(forward);
+
+    var continueString = '<br /><br />(enter to continue)';
+    helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120},
+                    {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120}];
 }
 
 var initGame = function(forward) {
@@ -558,6 +565,29 @@ var update = function(delta) {
         }
         
         movePenguinDiv();
+
+        if(room == 0) {
+            for(var i = 0; i < helpTriggers.length; i++) {
+                if(!helpTriggers[i].alreadyShown) {
+                    if(!helpTriggers[i].land) {
+                        if(px < helpTriggers[i].x + helpTriggers[i].w && px + pw > helpTriggers[i].x && py < helpTriggers[i].y + helpTriggers[i].h && py + 20 > helpTriggers[i].y) {
+                            helpTriggers[i].alreadyShown = true;
+                            pause();
+                            showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
+                            tutorial = true;
+                        }
+                    }
+                    else {
+                        if(px < helpTriggers[i].x + helpTriggers[i].w && px + pw > helpTriggers[i].x && py + 20 == helpTriggers[i].y) {
+                            helpTriggers[i].alreadyShown = true;
+                            pause();
+                            showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
+                            tutorial = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -950,7 +980,7 @@ Button.prototype.select = function() {
             switchMenuAlternate('Here is help');
             break;
         case 'about':
-            switchMenuAlternate('Coded by Josh Humpherys in Janurary/February of 2016<br />Why? Play story mode to find out!');
+            switchMenuAlternate('Coded by Josh Humpherys in February of 2016<br />Why? Play story mode to find out!');
             break;
         }
     }
@@ -1011,6 +1041,7 @@ var hideAlert = function() {
         alertBox.remove();
         shade.remove();
         unpause();
+        tutorial = false;
     }
 }
 
@@ -1090,7 +1121,7 @@ window.onkeydown = function(e) {
         buttonIndex = ((buttonIndex%buttonNames.length)+buttonNames.length)%buttonNames.length;
         buttons[buttonNames[buttonIndex]].highlight();
     }
-    
+
     if(introScreen) {
         if(key == 83) {
             preInitGame(true);
@@ -1128,7 +1159,9 @@ window.onkeydown = function(e) {
             pause();
             showAlert('Game paused<br /><br />Press any key to continue', 200, 200, 400, 100);
         }
-        else if(paused) {
+//        else if(paused && (((key == 37) == !left) || ((key == 39) == !right))) {
+        else if(paused && (tutorial == (key == 13))) {
+            tutorial = false;
             hideAlert();
             unpause();
         }
