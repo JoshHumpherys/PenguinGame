@@ -230,7 +230,7 @@ var initBlocks = function(map, forward) {
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+                   [1,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
@@ -328,7 +328,14 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     if(!paused) {
         var now = Date.now();
-        update(now - last);
+//        update(now - last);
+
+        for(var i = 0; i < Math.floor((now-last)/17); i++) {
+            update((now-last)/Math.floor((now-last)/17));
+            //console.log('now - last = ' + (now-last) + ', update(x) = ' + (now-last)/Math.floor((now-last)/17));
+        }
+
+//        console.log(now - last);
 //        if(step || stepping) {
 //            step = false;
 //            update(17); // TODO not this
@@ -678,7 +685,6 @@ var shiftYDown = function(npy) {
 // xDir == 1 for right, xDir == -1 for left
 // yDir == 1 for down, yDir == -1 for up
 var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
-    console.log('advanced');
     // v = dx/dt
     // x = vt
     // t = x / v
