@@ -102,6 +102,7 @@ var preInitGame = function(forward) {
     right = left = jumpKeyDown = false;
     icicles = new Array(40);
     iciclesUp = [];
+    letters = [];
 
     // init main container
     document.getElementById('container').remove();
@@ -163,6 +164,8 @@ var initGame = function(forward) {
     jumpCount = 0;
     jumpKeyDown = false;
     icicles = new Array(40);
+    iciclesUp = [];
+    letters = [];
     
     // init main container
     document.getElementById('container').remove();
@@ -227,19 +230,19 @@ var initBlocks = function(map, forward) {
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,7,7,7,7,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,9,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,0,0,0,0,1,1,0,0,0,0,0,0,6],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,1,1,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,1,1,2,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [1,0,0,0,0,0,0,0,0,0,0,0,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,2,0,0,0,0,0,0,0,0,0,0,0,6],
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
         break;
     case 1:
@@ -332,6 +335,11 @@ var initBlocks = function(map, forward) {
                 break;
             case 8:
                 container.appendChild((obj = new IcicleUp(j, i)).icicle);
+                break;
+            case 9:
+                obj = new Letter(j, i);
+                letters[letters.length] = obj;
+                container.appendChild(obj.letter);
                 break;
             }
             mapReferences[i][j] = obj;
@@ -710,6 +718,17 @@ var update = function(delta) {
         }
         
         moveIcicleDivs();
+        
+        // Check if we got a letter
+        for(var i = 0; i < letters.length; i++) {
+            if(letters[i] != null) {
+                if(letters[i].collision(npx, npy, pw)) {
+                    letters[i].letter.style.display = 'none';
+                    letters[i] = null;
+                    addLetter();
+                }
+            }
+        }
 
         if(room == 0) {
             for(var i = 0; i < helpTriggers.length; i++) {
@@ -1046,14 +1065,36 @@ var showAllButtons = function() {
     }
 }
 
+function Letter(x, y) {
+    var letter = this.letter = document.createElement('div');
+    this.x = x * 20;
+    this.y = y * 20;
+    this.w = this.h = 40;
+    letter.style.position = 'absolute';
+    letter.style.left = this.x + 'px';
+    letter.style.top = this.y + 'px';
+    letter.style.width = letter.style.height = this.w + 'px';
+    var letterImg = document.createElement('img');
+    letterImg.setAttribute('src','img/letter.png');
+    letterImg.style.height = letter.style.height;
+    letterImg.style.display = 'block';
+    letterImg.style.margin = 'auto';
+    letter.innerHTML = letterImg.outerHTML;
+    container.appendChild(letter);
+}
+
+Letter.prototype.collision = function(x, y, w) {
+    return x < this.x + this.w && x + w > this.x && y < this.y + this.h && y + 20 > this.y;
+}
+
 function Icicle(x, y) {
     var icicle = this.icicle = document.createElement('div');
     this.x = x * 20;
     this.y = y * 20;
     this.falling = false;
     icicle.style.position = 'absolute';
-    icicle.style.left = x * 20 + 'px';
-    icicle.style.top = y * 20 + 'px';
+    icicle.style.left = this.x + 'px';
+    icicle.style.top = this.y + 'px';
     icicle.style.width = icicle.style.height = '20px';
     icicle.style.zIndex = '1';
     var icicleImg = document.createElement('img');
