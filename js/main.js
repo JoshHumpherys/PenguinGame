@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -81,6 +81,7 @@ var preInitGame = function(forward) {
     changingRooms = true;
     right = left = jumpKeyDown = false;
     icicles = [];
+    iciclesUp = [];
 
     // init main container
     document.getElementById('container').remove();
@@ -142,6 +143,7 @@ var initGame = function(forward) {
     jumpCount = 0;
     right = left = jumpKeyDown = false;
     icicles = [];
+    iciclesUp = [];
     
     // init main container
     document.getElementById('container').remove();
@@ -153,13 +155,17 @@ var initGame = function(forward) {
     // init all blocks
     initBlocks(room, forward);
 
-
+    var firstTime = helpTriggers == null;
     var continueString = '<br /><br />(enter to continue)';
     helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120},
                     {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120}];
+
+    if(!firstTime) {
+        helpTriggers[0].text = 'Oops! You hit an icicle!'+continueString;
+    }
 
     movePenguinDiv();
     
@@ -300,6 +306,11 @@ var initBlocks = function(map, forward) {
                 icicles[icicles.length] = obj;
                 container.appendChild(obj.icicle);
                 break;
+            case 8:
+                obj = new IcicleUp(j, i);
+                iciclesUp[icicles.length] = obj;
+                container.appendChild(obj.icicle);
+                break;
             }
             mapReferences[i][j] = obj;
         }
@@ -331,14 +342,11 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     if(!paused) {
         var now = Date.now();
-//        update(now - last);
 
         for(var i = 0; i < Math.floor((now-last)/17); i++) {
             update((now-last)/Math.floor((now-last)/17));
-            //console.log('now - last = ' + (now-last) + ', update(x) = ' + (now-last)/Math.floor((now-last)/17));
         }
 
-//        console.log(now - last);
 //        if(step || stepping) {
 //            step = false;
 //            update(17); // TODO not this
@@ -378,9 +386,6 @@ var update = function(delta) {
         var blockDownLeft = npy % 20 != 0;
         var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
         var blockDownRight = blockDownLeft && blockTopRight;
-        
-        // check if they're icicles and if then they collide
-        
 
         // check if collides with blocks
         if(blockTopLeft) {
@@ -579,6 +584,42 @@ var update = function(delta) {
         }
         
         movePenguinDiv();
+
+        // check if they're up icicles, if so kill
+
+        var blockTopLeft = true;
+        var blockDownLeft = npy % 20 != 0;
+        var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
+        var blockDownRight = blockDownLeft && blockTopRight;
+
+        if(blockTopLeft) {
+            if(getMapData(Math.floor(npy/20),Math.floor(npx/20)) == 8) {
+                if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].collision(npx, npy, pw)) {
+                    kill();
+                }
+            }
+        }
+        if(blockDownLeft) {
+            if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)) == 8) {
+                if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)].collision(npx, npy, pw)) {
+                    kill();
+                }
+            }
+        }
+        if(blockTopRight) {
+            if(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1) == 8) {
+                if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
+                    kill();
+                }
+            }
+        }
+        if(blockDownRight) {
+            if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1) == 8) {
+                if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
+                    kill();
+                }
+            }
+        }
 
         if(room == 0) {
             for(var i = 0; i < helpTriggers.length; i++) {
@@ -868,6 +909,29 @@ function Icicle(x, y) {
     icicleImg.style.display = 'block';
     icicleImg.style.margin = 'auto';
     icicle.innerHTML = icicleImg.outerHTML;
+}
+
+function IcicleUp(x, y) {
+    var icicle = this.icicle = document.createElement('div');
+    this.x = x * 20;
+    this.y = y * 20;
+    icicle.style.position = 'absolute';
+    icicle.style.left = x * 20 + 'px';
+    icicle.style.top = y * 20 + 'px';
+    icicle.style.width = icicle.style.height = '20px';
+    var icicleImg = document.createElement('img');
+    icicleImg.setAttribute('src','img/icicleUp.png');
+    icicleImg.style.height = penguin.style.height;
+    icicleImg.style.display = 'block';
+    icicleImg.style.margin = 'auto';
+    icicle.innerHTML = icicleImg.outerHTML;
+}
+
+Icicle.prototype.w = IcicleUp.prototype.w = 9;
+Icicle.prototype.shift = IcicleUp.prototype.shift = (20 - IcicleUp.prototype.w) / 2;
+
+IcicleUp.prototype.collision = function(x, y, w) {
+    return x < this.x + this.shift + this.w && x + w > this.x + this.shift && y < this.y + 20 && y + 20 > this.y;
 }
 
 function Block(x, y, w, visible) {
