@@ -361,7 +361,30 @@ var loop = function() {
 }
 
 var update = function(delta) {
-    if(!menu && !introScreen) {
+    if(menu) {
+        if(menuControlledByMouse) {
+            for(var i = 0; i < buttonNames.length; i++) {
+                if(buttons[buttonNames[i]].containsMouse()) {
+                    buttons[buttonNames[i]].highlight();
+                    buttonIndex = i;
+                }
+                else {
+                    buttons[buttonNames[i]].unhighlight();
+                }
+            }
+        }
+        else {
+            for(var i = 0; i < buttonNames.length; i++) {
+                if(i == buttonIndex) {
+                    buttons[buttonNames[i]].highlight();
+                }
+                else {
+                    buttons[buttonNames[i]].unhighlight();
+                }
+            }
+        }
+    }
+    else if(!menu && !introScreen) {
         // store updated x and y
         var npx = px;
         var npy = py;
@@ -1150,18 +1173,13 @@ window.onmousedown = function(e) {
 window.onmousemove = function(e) {
     if(menu && !menuControlledByMouse) {
         menuControlledByMouse = true;
-        var indexChanged = false;
         for(var i = 0; i < buttonNames.length; i++) {
             if(buttons[buttonNames[i]].containsMouse()) {
                 buttons[buttonNames[i]].highlight();
-                indexChanged = true;
             }
             else {
                 buttons[buttonNames[buttonIndex]].unhighlight();
             }
-        }
-        if(!indexChanged) {
-            buttonIndex = -1;
         }
     }
 }
@@ -1229,9 +1247,7 @@ window.onkeydown = function(e) {
             menuSelector(1);
             break;
         case 13:
-            if(!menuControlledByMouse) {
-                buttons[buttonNames[buttonIndex]].select();
-            }
+            buttons[buttonNames[buttonIndex]].select();
             break;
         }
     }
