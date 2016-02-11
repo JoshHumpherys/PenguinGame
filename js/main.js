@@ -80,7 +80,7 @@ var preInitGame = function(forward) {
     introScreen = false;
     changingRooms = true;
     right = left = jumpKeyDown = false;
-    icicles = [];
+    icicles = new Array(40);
     iciclesUp = [];
 
     // init main container
@@ -142,8 +142,7 @@ var initGame = function(forward) {
     inAir = false;
     jumpCount = 0;
     jumpKeyDown = false;
-    icicles = [];
-    iciclesUp = [];
+    icicles = new Array(40);
     
     // init main container
     document.getElementById('container').remove();
@@ -303,13 +302,11 @@ var initBlocks = function(map, forward) {
                 break;
             case 7:
                 obj = new Icicle(j, i);
-                icicles[icicles.length] = obj;
+                icicles[j] = obj; // WARNING: assumes only one icicle per column
                 container.appendChild(obj.icicle);
                 break;
             case 8:
-                obj = new IcicleUp(j, i);
-                iciclesUp[icicles.length] = obj;
-                container.appendChild(obj.icicle);
+                container.appendChild((obj = new IcicleUp(j, i)).icicle);
                 break;
             }
             mapReferences[i][j] = obj;
@@ -385,6 +382,20 @@ var update = function(delta) {
         }
     }
     else if(!menu && !introScreen) {
+        for(var i = 0; i < icicles.length; i++) {
+            if(icicles[i] != null) {
+                if(icicles[i].falling) {
+                    icicles[i].update(delta);
+                    if(icicles[i].y + 20 >= mapData.length * 20) {
+//                        icicles[i].falling = false;
+//                        icicles[i].y = (mapData.length - 1) * 20;
+                        icicles[i].icicle.remove();
+                        icicles[i] = null;
+                    }
+                }
+            }
+        }
+    
         // store updated x and y
         var npx = px;
         var npy = py;
@@ -619,6 +630,7 @@ var update = function(delta) {
             if(getMapData(Math.floor(npy/20),Math.floor(npx/20)) == 8) {
                 if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].collision(npx, npy, pw)) {
                     kill();
+                    return;
                 }
             }
         }
@@ -626,6 +638,7 @@ var update = function(delta) {
             if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)) == 8) {
                 if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)].collision(npx, npy, pw)) {
                     kill();
+                    return;
                 }
             }
         }
@@ -633,6 +646,7 @@ var update = function(delta) {
             if(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1) == 8) {
                 if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
                     kill();
+                    return;
                 }
             }
         }
@@ -640,9 +654,37 @@ var update = function(delta) {
             if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1) == 8) {
                 if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
                     kill();
+                    return;
                 }
             }
         }
+
+        // check for down icicles in columns penguin is in, check collision, if no collision then fall
+        var icicleLeft = icicles[Math.floor(npx/20)];
+        var icicleRight = null;
+        if((Math.floor((npx + pw)/20) > Math.floor(npx/20)) && Math.floor(npx/20) < icicles.length) {
+            icicles[Math.floor(npx/20)];
+        }
+        if(icicleLeft != null) {
+            if(icicleLeft.collision(npx, npy, pw)) {
+                kill();
+                return;
+            }
+            else if(icicleLeft.y < npy) {
+                icicleLeft.fall();
+            }
+        }
+        if(icicleRight != null) {
+            if(icicleRight.collision(npx, npy, pw)) {
+                kill();
+                return;
+            }
+            else if(icicleright.y < npy) {
+                icicleRight.fall();
+            }
+        }
+        
+        moveIcicleDivs();
 
         if(room == 0) {
             for(var i = 0; i < helpTriggers.length; i++) {
@@ -897,6 +939,16 @@ var movePenguinDiv = function() {
     penguin.style.top = py + 'px';
 }
 
+var moveIcicleDivs = function() {
+    for(var i = 0; i < icicles.length; i++) {
+        if(icicles[i] != null) {
+            if(icicles[i].falling) {
+                icicles[i].icicle.style.top = icicles[i].y + 'px';
+            }
+        }
+    }
+}
+
 var removeAllButtons = function() {
     for(var i = 0; i < buttonNames.length; i++) {
         buttons[buttonNames[i]].hide();
@@ -919,13 +971,14 @@ var showAllButtons = function() {
 
 function Icicle(x, y) {
     var icicle = this.icicle = document.createElement('div');
-    this.x = x;
-    this.y = y;
+    this.x = x * 20;
+    this.y = y * 20;
     this.falling = false;
     icicle.style.position = 'absolute';
     icicle.style.left = x * 20 + 'px';
     icicle.style.top = y * 20 + 'px';
     icicle.style.width = icicle.style.height = '20px';
+    icicle.style.zIndex = '1';
     var icicleImg = document.createElement('img');
     icicleImg.setAttribute('src','img/icicle.png');
     icicleImg.style.height = penguin.style.height;
@@ -950,10 +1003,20 @@ function IcicleUp(x, y) {
     icicle.innerHTML = icicleImg.outerHTML;
 }
 
+Icicle.prototype.fall = function() {
+    this.falling = true;
+}
+
+Icicle.prototype.update = function(delta) {
+    if(this.falling) {
+        this.y += 500 * delta / 1000;
+    }
+}
+
 Icicle.prototype.w = IcicleUp.prototype.w = 9;
 Icicle.prototype.shift = IcicleUp.prototype.shift = (20 - IcicleUp.prototype.w) / 2;
 
-IcicleUp.prototype.collision = function(x, y, w) {
+Icicle.prototype.collision = IcicleUp.prototype.collision = function(x, y, w) {
     return x < this.x + this.shift + this.w && x + w > this.x + this.shift && y < this.y + 20 && y + 20 > this.y;
 }
 
@@ -1109,7 +1172,7 @@ var showAlert = function(text, x, y, w, h) {
         alertBox.style.fontFamily = 'Verdana, Geneva, sans-serif';
         //alertBox.style.lineHeight = '50px';
         alertBox.style.borderRadius = '10px';
-        alertBox.style.zIndex = '1';
+        alertBox.style.zIndex = '3';
         innerBox = document.createElement('div');
         innerBox.style.position = 'absolute';
         innerBox.style.backgroundColor = Button.prototype.defaultColor;
@@ -1123,6 +1186,7 @@ var showAlert = function(text, x, y, w, h) {
     shade.style.width = '100%';
     shade.style.height = '100%';
     shade.style.overflow = 'hidden';
+    shade.style.zIndex = '2';
     shade.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
     container.appendChild(shade);
     
