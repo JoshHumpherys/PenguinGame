@@ -141,7 +141,7 @@ var preInitGame = function(forward) {
 var initGame = function(forward) {
     inAir = false;
     jumpCount = 0;
-    right = left = jumpKeyDown = false;
+    jumpKeyDown = false;
     icicles = [];
     iciclesUp = [];
     
