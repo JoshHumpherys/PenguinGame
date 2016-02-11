@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -30,11 +30,31 @@ var initMenu = function() {
     alternateMenu = false;
     alternateMenuDiv = document.createElement('div');
     alternateMenuDiv.style.position = 'absolute';
-    alternateMenuDiv.style.left = '300px';
+    alternateMenuDiv.style.left = '100px';
     alternateMenuDiv.style.top = '200px';
-    alternateMenuDiv.style.width = (800 - 300 - 50) + "px";
+    alternateMenuDiv.style.width = '400px';
     alternateMenuDiv.style.height = '100px';
     container.appendChild(alternateMenuDiv);
+    
+    lettersTopDiv = document.createElement('div');
+    lettersTopDiv.style.position = 'absolute';
+    lettersTopDiv.style.top = '0px';
+    lettersTopDiv.style.left = (document.body.clientWidth-800)/2 + 'px';
+    lettersTopDiv.style.width = '800px';
+    lettersTopDiv.style.height = '50px';
+    lettersTopDiv.style.textAlign = 'center';
+//    lettersTopDiv.style.lineHeight = '50px';
+    lettersTopDiv.style.fontSize = '40px';
+    lettersTopDiv.style.color = '#fff';
+    
+    //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
+    lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
+    lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
+    lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
+    
+    addLetter();
+    
+    document.body.appendChild(lettersTopDiv);
 }
 
 var initIntroScreen = function() {
@@ -960,6 +980,52 @@ var moveIcicleDivs = function() {
     }
 }
 
+/*
+// WARNING: c must be in letters
+var addLetter = function(c) {
+    for(var i = 0; i < letters.length; i++) {
+        if(letters[i].c == c) {
+            var letterDiv = document.createElement('div');
+            letterDiv.innerHTML = c;
+            mapData[0][letters[i].i].block.appendChild(letterDiv);
+        }
+    }
+}
+*/
+
+var addLetter = function() {
+    var won = false;
+    for(var i = 0; i < lettersOrder.length; i++) {
+        if(!lettersCurrent[lettersOrder[i]]) {
+            lettersCurrent[lettersOrder[i]] = true;
+            if(i == lettersOrder.length - 1) {
+                won = true;
+            }
+            break;
+        }
+    }
+
+    var lettersString = '';
+    for(var i = 0; i < lettersFinal.length; i++) {
+        if(lettersCurrent[i]) {
+            lettersString += lettersFinal[i];
+        }
+        else {
+            lettersString += '&nbsp;';
+        }
+    }
+
+    lettersTopDiv.innerHTML = lettersString;
+    
+    if(won) {
+        youWin();
+    }
+}
+
+var youWin = function() {
+    alert('congrats');
+}
+
 var removeAllButtons = function() {
     for(var i = 0; i < buttonNames.length; i++) {
         buttons[buttonNames[i]].hide();
@@ -1040,7 +1106,8 @@ function Block(x, y, w, visible) {
     block.style.top = y * w + 'px';
     block.style.width = block.style.height = w + 'px';
 //    block.style.backgroundColor = '#008080';
-    block.style.backgroundColor = '#7ec0ee';
+//    block.style.backgroundColor = '#7ec0ee';
+    block.style.backgroundImage = 'url(img/glass_light_blue.png)';
     block.style.display = visible ? 'block' : 'none';
 }
 
