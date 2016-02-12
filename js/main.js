@@ -245,7 +245,7 @@ var initBlocks = function(map, forward) {
                    [1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1],
+                   [1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -450,12 +450,6 @@ var update = function(delta) {
             if(icicles[i] != null) {
                 if(icicles[i].falling) {
                     icicles[i].update(delta);
-                    if(icicles[i].y + 20 >= mapData.length * 20) {
-//                        icicles[i].falling = false;
-//                        icicles[i].y = (mapData.length - 1) * 20;
-                        icicles[i].icicle.remove();
-                        icicles[i] = null;
-                    }
                 }
             }
         }
@@ -1161,7 +1155,14 @@ Icicle.prototype.fall = function() {
 
 Icicle.prototype.update = function(delta) {
     if(this.falling) {
-        this.y += 500 * delta / 1000;
+        if(collision(getMapData(Math.floor(this.y/20)+1, Math.floor(this.x/20)))) {
+        // || this.y + 20 >= (mapData.length - 1) * 20
+            icicles[Math.floor(this.x/20)].icicle.remove();
+            icicles[Math.floor(this.x/20)] = null;
+        }
+        else {
+            this.y += 500 * delta / 1000;
+        }
     }
 }
 
