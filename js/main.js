@@ -1186,6 +1186,7 @@ function ButtonLocked(name, x, y) {
     button.style.height = '50px';
     button.style.backgroundColor = '#555';
     button.style.borderRadius = '10px';
+    button.style.zIndex = '1';
 
     button.style.color = '#fff';
     button.style.fontSize = '30px';
@@ -1208,6 +1209,7 @@ function Button(name, x, y) {
     button.style.height = '50px';
     button.style.backgroundColor = this.defaultColor;
     button.style.borderRadius = '10px';
+    button.style.zIndex = '1';
     button.style.transition = 'background-color 0.25s ease';
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
