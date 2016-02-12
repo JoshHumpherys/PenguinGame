@@ -209,9 +209,9 @@ var initGame = function(forward) {
     else {
         helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
                         {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                        {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120},
+                        {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:120},
                         {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                        {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:50,displayW:440,displayH:120}];
+                        {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
     }
 
     movePenguinDiv();
