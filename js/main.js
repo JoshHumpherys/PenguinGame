@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -54,6 +54,8 @@ var initMenu = function() {
     
     addLetter();
     
+    letters = [[{x:36,y:17}],[{x:6,y:2},{x:19,y:14},{x:2,y:26},{x:26,y:26}]];
+    
     document.body.appendChild(lettersTopDiv);
 }
 
@@ -102,7 +104,6 @@ var preInitGame = function(forward) {
     right = left = jumpKeyDown = false;
     icicles = new Array(40);
     iciclesUp = [];
-    letters = [];
 
     // init main container
     document.getElementById('container').remove();
@@ -165,7 +166,6 @@ var initGame = function(forward) {
     jumpKeyDown = false;
     icicles = new Array(40);
     iciclesUp = [];
-    letters = [];
     
     // init main container
     document.getElementById('container').remove();
@@ -248,7 +248,7 @@ var initBlocks = function(map, forward) {
     case 1:
         mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                    [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,1],
-                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                   [1,0,1,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -260,7 +260,7 @@ var initBlocks = function(map, forward) {
                    [1,2,2,1,1,1,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1],
                    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
                    [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
                    [5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -272,7 +272,7 @@ var initBlocks = function(map, forward) {
                    [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
+                   [1,0,9,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,1,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,8,0,0,0,1],
                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
@@ -337,9 +337,19 @@ var initBlocks = function(map, forward) {
                 container.appendChild((obj = new IcicleUp(j, i)).icicle);
                 break;
             case 9:
-                obj = new Letter(j, i);
-                letters[letters.length] = obj;
-                container.appendChild(obj.letter);
+                if(letters[room] == null) {
+                    break;
+                }
+                for(var k = 0; k < letters[room].length; k++) {
+                    if(letters[room][k].x == j && letters[room][k].y == i) {
+                        if(!letters[room][k].achieved) {
+                            obj = new Letter(j, i);
+                            container.appendChild(obj.letter);
+                            letters[room][k].ref = obj;
+                        }
+                        break;
+                    }
+                }
                 break;
             }
             mapReferences[i][j] = obj;
@@ -720,12 +730,15 @@ var update = function(delta) {
         moveIcicleDivs();
         
         // Check if we got a letter
-        for(var i = 0; i < letters.length; i++) {
-            if(letters[i] != null) {
-                if(letters[i].collision(npx, npy, pw)) {
-                    letters[i].letter.style.display = 'none';
-                    letters[i] = null;
-                    addLetter();
+        if(letters[room] != null) {
+            for(var i = 0; i < letters[room].length; i++) {
+                if(letters[room][i].ref != null && !letters[room][i].achieved) {
+                    if(letters[room][i].ref.collision(npx, npy, pw)) {
+                        letters[room][i].ref.letter.style.display = 'none';
+                        letters[room][i].achieved = true;
+                        addLetter();
+                        break;
+                    }
                 }
             }
         }
