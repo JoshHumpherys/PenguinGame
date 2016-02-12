@@ -727,14 +727,14 @@ var update = function(delta) {
         var icicleLeft = icicles[Math.floor(npx/20)];
         var icicleRight = null;
         if((Math.floor((npx + pw)/20) > Math.floor(npx/20)) && Math.floor(npx/20) < icicles.length) {
-            icicles[Math.floor(npx/20)];
+            icicleRight = icicles[Math.floor(npx/20)+1];
         }
         if(icicleLeft != null) {
             if(icicleLeft.collision(npx, npy, pw)) {
                 kill();
                 return;
             }
-            else if(icicleLeft.y < npy) {
+            else if(icicleLeft.shouldFall(npx, npy, pw)) {
                 icicleLeft.fall();
             }
         }
@@ -743,7 +743,7 @@ var update = function(delta) {
                 kill();
                 return;
             }
-            else if(icicleright.y < npy) {
+            else if(icicleRight.shouldFall(npx, npy, pw)) {
                 icicleRight.fall();
             }
         }
@@ -1170,6 +1170,11 @@ Icicle.prototype.shift = IcicleUp.prototype.shift = (20 - IcicleUp.prototype.w) 
 
 Icicle.prototype.collision = IcicleUp.prototype.collision = function(x, y, w) {
     return x < this.x + this.shift + this.w && x + w > this.x + this.shift && y < this.y + 20 && y + 20 > this.y;
+}
+
+// should fall even if not collides in x direction, fall if penguin is anywhere in block that contains icicle
+Icicle.prototype.shouldFall = function(x, y, w) {
+    return x < this.x + 20 && x + w > this.x && y > this.y;
 }
 
 function Block(x, y, w, visible) {
