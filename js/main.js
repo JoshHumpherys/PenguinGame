@@ -46,6 +46,14 @@ var initMenu = function() {
 //    lettersTopDiv.style.lineHeight = '50px';
     lettersTopDiv.style.fontSize = '40px';
     lettersTopDiv.style.color = '#fff';
+    lettersTopDiv.style.MozUserSelect = 'none';
+    lettersTopDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    lettersTopDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    lettersTopDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    lettersTopDiv.style.MozUserSelect = 'none';      /* Firefox */
+    lettersTopDiv.style.MsUserSelect = 'none';       /* IE/Edge */
+    lettersTopDiv.style.userSelect = 'none';
+    lettersTopDiv.style.cursor = 'default';
     
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
@@ -1187,6 +1195,14 @@ function ButtonLocked(name, x, y) {
     button.style.backgroundColor = '#555';
     button.style.borderRadius = '10px';
     button.style.zIndex = '1';
+    button.style.MozUserSelect = 'none';
+    button.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    button.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    button.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    button.style.MozUserSelect = 'none';      /* Firefox */
+    button.style.MsUserSelect = 'none';       /* IE/Edge */
+    button.style.userSelect = 'none';
+    button.style.cursor = 'default';
 
     button.style.color = '#fff';
     button.style.fontSize = '30px';
@@ -1211,6 +1227,13 @@ function Button(name, x, y) {
     button.style.borderRadius = '10px';
     button.style.zIndex = '1';
     button.style.transition = 'background-color 0.25s ease';
+    button.style.MozUserSelect = 'none';
+    button.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    button.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    button.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    button.style.MozUserSelect = 'none';      /* Firefox */
+    button.style.MsUserSelect = 'none';       /* IE/Edge */
+    button.style.userSelect = 'none';
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
     button.setAttribute('onmousedown', 'menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
