@@ -91,6 +91,18 @@ var initIntroScreen = function() {
 }
 
 var setIntroScreen = function(i) {
+    /*
+    shade = document.createElement('div');
+    shade.style.position = 'absolute';
+    shade.style.width = '100%';
+    shade.style.height = '100%';
+    shade.style.overflow = 'hidden';
+    shade.style.zIndex = '2';
+    shade.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+    shade.style.transition = '
+    container.appendChild(shade);
+    */
+    
     introScreen = true;
     if(i >= introScreenText.length) {
         preInitGame(true);
@@ -215,6 +227,7 @@ var initContainer = function() {
     container.style.width = '800px';
     container.style.height = '600px';
     container.style.cursor = 'initial';
+    container.style.transition = 'backgroundImage 2s ease';
     container.setAttribute('id','container');
     return container;
 }
@@ -1226,6 +1239,9 @@ function Button(name, x, y) {
     button.style.backgroundColor = this.defaultColor;
     button.style.borderRadius = '10px';
     button.style.zIndex = '1';
+    button.style.WebkitTransition = 'background-color 0.25s ease';
+    button.style.MozTransition = 'background-color 0.25s ease';
+    button.style.OTransition = 'background-color 0.25s ease';
     button.style.transition = 'background-color 0.25s ease';
     button.style.MozUserSelect = 'none';
     button.style.WebkitTouchCallout =  'none'; /* iOS Safari */
