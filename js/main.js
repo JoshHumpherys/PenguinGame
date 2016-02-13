@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -17,6 +17,7 @@ var initMenu = function() {
     introScreen = false;
     game = false;
     changingRooms = true;
+    lastMap = 1;
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
@@ -282,7 +283,6 @@ var preInitGame = function(forward) {
         else {
             maxRoom = parseInt(maxRoomCookie);
         }
-        console.log('init maxRoom to ' + maxRoomCookie);
     }
 //    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
@@ -309,9 +309,6 @@ var initGame = function(forward) {
     document.body.appendChild(container);
     container.style.backgroundImage = 'url(img/bg.jpg)';
     container.appendChild(penguin);
-    
-    // init all blocks
-    initBlocks(room, forward);
 
     var firstTime = helpTriggers == null;
     var continueString = '<br /><br />Press any key to continue';
@@ -334,11 +331,11 @@ var initGame = function(forward) {
     // init killFade in preInitGame()
 //    container.appendChild(killFade);
 
-    movePenguinDiv();
-    
-    unpause();
-    
-    changingRooms = false;
+    // init all blocks
+    initBlocks(room, forward);
+//    movePenguinDiv();
+//    unpause();
+//    changingRooms = false;
 }
 
 var initContainer = function() {
@@ -369,177 +366,110 @@ var initContainer = function() {
 }
 
 var initBlocks = function(map, forward) {
-    switch(map) {
-    case 0:
-        mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,7,7,7,7,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,9,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,1,1,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,1,1,2,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,2,0,0,0,0,0,0,0,0,0,0,0,6],
-                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
-        break;
-    case 1:
-        mapData = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                   [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,1],
-                   [1,0,1,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,2,2,1,1,1,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1],
-                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
-                   [5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,8,8,8,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
-                   [1,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,9,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,1,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,1,1,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,8,0,0,0,1],
-                   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
-        break;
-    default:
-        if(map < 0) {
-            alert('We\'re sorry. Something went wrong.\nLevel will restart.');
-            room = 0;
-            preInitGame(true);
-        }
-        else {
-            alert('Congratulations! You completed the last level!\nRedirecting to main menu.');
-            initMenu();
-        }
+    if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
+        initMenu();
         return;
     }
-    mapReferences = new Array(30);
+    mapData = new Array(30);
     for(var i = 0; i < 30; i++) {
-        mapReferences[i] = new Array(40);
+        mapData[i] = new Array(40);
     }
-    for(var i = 0; i < mapData.length; i++) {
-        for(var j = 0; j < mapData[i].length; j++) {
-            var obj;
-            switch(mapData[i][j]) {
-            case 0:
-                // empty
-                break;
-            case 1:
-                // visible block
-                container.appendChild((obj = new Block(j, i, 20, true)).block);
-                break;
-            case 2:
-                // invisible block
-                container.appendChild((obj = new Block(j, i, 20, false)).block);
-                break;
-            case 3:
-                // previous room
-                break;
-            case 4:
-                // next room
-                break;
-            case 5:
-                // initial penguin position for next level or game start
-                if(forward) {
-                    px = j * 20 + ps;
-                    py = i * 20;
-                }
-                break;
-            case 6:
-                // initial penguin position for previous level
-                if(!forward) {
-                    px = j * 20 + ps;
-                    py = i * 20;
-                }
-                break;
-            case 7:
-                obj = new Icicle(j, i);
-                icicles[j] = obj; // WARNING: assumes only one icicle per column
-                container.appendChild(obj.icicle);
-                break;
-            case 8:
-                container.appendChild((obj = new IcicleUp(j, i)).icicle);
-                break;
-            case 9:
-                if(letters[room] == null) {
-                    break;
-                }
-                for(var k = 0; k < letters[room].length; k++) {
-                    if(letters[room][k].x == j && letters[room][k].y == i) {
-                        if(!letters[room][k].achieved) {
-                            obj = new Letter(j, i);
-                            container.appendChild(obj.letter);
-                            letters[room][k].ref = obj;
-                        }
-                        break;
-                    }
-                }
-                break;
-            }
-            mapReferences[i][j] = obj;
-        }
-    }
-
-/*
-    //var blob = new Blob(["This is my blob content"], {type : "text/plain"});
     var blob;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'maps/map' + map); // add .txt?
+    xhr.open('GET', 'maps/map'+map);
     xhr.responseType = 'blob';
     xhr.onload = function() {
         blob = xhr.response;
         var reader = new FileReader();
         reader.onload = function(e) {
-            alert('success');
-            console.log(e.target.result);
+            array = e.target.result.split('n');
+            for(var i = 0; i < array.length; i++) {
+                mapData[i] = array[i].split('');
+            }
+            mapReferences = new Array(30);
+            for(var i = 0; i < 30; i++) {
+                mapReferences[i] = new Array(40);
+            }
+            for(var i = 0; i < mapData.length; i++) {
+                for(var j = 0; j < mapData[i].length; j++) {
+                    var obj;
+                    switch(parseInt(mapData[i][j])) {
+                    case 0:
+                        // empty
+                        break;
+                    case 1:
+                        // visible block
+                        container.appendChild((obj = new Block(j, i, 20, true)).block);
+                        break;
+                    case 2:
+                        // invisible block
+                        container.appendChild((obj = new Block(j, i, 20, false)).block);
+                        break;
+                    case 3:
+                        // previous room
+                        break;
+                    case 4:
+                        // next room
+                        break;
+                    case 5:
+                        // initial penguin position for next level or game start
+                        if(forward) {
+                            px = j * 20 + ps;
+                            py = i * 20;
+                        }
+                        break;
+                    case 6:
+                        // initial penguin position for previous level
+                        if(!forward) {
+                            px = j * 20 + ps;
+                            py = i * 20;
+                        }
+                        break;
+                    case 7:
+                        obj = new Icicle(j, i);
+                        icicles[j] = obj; // WARNING: assumes only one icicle per column
+                        container.appendChild(obj.icicle);
+                        break;
+                    case 8:
+                        container.appendChild((obj = new IcicleUp(j, i)).icicle);
+                        break;
+                    case 9:
+                        if(letters[room] == null) {
+                            break;
+                        }
+                        for(var k = 0; k < letters[room].length; k++) {
+                            if(letters[room][k].x == j && letters[room][k].y == i) {
+                                if(!letters[room][k].achieved) {
+                                    obj = new Letter(j, i);
+                                    container.appendChild(obj.letter);
+                                    letters[room][k].ref = obj;
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    mapReferences[i][j] = obj;
+                }
+            }
+            movePenguinDiv();
+            unpause();
+            changingRooms = false;
         }
         reader.onerror = function(e) {
-            alert(e.target.error);
+            alert('We\re sorry, there was an error!\nReturning to main menu.');
+            initMenu();
+            return;
         }
         reader.readAsText(blob);
     }
     xhr.send();
-//    reader.readAsText(new File('/maps/map'+map+'.txt'));
-*/
 }
 
 var loop = function() {
-    if(!paused) {
+    if(!paused && !changingRooms) {
         var now = Date.now();
-
+        
         for(var i = 0; i < Math.floor((now-last)/17); i++) {
             update((now-last)/Math.floor((now-last)/17));
         }
@@ -551,6 +481,7 @@ var loop = function() {
         last = now;
     }
     if(roomChangeQueued) {
+        pause();
         roomChangeQueued = false;
         initGame(forward);
     }
@@ -1069,6 +1000,7 @@ var outOfBoundsX = function(y, x) {
 }
 
 var outOfBoundsY = function(y, x) {
+    console.log('out of boundsy  = ' + y);
     var type = mapData[y < 0 ? y + 1 : y - 1][x];
     if(type == 3 || type == 5) {
         previousRoom();
@@ -1104,12 +1036,10 @@ var nextRoom = function() {
 }
 
 var goToRoom = function(roomToGoTo) {
-    console.log(roomToGoTo);
     if(roomToGoTo <= maxRoom && roomToGoTo >= 0) {
-        pause();
         room = roomToGoTo;
-        setCookie('maxRoom',maxRoom+'');
         roomChangeQueued = true;
+        setCookie('maxRoom',maxRoom+'');
         forward = true;
     }
     else if(roomToGoTo < 0) {
