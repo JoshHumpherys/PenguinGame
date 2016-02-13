@@ -799,6 +799,7 @@ var update = function(delta) {
         }
         if(icicleLeft != null) {
             if(icicleLeft.collision(npx, npy, pw)) {
+                moveIcicleDivs();
                 kill();
                 return;
             }
@@ -808,6 +809,7 @@ var update = function(delta) {
         }
         if(icicleRight != null) {
             if(icicleRight.collision(npx, npy, pw)) {
+                moveIcicleDivs();
                 kill();
                 return;
             }
