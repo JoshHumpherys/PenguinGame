@@ -1527,6 +1527,9 @@ var hideAlert = function() {
         alertShowing = false;
         alertBox.remove();
         shade.remove();
+        if(tutorial) {
+            land();
+        }
         unpause();
         tutorial = false;
     }
@@ -1653,7 +1656,6 @@ window.onkeydown = function(e) {
         }
 //        else if(paused && (((key == 37) == !left) || ((key == 39) == !right))) {
         else if(paused && (tutorial == (key == 13))) {
-            tutorial = false;
             hideAlert();
             unpause();
         }
