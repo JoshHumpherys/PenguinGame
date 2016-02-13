@@ -44,6 +44,7 @@ var initMenu = function() {
     alternateMenuDiv.style.MsUserSelect = 'none';       /* IE/Edge */
     alternateMenuDiv.style.userSelect = 'none';
     alternateMenuDiv.style.cursor = 'default';
+    alternateMenuDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
     container.appendChild(alternateMenuDiv);
     alternateMenuHeadingDiv = document.createElement('div');
     alternateMenuHeadingDiv.style.position = 'absolute';
@@ -59,6 +60,7 @@ var initMenu = function() {
     alternateMenuHeadingDiv.style.MsUserSelect = 'none';       /* IE/Edge */
     alternateMenuHeadingDiv.style.userSelect = 'none';
     alternateMenuHeadingDiv.style.cursor = 'default';
+    alternateMenuHeadingDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
     alternateMenuHeadingDiv.style.fontSize = '100px';
     container.appendChild(alternateMenuHeadingDiv);
     
@@ -82,6 +84,7 @@ var initMenu = function() {
     lettersTopDiv.style.MsUserSelect = 'none';       /* IE/Edge */
     lettersTopDiv.style.userSelect = 'none';
     lettersTopDiv.style.cursor = 'default';
+    lettersTopDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
     
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
@@ -139,6 +142,7 @@ var initMenu = function() {
     instructionsDiv.style.width = '200px';
     instructionsDiv.style.height = '600px';
     instructionsDiv.style.color = '#fff';
+    instructionsDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
     setInstructionsDivText();
     document.body.appendChild(instructionsDiv);
     
@@ -150,7 +154,7 @@ var setInstructionsDivText = function() {
         instructionsDiv.innerHTML = 'Use mouse or keyboard to select a menu button';
     }
     else if(introScreen) {
-        instructionsDiv.innerHTML = 'Click or press RIGHT to go to the next screen';
+        instructionsDiv.innerHTML = 'Click or press right to go to the next screen';
     }
     else { // game
         instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br />';
@@ -183,6 +187,7 @@ var setIntroScreen = function(i) {
                 introScreenTextDiv.style.MsUserSelect = 'none';       /* IE/Edge */
                 introScreenTextDiv.style.userSelect = 'none';
                 introScreenTextDiv.style.cursor = 'default';
+                introScreenTextDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
                 introScreenTextDivChild = document.createElement('div');
                 introScreenTextDivChild.style.color = '#fff';
                 introScreenTextDivChild.style.padding = '10px';
