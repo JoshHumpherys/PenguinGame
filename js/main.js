@@ -1096,26 +1096,6 @@ var kill = function() {
             killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
             initGame(true);
     },1000);
-    
-    /*
-    if(shade != null) {
-        shade.remove();
-    }
-    shade = document.createElement('div');
-    shade.style.position = 'absolute';
-    shade.style.width = '100%';
-    shade.style.height = '100%';
-    shade.style.overflow = 'hidden';
-    shade.style.zIndex = '2';
-    shade.style.backgroundColor = 'rgba(0, 0, 0, 1)';
-    container.appendChild(shade);
-    shade.style.WebkitTransition = 'background-color 2s ease';
-    shade.style.MozTransition = 'background-color 2s ease';
-    shade.style.OTransition = 'background-color 2s ease';
-    shade.style.transition = 'background-color 2s ease';
-    shade.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-    setTimeout(function(){shade.style.backgroundColor = 'rgba(0, 0, 0, 1)';initGame(true);},2000);
-    */
 }
 
 var movePenguinDiv = function() {
@@ -1133,28 +1113,7 @@ var moveIcicleDivs = function() {
     }
 }
 
-/*
-// WARNING: c must be in letters
-var addLetter = function(c) {
-    for(var i = 0; i < letters.length; i++) {
-        if(letters[i].c == c) {
-            var letterDiv = document.createElement('div');
-            letterDiv.innerHTML = c;
-            mapData[0][letters[i].i].block.appendChild(letterDiv);
-        }
-    }
-}
-*/
-
 var addLetter = function(i) {
-    /*
-    for(var i = di; i + di < lettersOrder.length; i++) {
-        if(!lettersCurrent[lettersOrder[i+di]]) {
-            lettersCurrent[lettersOrder[i+di]] = true;
-            break;
-        }
-    }
-    */
     lettersCurrent[lettersOrder[i]] = true;
     
     var won = true;
@@ -1232,7 +1191,7 @@ var eraseCookie = function(name) {
 var eraseAllCookies = function() {
     array = document.cookie.split(';');
     for(var i = 0; i < array.length; i++) {
-        eraseCookie(array[i].substring(0, array[0].indexOf('=')));
+        eraseCookie(array[i].substring(0, array[i].indexOf('=')));
     }
 }
 
