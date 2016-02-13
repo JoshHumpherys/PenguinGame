@@ -159,7 +159,7 @@ var setInstructionsDivText = function() {
         instructionsDiv.innerHTML = 'Click or press right to go to the next screen';
     }
     else { // game
-        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu';
+        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu<br /><br />R to restart room';
     }
 }
 
@@ -1061,18 +1061,20 @@ var goToRoom = function(roomToGoTo) {
         forward = true;
     }
     else if(roomToGoTo < 0) {
-//        pause();
-//        showAlert('You can\'t go backwards! You\'re only in the first room!<br /><br />Press any key to continue', 200, 200, 400, 120);
-        changeX = changeY = true;
         room = 0;
         setCookie('room',room+'');
-        roomChangeQueued = true;
-        forward = true;
+        restart();
     }
     else {
         pause();
         showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', 200, 200, 400, 120);
     }
+}
+
+var restart = function() {
+        changeX = changeY = true;
+        roomChangeQueued = true;
+        forward = true;
 }
 
 var collision = function(i) {
@@ -1719,6 +1721,9 @@ window.onkeydown = function(e) {
         }
         else if(key == 77) { // m
             initMenu();
+        }
+        else if(key == 82) { // r
+            restart();
         }
     }
 }
