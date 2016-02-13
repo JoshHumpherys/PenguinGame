@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -33,9 +33,10 @@ var initMenu = function() {
     alternateMenuDiv = document.createElement('div');
     alternateMenuDiv.style.position = 'absolute';
     alternateMenuDiv.style.left = '100px';
-    alternateMenuDiv.style.top = '200px';
-    alternateMenuDiv.style.width = '400px';
+    alternateMenuDiv.style.top = '150px';
+    alternateMenuDiv.style.width = '450px';
     alternateMenuDiv.style.height = '100px';
+    alternateMenuDiv.style.color = '#fff';
     alternateMenuDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
     alternateMenuDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
     alternateMenuDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
@@ -44,6 +45,22 @@ var initMenu = function() {
     alternateMenuDiv.style.userSelect = 'none';
     alternateMenuDiv.style.cursor = 'default';
     container.appendChild(alternateMenuDiv);
+    alternateMenuHeadingDiv = document.createElement('div');
+    alternateMenuHeadingDiv.style.position = 'absolute';
+    alternateMenuHeadingDiv.style.left = '100px';
+    alternateMenuHeadingDiv.style.top = '25px';
+    alternateMenuHeadingDiv.style.width = '450px';
+    alternateMenuHeadingDiv.style.height = '100px';
+    alternateMenuHeadingDiv.style.color = '#fff';
+    alternateMenuHeadingDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    alternateMenuHeadingDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    alternateMenuHeadingDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    alternateMenuHeadingDiv.style.MozUserSelect = 'none';      /* Firefox */
+    alternateMenuHeadingDiv.style.MsUserSelect = 'none';       /* IE/Edge */
+    alternateMenuHeadingDiv.style.userSelect = 'none';
+    alternateMenuHeadingDiv.style.cursor = 'default';
+    alternateMenuHeadingDiv.style.fontSize = '100px';
+    container.appendChild(alternateMenuHeadingDiv);
     
     if(lettersTopDiv != null) {
         lettersTopDiv.remove();
@@ -1476,16 +1493,16 @@ Button.prototype.select = function() {
             setIntroScreen(0);
             break;
         case 'expert':
-            switchMenuAlternate('Entering expert mode');
+            switchMenuAlternate('Entering expert mode.', 'Expert');
             break;
         case 'options':
-            switchMenuAlternate('Here are your options');
+            switchMenuAlternate('Here are your options.', 'Options');
             break;
         case 'help':
-            switchMenuAlternate('Here is help');
+            switchMenuAlternate('Here is help.', 'Help');
             break;
         case 'about':
-            switchMenuAlternate('Coded by Josh Humpherys in February of 2016<br />Why? Play story mode to find out!');
+            switchMenuAlternate('Coded by Josh Humpherys in February of 2016.<br />Why? Play story mode to find out!<br /><br />(Oh, and special thanks to Nathan Bierema for the ice cube image).', 'About');
             break;
         }
     }
@@ -1564,16 +1581,18 @@ var hideAlert = function() {
     }
 }
 
-var switchMenuAlternate = function(s) {
+var switchMenuAlternate = function(s, h) {
     alternateMenu = true;
     removeAllButtons();
-    alternateMenuDiv.innerHTML = s + '<br /><br />Press any key to return to the main menu';
+    alternateMenuHeadingDiv.innerHTML = h;
+    alternateMenuDiv.innerHTML = s + '<br /><br />(press any key to continue)';
 }
 
 var switchMenuMain = function() {
     alternateMenu = false;
     showAllButtons();
     alternateMenuDiv.innerHTML = '';
+    alternateMenuHeadingDiv.innerHTML = '';
 }
 
 window.onmousedown = function(e) {
