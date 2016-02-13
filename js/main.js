@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -187,6 +187,25 @@ var preInitGame = function(forward) {
     penguin.innerHTML = penguinImg.outerHTML;
     container.appendChild(penguin);
     
+    killFade = document.createElement('div');
+    killFade.style.position = 'absolute';
+    killFade.style.overflow = 'hidden';
+//    killFade.style.left = (document.body.clientWidth-800)/2 + 'px';
+//    killFade.style.top = 50 + 'px';
+//    killFade.style.width = '800px';
+//    killFade.style.height = '600px';
+    killFade.style.left = container.style.left;
+    killFade.style.top = container.style.top;
+    killFade.style.width = container.style.width;
+    killFade.style.height = container.style.height;
+    killFade.style.zIndex = '200';
+    killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+    killFade.style.WebkitTransition = 'background-color 1s ease';
+    killFade.style.MozTransition = 'background-color 1s ease';
+    killFade.style.OTransition = 'background-color 1s ease';
+    killFade.style.transition = 'background-color 1s ease';
+    document.body.appendChild(killFade);
+    
     // init room, level vars
     if(room == undefined) {
         var roomCookie = getCookie('room');
@@ -242,23 +261,42 @@ var initGame = function(forward) {
                         {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                         {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
     }
+    
+    // init killFade in preInitGame()
+//    container.appendChild(killFade);
 
     movePenguinDiv();
+    
+    changingRooms = false;
     
     unpause();
 }
 
 var initContainer = function() {
-    var container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = (document.body.clientWidth-800)/2 + 'px';
-    container.style.top = 50 + 'px';
-    container.style.width = '800px';
-    container.style.height = '600px';
-    container.style.cursor = 'initial';
-    container.style.transition = 'backgroundImage 2s ease';
-    container.setAttribute('id','container');
-    return container;
+    if(killFade == null) {
+        var container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = (document.body.clientWidth-800)/2 + 'px';
+        container.style.top = 50 + 'px';
+        container.style.width = '800px';
+        container.style.height = '600px';
+        container.style.cursor = 'initial';
+        container.style.transition = 'backgroundImage 2s ease';
+        container.setAttribute('id','container');
+        return container;
+    }
+    else {
+        var container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = killFade.style.left;
+        container.style.top = killFade.style.top;
+        container.style.width = killFade.style.width;
+        container.style.height = killFade.style.height;
+        container.style.cursor = 'initial';
+        container.style.transition = 'backgroundImage 2s ease';
+        container.setAttribute('id','container');
+        return container;
+    }
 }
 
 var initBlocks = function(map, forward) {
@@ -1040,7 +1078,33 @@ var hitCeiling = function() {
 }
 
 var kill = function() {
-    initGame(true);
+    console.log('kill');
+    movePenguinDiv();
+    pause();
+    
+    killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
+    setTimeout(function() {killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';},1000);
+    setTimeout(function(){initGame(true);},1000);
+    
+    /*
+    if(shade != null) {
+        shade.remove();
+    }
+    shade = document.createElement('div');
+    shade.style.position = 'absolute';
+    shade.style.width = '100%';
+    shade.style.height = '100%';
+    shade.style.overflow = 'hidden';
+    shade.style.zIndex = '2';
+    shade.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+    container.appendChild(shade);
+    shade.style.WebkitTransition = 'background-color 2s ease';
+    shade.style.MozTransition = 'background-color 2s ease';
+    shade.style.OTransition = 'background-color 2s ease';
+    shade.style.transition = 'background-color 2s ease';
+    shade.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+    setTimeout(function(){shade.style.backgroundColor = 'rgba(0, 0, 0, 1)';initGame(true);},2000);
+    */
 }
 
 var movePenguinDiv = function() {
@@ -1456,6 +1520,9 @@ var showAlert = function(text, x, y, w, h) {
 
 //showAlert('hello world', 200, 100, 200, 100);
     }
+    if(shade != null) {
+        shade.remove();
+    }
     shade = document.createElement('div');
     shade.style.position = 'absolute';
     shade.style.width = '100%';
@@ -1601,19 +1668,20 @@ window.onkeydown = function(e) {
             hideAlert();
             unpause();
         }
-
-        if(key == 37) {
-            left = true;
-        }
-        else if(key == 39) {
-            right = true;
-        }
-        else if(key == 32 || key == 38) {
-            // won't work for up held and space press or space held and up press
-            // don't really care though, that's not gonna happen
-            if(!jumpKeyDown) {
-                jumpKeyDown = true;
-                jump();
+        if(!changingRooms) {
+            if(key == 37) {
+                left = true;
+            }
+            else if(key == 39) {
+                right = true;
+            }
+            else if(key == 32 || key == 38) {
+                // won't work for up held and space press or space held and up press
+                // don't really care though, that's not gonna happen
+                if(!jumpKeyDown) {
+                    jumpKeyDown = true;
+                    jump();
+                }
             }
         }
     }
