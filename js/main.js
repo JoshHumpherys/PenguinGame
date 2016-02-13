@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -299,7 +299,7 @@ var initGame = function(forward) {
     initBlocks(room, forward);
 
     var firstTime = helpTriggers == null;
-    var continueString = '<br /><br />(enter to continue)';
+    var continueString = '<br /><br />Press any key to continue';
     if(!firstTime) {
         helpTriggers[0].text = 'Oops! You hit an icicle!'+continueString;
         helpTriggers[0].alreadyShown = false;
@@ -1502,7 +1502,7 @@ Button.prototype.select = function() {
             switchMenuAlternate('Here is help.', 'Help');
             break;
         case 'about':
-            switchMenuAlternate('Coded by Josh Humpherys in February of 2016.<br />Why? Play story mode to find out!<br /><br />(Oh, and special thanks to Nathan Bierema for the ice cube image).', 'About');
+            switchMenuAlternate('Coded by Josh Humpherys in February of 2016.<br />Why? Play story mode to find out!<br /><br />Special thanks to Nathan Bierema for the ice cubes.', 'About');
             break;
         }
     }
@@ -1516,6 +1516,7 @@ var showAlert = function(text, x, y, w, h) {
         return;
     }
     alertShowing = true;
+    leftAndRightReleased = !left && !right;
     pause();
     if(alertBox == null) {
         alertBox = document.createElement('div');
@@ -1702,8 +1703,8 @@ window.onkeydown = function(e) {
             pause();
             showAlert('Game paused<br /><br />Press any key to continue', 200, 200, 400, 100);
         }
-//        else if(paused && (((key == 37) == !left) || ((key == 39) == !right))) {
-        else if(paused && (tutorial == (key == 13))) {
+//        else if(paused && (tutorial == (key == 13))) {
+        else if(paused && leftAndRightReleased) {
             hideAlert();
             unpause();
         }
@@ -1735,6 +1736,10 @@ window.onkeyup = function(e) {
         }
         else if(key == 32 || key == 38) {
             jumpKeyDown = false;
+        }
+        
+        if(!left && !right) {
+            leftAndRightReleased = true;
         }
     }
 }
