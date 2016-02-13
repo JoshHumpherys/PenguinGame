@@ -1061,8 +1061,13 @@ var goToRoom = function(roomToGoTo) {
         forward = true;
     }
     else if(roomToGoTo < 0) {
-        pause();
-        showAlert('You can\'t go backwards! You\'re only in the first room!<br /><br />Press any key to continue', 200, 200, 400, 120);
+//        pause();
+//        showAlert('You can\'t go backwards! You\'re only in the first room!<br /><br />Press any key to continue', 200, 200, 400, 120);
+        changeX = changeY = true;
+        room = 0;
+        setCookie('room',room+'');
+        roomChangeQueued = true;
+        forward = true;
     }
     else {
         pause();
