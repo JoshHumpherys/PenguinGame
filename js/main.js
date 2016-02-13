@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -14,9 +14,9 @@ var initMenu = function() {
     paused = false;
     mouseDown = false;
     menu = true;
+    introScreen = false;
     game = false;
     changingRooms = true;
-    introScreen = false;
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
@@ -112,7 +112,32 @@ var initMenu = function() {
     killFade.style.transition = 'background-color 1s ease';
     document.body.appendChild(killFade);
     
+    if(instructionsDiv != null) {
+        instructionsDiv.remove();
+    }
+    instructionsDiv = document.createElement('div');
+    instructionsDiv.style.position = 'absolute';
+    instructionsDiv.style.left = (document.body.clientWidth-800)/2+820+'px';
+    instructionsDiv.style.top = container.style.top;
+    instructionsDiv.style.width = '200px';
+    instructionsDiv.style.height = '600px';
+    instructionsDiv.style.color = '#fff';
+    setInstructionsDivText();
+    document.body.appendChild(instructionsDiv);
+    
     changingRooms = false;
+}
+
+var setInstructionsDivText = function() {
+    if(menu) {
+        instructionsDiv.innerHTML = 'Use mouse or keyboard to select a menu button';
+    }
+    else if(introScreen) {
+        instructionsDiv.innerHTML = 'Click or press RIGHT to go to the next screen';
+    }
+    else { // game
+        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br />';
+    }
 }
 
 var setIntroScreen = function(i) {
@@ -122,8 +147,9 @@ var setIntroScreen = function(i) {
     setTimeout(function() {
             if(i == 0) {
                 menu = false;
-                game = false;
                 introScreen = true;
+                game = false;
+                setInstructionsDivText();
                 document.getElementById('container').remove();
                 container = initContainer();
                 document.body.appendChild(container);
@@ -168,6 +194,8 @@ var preInitGame = function(forward) {
 //var preInitGame = function() {
     menu = false;
     introScreen = false;
+    game = true;
+    setInstructionsDivText();
     changingRooms = true;
     right = left = jumpKeyDown = false;
     icicles = new Array(40);
@@ -236,6 +264,7 @@ var preInitGame = function(forward) {
 }
 
 var initGame = function(forward) {
+    game = true;
     inAir = false;
     jumpCount = 0;
     jumpKeyDown = false;
