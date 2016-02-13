@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -151,13 +151,13 @@ var initMenu = function() {
 
 var setInstructionsDivText = function() {
     if(menu) {
-        instructionsDiv.innerHTML = 'Use mouse or keyboard to select a menu button';
+        instructionsDiv.innerHTML = 'Use mouse or keyboard to select a menu button.<br /><br />Complete story mode to unlock expert!';
     }
     else if(introScreen) {
         instructionsDiv.innerHTML = 'Click or press right to go to the next screen';
     }
     else { // game
-        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br />';
+        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room';
     }
 }
 
@@ -274,6 +274,16 @@ var preInitGame = function(forward) {
             room = parseInt(roomCookie);
         }
     }
+    if(maxRoom == undefined) {
+        var maxRoomCookie = getCookie('maxRoom');
+        if(maxRoomCookie == '') {
+            maxRoom = room;
+        }
+        else {
+            maxRoom = parseInt(maxRoomCookie);
+        }
+        console.log('init maxRoom to ' + maxRoomCookie);
+    }
 //    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
 //        if(room < levels[i]) {
@@ -306,8 +316,8 @@ var initGame = function(forward) {
     var firstTime = helpTriggers == null;
     var continueString = '<br /><br />Press any key to continue';
     if(!firstTime) {
-        helpTriggers[0].text = 'Oops! You hit an icicle!'+continueString;
-        helpTriggers[0].alreadyShown = false;
+//        helpTriggers[0].text = 'Oops! You hit an icicle!'+continueString;
+//        helpTriggers[0].alreadyShown = false;
         for(var i = 0; i < helpTriggers.length; i++) {
             helpTriggers[i].alreadyShown = false;
         }
@@ -894,7 +904,7 @@ var update = function(delta) {
                             pause();
                             showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
                             tutorial = true;
-                            while(i > 1) {
+                            while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
                         }
@@ -905,7 +915,7 @@ var update = function(delta) {
                             pause();
                             showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
                             tutorial = true;
-                            while(i > 1) {
+                            while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
                         }
@@ -1073,7 +1083,6 @@ var previousRoom = function() {
         pause();
         room--;
         setCookie('room',room+'');
-    //    initGame(false);
         roomChangeQueued = true;
         forward = false;
     }
@@ -1084,10 +1093,31 @@ var nextRoom = function() {
         pause();
         room++;
         setCookie('room',room+'');
-    //    initGame(true);
-    //    preInitGame(true);
+        if(room > maxRoom) {
+            maxRoom = room;
+        }
+        setCookie('maxRoom',maxRoom+'');
         roomChangeQueued = true;
         forward = true;
+    }
+}
+
+var goToRoom = function(roomToGoTo) {
+    console.log(roomToGoTo);
+    if(roomToGoTo <= maxRoom && roomToGoTo >= 0) {
+        pause();
+        room = roomToGoTo;
+        setCookie('maxRoom',maxRoom+'');
+        roomChangeQueued = true;
+        forward = true;
+    }
+    else if(roomToGoTo < 0) {
+        pause();
+        showAlert('You can\'t go backwards! You\'re only in the first room!<br /><br />Press any key to continue', 200, 200, 400, 120);
+    }
+    else {
+        pause();
+        showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', 200, 200, 400, 120);
     }
 }
 
@@ -1726,6 +1756,12 @@ window.onkeydown = function(e) {
                 jumpKeyDown = true;
                 jump();
             }
+        }
+        else if(key == 90) { // z
+            goToRoom(room-1);
+        }
+        else if(key == 88) { // x
+            goToRoom(room+1);
         }
     }
 }
