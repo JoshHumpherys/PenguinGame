@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -17,7 +17,8 @@ var initMenu = function() {
     introScreen = false;
     game = false;
     changingRooms = true;
-    lastMap = 2;
+    changeX = changeY = true;
+    lastMap = 4;
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
@@ -414,15 +415,23 @@ var initBlocks = function(map, forward) {
                     case 5:
                         // initial penguin position for next level or game start
                         if(forward) {
-                            px = j * 20 + ps;
-                            py = i * 20;
+                            if(changeX) {
+                                px = j * 20 + ps;
+                            }
+                            if(changeY) {
+                                py = i * 20;
+                            }
                         }
                         break;
                     case 6:
                         // initial penguin position for previous level
                         if(!forward) {
-                            px = j * 20 + ps;
-                            py = i * 20;
+                            if(changeX) {
+                                px = j * 20 + ps;
+                            }
+                            if(changeY) {
+                                py = i * 20;
+                            }
                         }
                         break;
                     case 7:
@@ -469,6 +478,7 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     if(!paused && !changingRooms) {
         var now = Date.now();
+        console.log(py);
         
         for(var i = 0; i < Math.floor((now-last)/17); i++) {
             update((now-last)/Math.floor((now-last)/17));
@@ -536,7 +546,7 @@ var update = function(delta) {
         // calculate new y, dy
         msSinceJump += delta;
         // dy/dt = a * t + v0
-        var dy = a * msSinceJump / 1000 + v0;
+        dy = a * msSinceJump / 1000 + v0;
         if(inAir) {
             npy += dy * (delta / 1000);
         }
@@ -971,11 +981,15 @@ var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
 
 var getMapData = function(y, x) {
     if(y >= mapData.length) {
-        outOfBoundsY(y, x);
+        if(dy > 0) {
+            outOfBoundsY(y, x);
+        }
         return -1;
     }
     else if(y < 0) {
-        outOfBoundsY(y, x);
+        if(dy < 0) {
+            outOfBoundsY(y, x);
+        }
         return -1;
     }
     if(x >= mapData[y].length) {
@@ -990,6 +1004,8 @@ var getMapData = function(y, x) {
 }
 
 var outOfBoundsX = function(y, x) {
+    changeX = true;
+    changeY = false;
     var type = mapData[y][x < 0 ? x + 1 : x - 1];
     if(type == 3 || type == 5) {
         previousRoom();
@@ -1000,7 +1016,8 @@ var outOfBoundsX = function(y, x) {
 }
 
 var outOfBoundsY = function(y, x) {
-    console.log('out of boundsy  = ' + y);
+    changeX = false;
+    changeY = true;
     var type = mapData[y < 0 ? y + 1 : y - 1][x];
     if(type == 3 || type == 5) {
         previousRoom();
@@ -1037,6 +1054,7 @@ var nextRoom = function() {
 
 var goToRoom = function(roomToGoTo) {
     if(roomToGoTo <= maxRoom && roomToGoTo >= 0) {
+        changeX = changeY = true;
         room = roomToGoTo;
         roomChangeQueued = true;
         setCookie('maxRoom',maxRoom+'');
