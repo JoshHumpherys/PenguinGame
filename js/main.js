@@ -36,6 +36,9 @@ var initMenu = function() {
     alternateMenuDiv.style.height = '100px';
     container.appendChild(alternateMenuDiv);
     
+    if(lettersTopDiv != null) {
+        lettersTopDiv.remove();
+    }
     lettersTopDiv = document.createElement('div');
     lettersTopDiv.style.position = 'absolute';
     lettersTopDiv.style.top = '0px';
@@ -58,11 +61,30 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
-    
-    addLetter();
-    
     letters = [[{x:36,y:17}],[{x:6,y:2},{x:19,y:14},{x:2,y:26},{x:26,y:26}]];
+    var lettersCurrentCookie = getCookie('lettersCurrent');
+    if(lettersCurrentCookie == '') {
+        lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
+        addLetter(0);
+        setLettersCurrentCookie();
+    }
+    else {
+        // store cookie as example: "0,0,0,1,1,1,0,0,1,0,1,0,"
+        // note comma at the end cuz lazy
+        // and 0 and 1 not true false cuz lazy
+        lettersCurrent = [];
+        for(var i = 0; i < lettersCurrentCookie.length / 2; i++) {
+            lettersCurrent[i] = lettersCurrentCookie.charAt(i * 2) == '0' ? false : true;
+        }
+        updateLettersCurrentString();
+    }
+    
+    var elapsedIndex = 1; // don't count first letter, it's a space
+    for(var i = 0; i < letters.length; i++) {
+        for(var j = 0; j < letters[i].length; j++) {
+            letters[i][j].achieved = lettersCurrent[lettersOrder[elapsedIndex++]];
+        }
+    }
     
     document.body.appendChild(lettersTopDiv);
 }
@@ -751,7 +773,7 @@ var update = function(delta) {
                     if(letters[room][i].ref.collision(npx, npy, pw)) {
                         letters[room][i].ref.letter.style.display = 'none';
                         letters[room][i].achieved = true;
-                        addLetter();
+                        addLetter(getLetterIndex(room, i));
                         break;
                     }
                 }
@@ -1040,18 +1062,46 @@ var addLetter = function(c) {
 }
 */
 
-var addLetter = function() {
-    var won = false;
-    for(var i = 0; i < lettersOrder.length; i++) {
-        if(!lettersCurrent[lettersOrder[i]]) {
-            lettersCurrent[lettersOrder[i]] = true;
-            if(i == lettersOrder.length - 1) {
-                won = true;
-            }
+var addLetter = function(i) {
+    /*
+    for(var i = di; i + di < lettersOrder.length; i++) {
+        if(!lettersCurrent[lettersOrder[i+di]]) {
+            lettersCurrent[lettersOrder[i+di]] = true;
+            break;
+        }
+    }
+    */
+    lettersCurrent[lettersOrder[i]] = true;
+    
+    var won = true;
+    for(var i = 0; i < lettersCurrent.length; i++) {
+        if(!lettersCurrent[i]) {
+            won = false;
             break;
         }
     }
 
+    updateLettersCurrentString();
+    
+    setLettersCurrentCookie();
+    
+    if(won) {
+        youWin();
+    }
+}
+
+// WARNING: does not check if valid room
+var getLetterIndex = function(room, di) {
+    var count = 1;
+    for(var i = 0; i < room; i++) {
+        for(var j = 0; j < letters[i].length; j++) {
+            count++;
+        }
+    }
+    return count + di;
+}
+
+var updateLettersCurrentString = function() {
     var lettersString = '';
     for(var i = 0; i < lettersFinal.length; i++) {
         if(lettersCurrent[i]) {
@@ -1063,14 +1113,54 @@ var addLetter = function() {
     }
 
     lettersTopDiv.innerHTML = lettersString;
-    
-    if(won) {
-        youWin();
-    }
 }
 
 var youWin = function() {
     alert('congrats');
+}
+
+var getCookie = function(name) {
+    name += '=';
+    array = document.cookie.split(';');
+    for(var i = 0; i < array.length; i++) {
+        var current = array[i];
+        while(current.charAt(0) == ' ') {
+            current = current.substring(1);
+        }
+        if(current.indexOf(name) == 0) {
+            console.log(current);
+            console.log(name);
+            console.log(name.length);
+            return current.substring(name.length, current.length);
+        }
+    }
+    return '';
+}
+
+// sets cookies to expire 10 years from now
+var setCookie = function(name, value) {
+    var expDate = new Date();
+    expDate.setYear(expDate.getFullYear() + 10);
+    document.cookie = name+'='+value+'; expires='+expDate.toUTCString();
+}
+
+var eraseCookie = function(name) {
+    document.cookie = name+'=;expires=Thu, 01 Jan 1970 00:00:00 UTC';
+}
+
+var eraseAllCookies = function() {
+    array = document.cookie.split(';');
+    for(var i = 0; i < array.length; i++) {
+        eraseCookie(array[i].substring(0, array[0].indexOf('=')));
+    }
+}
+
+var setLettersCurrentCookie = function() {
+    var s = '';
+    for(var i = 0; i < lettersCurrent.length; i++) {
+        s += lettersCurrent[i] ? '1,' : '0,';
+    }
+    setCookie('lettersCurrent',s);
 }
 
 var removeAllButtons = function() {
