@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -12,6 +12,7 @@ var initMenu = function() {
     container.style.backgroundImage = 'url(img/clouds.jpg)';
     document.body.appendChild(container);
     paused = false;
+    mouseDown = false;
     menu = true;
     game = false;
     changingRooms = true;
@@ -1413,7 +1414,7 @@ function Button(name, x, y) {
     button.style.userSelect = 'none';
     button.setAttribute('onmouseenter', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].highlight()');
     button.setAttribute('onmouseout', 'buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = false;buttons[\''+name+'\'].unhighlight()');
-    button.setAttribute('onmousedown', 'menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
+    button.setAttribute('onmousedown', 'mouseDown = true;menuControlledByMouse = true;buttonIndex=buttonNames.indexOf(\''+name+'\');buttons[\''+name+'\'].mouseOver = true;buttons[\''+name+'\'].select()');
     
 //    var inner = document.createElement('div');
 //    inner.style.width = '180px';
@@ -1564,12 +1565,21 @@ var switchMenuMain = function() {
 }
 
 window.onmousedown = function(e) {
-//    if(introScreen) {
-//        nextIntroScreen();
-//    }
-//    else if(alternateMenu) {
-//        switchMenuMain();
-//    }
+    if(!mouseDown) {
+        if(!changingRooms) {
+            if(introScreen) {
+                nextIntroScreen();
+            }
+            else if(alternateMenu) {
+                switchMenuMain();
+            }
+        }
+    }
+    mouseDown = true;
+}
+
+window.onmouseup = function(e) {
+    mouseDown = false;
 }
 
 window.onmousemove = function(e) {
