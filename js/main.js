@@ -92,15 +92,12 @@ var initMenu = function() {
     killFade = document.createElement('div');
     killFade.style.position = 'absolute';
     killFade.style.overflow = 'hidden';
-//    killFade.style.left = (document.body.clientWidth-800)/2 + 'px';
-//    killFade.style.top = 50 + 'px';
-//    killFade.style.width = '800px';
-//    killFade.style.height = '600px';
     killFade.style.left = container.style.left;
     killFade.style.top = container.style.top;
     killFade.style.width = container.style.width;
     killFade.style.height = container.style.height;
     killFade.style.zIndex = '200';
+    killFade.style.pointerEvents = 'none';
     killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
     killFade.style.WebkitTransition = 'background-color 1s ease';
     killFade.style.MozTransition = 'background-color 1s ease';
@@ -111,42 +108,7 @@ var initMenu = function() {
     changingRooms = false;
 }
 
-var initIntroScreen = function() {
-    menu = false;
-    game = false;
-    introScreen = true;
-    document.getElementById('container').remove();
-    container = initContainer();
-    document.body.appendChild(container);
-    introScreenText = ['screen1text', 'screen2text', 'screen3text'];
-    introScreenTextDiv = document.createElement('div');
-    introScreenTextDiv.style.backgroundColor = '#000';
-    introScreenTextDiv.style.width = '100%';
-    introScreenTextDiv.style.height = '100px';
-    introScreenTextDiv.style.textAlign = 'center';
-    introScreenTextDivChild = document.createElement('div');
-    introScreenTextDivChild.style.color = '#fff';
-    introScreenTextDivChild.style.padding = '10px';
-    introScreenTextDivChild.style.margin = '0 auto';
-    introScreenTextDiv.appendChild(introScreenTextDivChild);
-    container.appendChild(introScreenTextDiv);
-    introScreenIndex = 0;
-    setIntroScreen(0);
-}
-
 var setIntroScreen = function(i) {
-    /*
-    shade = document.createElement('div');
-    shade.style.position = 'absolute';
-    shade.style.width = '100%';
-    shade.style.height = '100%';
-    shade.style.overflow = 'hidden';
-    shade.style.zIndex = '2';
-    shade.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-    shade.style.transition = '
-    container.appendChild(shade);
-    */
-    
     changingRooms = true;
     
     killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
