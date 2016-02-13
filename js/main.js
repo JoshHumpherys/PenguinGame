@@ -189,7 +189,14 @@ var preInitGame = function(forward) {
     
     // init room, level vars
     if(room == undefined) {
-        room = 0; // TODO retrieve from cookie.. and set cookie for that matter
+        var roomCookie = getCookie('room');
+        if(roomCookie == '') {
+            room = 0;
+            setCookie('room','0');
+        }
+        else {
+            room = parseInt(roomCookie);
+        }
     }
 //    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
@@ -967,6 +974,7 @@ var previousRoom = function() {
     if(!roomChangeQueued) {
         pause();
         room--;
+        setCookie('room',room+'');
     //    initGame(false);
         roomChangeQueued = true;
         forward = false;
@@ -977,6 +985,7 @@ var nextRoom = function() {
     if(!roomChangeQueued) {
         pause();
         room++;
+        setCookie('room',room+'');
     //    initGame(true);
     //    preInitGame(true);
         roomChangeQueued = true;
@@ -1128,9 +1137,6 @@ var getCookie = function(name) {
             current = current.substring(1);
         }
         if(current.indexOf(name) == 0) {
-            console.log(current);
-            console.log(name);
-            console.log(name.length);
             return current.substring(name.length, current.length);
         }
     }
