@@ -14,6 +14,7 @@ var initMenu = function() {
     paused = false;
     menu = true;
     game = false;
+    changingRooms = true;
     introScreen = false;
     last = Date.now();
     buttons = {};
@@ -87,6 +88,27 @@ var initMenu = function() {
     }
     
     document.body.appendChild(lettersTopDiv);
+    
+    killFade = document.createElement('div');
+    killFade.style.position = 'absolute';
+    killFade.style.overflow = 'hidden';
+//    killFade.style.left = (document.body.clientWidth-800)/2 + 'px';
+//    killFade.style.top = 50 + 'px';
+//    killFade.style.width = '800px';
+//    killFade.style.height = '600px';
+    killFade.style.left = container.style.left;
+    killFade.style.top = container.style.top;
+    killFade.style.width = container.style.width;
+    killFade.style.height = container.style.height;
+    killFade.style.zIndex = '200';
+    killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+    killFade.style.WebkitTransition = 'background-color 1s ease';
+    killFade.style.MozTransition = 'background-color 1s ease';
+    killFade.style.OTransition = 'background-color 1s ease';
+    killFade.style.transition = 'background-color 1s ease';
+    document.body.appendChild(killFade);
+    
+    changingRooms = false;
 }
 
 var initIntroScreen = function() {
@@ -125,6 +147,8 @@ var setIntroScreen = function(i) {
     container.appendChild(shade);
     */
     
+    changingRooms = true;
+    
     introScreen = true;
     if(i >= introScreenText.length) {
         preInitGame(true);
@@ -132,6 +156,8 @@ var setIntroScreen = function(i) {
     }
     container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
     introScreenTextDivChild.innerHTML = introScreenText[i];
+    
+    changingRooms = false;
 }
 
 var nextIntroScreen = function() {
@@ -186,25 +212,6 @@ var preInitGame = function(forward) {
     penguinImg.style.margin = 'auto';
     penguin.innerHTML = penguinImg.outerHTML;
     container.appendChild(penguin);
-    
-    killFade = document.createElement('div');
-    killFade.style.position = 'absolute';
-    killFade.style.overflow = 'hidden';
-//    killFade.style.left = (document.body.clientWidth-800)/2 + 'px';
-//    killFade.style.top = 50 + 'px';
-//    killFade.style.width = '800px';
-//    killFade.style.height = '600px';
-    killFade.style.left = container.style.left;
-    killFade.style.top = container.style.top;
-    killFade.style.width = container.style.width;
-    killFade.style.height = container.style.height;
-    killFade.style.zIndex = '200';
-    killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
-    killFade.style.WebkitTransition = 'background-color 1s ease';
-    killFade.style.MozTransition = 'background-color 1s ease';
-    killFade.style.OTransition = 'background-color 1s ease';
-    killFade.style.transition = 'background-color 1s ease';
-    document.body.appendChild(killFade);
     
     // init room, level vars
     if(room == undefined) {
@@ -267,9 +274,9 @@ var initGame = function(forward) {
 
     movePenguinDiv();
     
-    changingRooms = false;
-    
     unpause();
+    
+    changingRooms = false;
 }
 
 var initContainer = function() {
@@ -1078,7 +1085,7 @@ var hitCeiling = function() {
 }
 
 var kill = function() {
-    console.log('kill');
+    changingRooms = true;
     movePenguinDiv();
     pause();
     
@@ -1610,6 +1617,9 @@ window.onkeydown = function(e) {
             }
         }
     }
+    if(changingRooms) {
+        return;
+    }
     var menuSelector = function(i) {
         if(buttonIndex == -1) {
             if(i == 1) {
@@ -1668,20 +1678,18 @@ window.onkeydown = function(e) {
             hideAlert();
             unpause();
         }
-        if(!changingRooms) {
-            if(key == 37) {
-                left = true;
-            }
-            else if(key == 39) {
-                right = true;
-            }
-            else if(key == 32 || key == 38) {
-                // won't work for up held and space press or space held and up press
-                // don't really care though, that's not gonna happen
-                if(!jumpKeyDown) {
-                    jumpKeyDown = true;
-                    jump();
-                }
+        if(key == 37) {
+            left = true;
+        }
+        else if(key == 39) {
+            right = true;
+        }
+        else if(key == 32 || key == 38) {
+            // won't work for up held and space press or space held and up press
+            // don't really care though, that's not gonna happen
+            if(!jumpKeyDown) {
+                jumpKeyDown = true;
+                jump();
             }
         }
     }
