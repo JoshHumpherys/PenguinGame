@@ -149,15 +149,39 @@ var setIntroScreen = function(i) {
     
     changingRooms = true;
     
-    introScreen = true;
-    if(i >= introScreenText.length) {
-        preInitGame(true);
-        return;
-    }
-    container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
-    introScreenTextDivChild.innerHTML = introScreenText[i];
-    
-    changingRooms = false;
+    killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
+    setTimeout(function() {
+            if(i == 0) {
+                menu = false;
+                game = false;
+                introScreen = true;
+                document.getElementById('container').remove();
+                container = initContainer();
+                document.body.appendChild(container);
+                introScreenText = ['screen1text', 'screen2text', 'screen3text'];
+                introScreenTextDiv = document.createElement('div');
+                introScreenTextDiv.style.backgroundColor = '#000';
+                introScreenTextDiv.style.width = '100%';
+                introScreenTextDiv.style.height = '100px';
+                introScreenTextDiv.style.textAlign = 'center';
+                introScreenTextDivChild = document.createElement('div');
+                introScreenTextDivChild.style.color = '#fff';
+                introScreenTextDivChild.style.padding = '10px';
+                introScreenTextDivChild.style.margin = '0 auto';
+                introScreenTextDiv.appendChild(introScreenTextDivChild);
+                container.appendChild(introScreenTextDiv);
+                introScreenIndex = 0;
+            }
+            killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+            introScreen = true;
+            if(i >= introScreenText.length) {
+                preInitGame(true);
+                return;
+            }
+            container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
+            introScreenTextDivChild.innerHTML = introScreenText[i];
+            changingRooms = false;
+    },1000);
 }
 
 var nextIntroScreen = function() {
@@ -1090,8 +1114,10 @@ var kill = function() {
     pause();
     
     killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
-    setTimeout(function() {killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';},1000);
-    setTimeout(function(){initGame(true);},1000);
+    setTimeout(function() {
+            killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+            initGame(true);
+    },1000);
     
     /*
     if(shade != null) {
@@ -1481,7 +1507,8 @@ Button.prototype.select = function() {
         }
         switch(this.name) {
         case 'story':
-            initIntroScreen();
+//            initIntroScreen();
+            setIntroScreen(0);
             break;
         case 'expert':
             switchMenuAlternate('Entering expert mode');
