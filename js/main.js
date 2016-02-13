@@ -157,7 +157,7 @@ var setInstructionsDivText = function() {
         instructionsDiv.innerHTML = 'Click or press right to go to the next screen';
     }
     else { // game
-        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room';
+        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu';
     }
 }
 
@@ -315,9 +315,10 @@ var initGame = function(forward) {
 
     var firstTime = helpTriggers == null;
     var continueString = '<br /><br />Press any key to continue';
-    if(!firstTime) {
-//        helpTriggers[0].text = 'Oops! You hit an icicle!'+continueString;
-//        helpTriggers[0].alreadyShown = false;
+    if(maxRoom > 0) {
+        helpTriggers = [];
+    }
+    if(helpTriggers != null) {
         for(var i = 0; i < helpTriggers.length; i++) {
             helpTriggers[i].alreadyShown = false;
         }
@@ -1702,7 +1703,7 @@ window.onkeydown = function(e) {
         buttonIndex = ((buttonIndex%buttonNames.length)+buttonNames.length)%buttonNames.length;
         buttons[buttonNames[buttonIndex]].highlight();
     }
-
+    
     if(introScreen) {
         if(key == 83) {
             preInitGame(true);
@@ -1762,6 +1763,9 @@ window.onkeydown = function(e) {
         }
         else if(key == 88) { // x
             goToRoom(room+1);
+        }
+        else if(key == 77) { // m
+            initMenu();
         }
     }
 }
