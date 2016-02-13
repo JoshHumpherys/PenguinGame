@@ -478,7 +478,6 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     if(!paused && !changingRooms) {
         var now = Date.now();
-        console.log(py);
         
         for(var i = 0; i < Math.floor((now-last)/17); i++) {
             update((now-last)/Math.floor((now-last)/17));
@@ -1056,6 +1055,7 @@ var goToRoom = function(roomToGoTo) {
     if(roomToGoTo <= maxRoom && roomToGoTo >= 0) {
         changeX = changeY = true;
         room = roomToGoTo;
+        setCookie('room',room+'');
         roomChangeQueued = true;
         setCookie('maxRoom',maxRoom+'');
         forward = true;
