@@ -17,7 +17,7 @@ var initMenu = function() {
     introScreen = false;
     game = false;
     changingRooms = true;
-    lastMap = 1;
+    lastMap = 2;
     last = Date.now();
     buttons = {};
     buttonNames = ['story', 'options', 'help', 'about'];
@@ -90,7 +90,7 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    letters = [[{x:36,y:17}],[{x:6,y:2},{x:19,y:14},{x:2,y:26},{x:26,y:26}]];
+    letters = [[{x:36,y:17}],[{x:6,y:8}],[{x:15,y:2},{x:36,y:10}]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
