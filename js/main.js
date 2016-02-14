@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -125,7 +125,7 @@ var initMenu = function() {
     killFade.style.top = container.style.top;
     killFade.style.width = container.style.width;
     killFade.style.height = container.style.height;
-    killFade.style.zIndex = '200';
+    killFade.style.zIndex = '2';
     killFade.style.pointerEvents = 'none';
     killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
     killFade.style.WebkitTransition = 'background-color 1s ease';
@@ -148,6 +148,45 @@ var initMenu = function() {
     setInstructionsDivText();
     document.body.appendChild(instructionsDiv);
     
+    if(introPenguinDiv != null) {
+        introPenguinDiv.remove();
+    }
+    introPenguinDiv = document.createElement('div');
+    introPenguinDiv.style.position = 'absolute';
+    introPenguinDiv.style.left = container.style.left;
+    introPenguinDiv.style.top = 50+(600 - 200)/2 + 'px';
+    introPenguinDiv.style.width = '200px';
+    introPenguinDiv.style.height = '200px';
+    introPenguinDiv.style.zIndex = '1';
+    introPenguinDiv.style.opacity = '0';
+    var introPenguinImgDiv = document.createElement('img');
+    introPenguinImgDiv.setAttribute('src','img/penguin.png');
+    introPenguinImgDiv.style.height = introPenguinDiv.style.height;
+    introPenguinImgDiv.style.display = 'block';
+    introPenguinImgDiv.style.margin = 'auto';
+    introPenguinDiv.innerHTML = introPenguinImgDiv.outerHTML;
+    document.body.appendChild(introPenguinDiv);
+    
+    if(introPresentDiv != null) {
+        introPresentDiv.remove();
+    }
+    introPresentDiv = document.createElement('div');
+    introPresentDiv.style.position = 'absolute';
+    introPresentDiv.style.left = 300+(document.body.clientWidth-800)/2+'px';
+    introPresentDiv.style.top = 50+(600 - 200)/2 + 'px';
+    introPresentDiv.style.width = '200px';
+    introPresentDiv.style.height = '200px';
+    introPresentDiv.style.zIndex = '1';
+    introPresentDiv.style.opacity = '0';
+    introPresentDiv.style.transition = 'opacity 1s linear';
+    var introPresentImgDiv = document.createElement('img');
+    introPresentImgDiv.setAttribute('src','img/letter.png');
+    introPresentImgDiv.style.height = introPenguinDiv.style.height;
+    introPresentImgDiv.style.display = 'block';
+    introPresentImgDiv.style.margin = 'auto';
+    introPresentDiv.innerHTML = introPresentImgDiv.outerHTML;
+    document.body.appendChild(introPresentDiv);
+    
     changingRooms = false;
 }
 
@@ -166,6 +205,22 @@ var setInstructionsDivText = function() {
 var setIntroScreen = function(i) {
     changingRooms = true;
     
+    if(i == 0) {
+        introPenguinDiv.style.opacity = '0';
+    }
+    else if(i == 1) {
+        introPenguinDiv.style.opacity = '1';
+    }
+    else if(i == 2) {
+        introPenguinDiv.removeAttribute('class');
+        introPenguinDiv.style.opacity = '1';
+        introPenguinDiv.style.left = 300 + (document.body.clientWidth-800)/2 + 'px';
+        introPenguinDiv.style.transition = 'top 1s ease-in';
+    }
+    else if(i == 3) {
+        introPenguinDiv.style.opacity = '0';
+        introPresentDiv.style.top = 50+(600 - 200)/2 + 'px';
+    }
     killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
     setTimeout(function() {
             if(i == 0) {
@@ -176,7 +231,7 @@ var setIntroScreen = function(i) {
                 document.getElementById('container').remove();
                 container = initContainer();
                 document.body.appendChild(container);
-                introScreenText = ['screen1text', 'screen2text', 'screen3text'];
+                introScreenText = ['This is Penguin. He\'s a penguin.', 'One day Penguin saw an ice cave and thought he would explore.', 'But when Penguin entered the cave he fell in and couldn\'t jump out! He had to look for another exit!', 'He found some presets in the cave and decided to get them.'];
                 introScreenTextDiv = document.createElement('div');
                 introScreenTextDiv.style.backgroundColor = '#000';
                 introScreenTextDiv.style.width = '100%';
@@ -198,15 +253,39 @@ var setIntroScreen = function(i) {
                 container.appendChild(introScreenTextDiv);
                 introScreenIndex = 0;
             }
+            if(i == 1) {
+                    introPenguinDiv.style.top = 120+50+(600 - 200)/2 + 'px';
+            }
             killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
             introScreen = true;
             if(i >= introScreenText.length) {
+                introPresentDiv.style.display = 'none';
                 preInitGame(true);
                 return;
             }
             container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
             introScreenTextDivChild.innerHTML = introScreenText[i];
-            changingRooms = false;
+            setTimeout(function() {
+                if(i == 0) {
+                    // penguin slide in
+                    introPenguinDiv.setAttribute('class','fadeInLeft');
+                }
+                else if(i == 1) {
+                    // penguin slide in
+                }
+                else if(i == 2) {
+                    // penguin zoomOutDown
+                    introPenguinDiv.setAttribute('class','spinFadeOutDown');
+                    introPenguinDiv.style.top = 200+120+50+(600 - 200)/2 + 'px';
+                }
+                else if(i == 3) {
+                    // penguin slide in
+                    // present fade in
+//                    introPenguinDiv.setAttribute('class','fadeInLeft');
+                    introPresentDiv.style.opacity = '1';
+                }
+            },1000);
+            setTimeout(function() {changingRooms = false;},1200);
     },1000);
 }
 
@@ -322,9 +401,9 @@ var initGame = function(forward) {
         }
     }
     else {
-        helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:100},
+        helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move.<br />Try to get all the presents!'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:120},
                         {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                        {text:'This next wall is a little too high to jump on,<br />but you can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:120},
+                        {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
                         {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                         {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
     }

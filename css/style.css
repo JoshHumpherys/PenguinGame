@@ -11,3 +11,93 @@ body {
   user-select: none;           /* non-prefixed version, currently
                                   not supported by any browser */
 }
+
+@-moz-keyframes fadeInLeft {
+    0% {
+       opacity: 0;
+       -moz-transform: translateX(0);
+    }
+    100% {
+       opacity: 1;
+       -moz-transform: translateX(300px);
+    }
+}
+
+@-webkit-keyframes fadeInLeft {
+    0% {
+       opacity: 0;
+       -webkit-transform: translateX(0);
+    }
+    100% {
+       opacity: 1;
+       -webkit-transform: translateX(300px);
+    }
+}
+
+@keyframes fadeInLeft {
+    0% {
+       opacity: 0;
+       transform: translateX(0);
+    }
+    100% {
+       opacity: 1;
+       transform: translateX(300px);
+    }
+}
+
+.fadeInLeft {
+    -moz-animation-name: fadeInLeft;
+    -webkit-animation-name: fadeInLeft;
+    animation-name: fadeInLeft;
+    -moz-animation-duration: 1s;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -moz-animation-fill-mode: both;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+@-moz-keyframes spinFadeOutDown {
+  from {
+    opacity: 1;
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    -moz-transform: rotate(720deg);
+  }
+}
+
+@-webkit-keyframes spinFadeOutDown {
+  from {
+    opacity: 1;
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    -webkit-transform: rotate(720deg);
+  }
+}
+
+@keyframes spinFadeOutDown {
+  from {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(720deg);
+  }
+}
+
+.spinFadeOutDown {
+  -moz-animation-name: spinFadeOutDown;
+  -webkit-animation-name: spinFadeOutDown;
+  animation-name: spinFadeOutDown;
+  -moz-animation-duration: 1s;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -moz-animation-fill-mode: both;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
