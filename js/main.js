@@ -1,8 +1,10 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
 var initMenu = function() {
+    permContainerX = (document.body.clientWidth-800)/2 + 'px';
+    permContainerY = '50px';
     container = document.getElementById('container');
     if(container != null) {
         container.remove();
@@ -11,6 +13,16 @@ var initMenu = function() {
     container.style.backgroundColor = '#000';
     container.style.backgroundImage = 'url(img/clouds.jpg)';
     document.body.appendChild(container);
+    if(containerIntroBG1 != null) {
+        containerIntroBG1.remove();
+    }
+    containerIntroBG1 = initContainer();
+    containerIntroBG1.style.backgroundImage = 'url(img/intro0.jpg)';
+    if(containerIntroBG2 != null) {
+        containerIntroBG2.remove();
+    }
+    containerIntroBG2= initContainer();
+    containerIntroBG2.style.backgroundImage = 'url(img/icecave.jpg)';
     paused = false;
     mouseDown = false;
     menu = true;
@@ -253,8 +265,18 @@ var setIntroScreen = function(i) {
                 container.appendChild(introScreenTextDiv);
                 introScreenIndex = 0;
             }
+            if(i == 0) {
+                container.remove();
+                container = containerIntroBG1;
+                container.appendChild(introScreenTextDiv);
+                document.body.appendChild(container);
+            }
             if(i == 1) {
-                    introPenguinDiv.style.top = 120+50+(600 - 200)/2 + 'px';
+                container.remove();
+                container = containerIntroBG2;
+                container.appendChild(introScreenTextDiv);
+                document.body.appendChild(container);
+                introPenguinDiv.style.top = 120+50+(600 - 200)/2 + 'px';
             }
             killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
             introScreen = true;
@@ -263,7 +285,6 @@ var setIntroScreen = function(i) {
                 preInitGame(true);
                 return;
             }
-            container.style.backgroundImage = 'url(img/intro'+i+'.jpg)';
             introScreenTextDivChild.innerHTML = introScreenText[i];
             setTimeout(function() {
                 if(i == 0) {
@@ -422,8 +443,8 @@ var initContainer = function() {
     if(killFade == null) {
         var container = document.createElement('div');
         container.style.position = 'absolute';
-        container.style.left = (document.body.clientWidth-800)/2 + 'px';
-        container.style.top = 50 + 'px';
+        container.style.left = permContainerX;
+        container.style.top = permContainerY;
         container.style.width = '800px';
         container.style.height = '600px';
         container.style.cursor = 'initial';
