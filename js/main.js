@@ -243,8 +243,9 @@ var setIntroScreen = function(i) {
                 document.getElementById('container').remove();
                 container = initContainer();
                 document.body.appendChild(container);
-                introScreenText = ['This is Penguin. He\'s a penguin.', 'One day Penguin saw an ice cave and thought he would explore.', 'But when Penguin entered the cave he fell in and couldn\'t jump out! He had to look for another exit!', 'He found some presets in the cave and decided to get them.'];
+                introScreenText = ['This is Penguin. He\'s a penguin.', 'One day Penguin saw an ice cave and thought he would explore.', 'But when Penguin entered the cave he fell in and couldn\'t jump out!<br />He had to look for another exit!', 'He found some presents in the cave and decided to get them.'];
                 introScreenTextDiv = document.createElement('div');
+                introScreenTextDiv.style.display = 'table';
                 introScreenTextDiv.style.backgroundColor = '#000';
                 introScreenTextDiv.style.width = '100%';
                 introScreenTextDiv.style.height = '100px';
@@ -259,7 +260,10 @@ var setIntroScreen = function(i) {
                 introScreenTextDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
                 introScreenTextDivChild = document.createElement('div');
                 introScreenTextDivChild.style.color = '#fff';
-                introScreenTextDivChild.style.padding = '10px';
+                introScreenTextDivChild.style.display = 'table-cell';
+                introScreenTextDivChild.style.verticalAlign = 'middle';
+                introScreenTextDivChild.style.paddingLeft = '100px';
+                introScreenTextDivChild.style.paddingRight = '100px';
                 introScreenTextDivChild.style.margin = '0 auto';
                 introScreenTextDiv.appendChild(introScreenTextDivChild);
                 container.appendChild(introScreenTextDiv);
