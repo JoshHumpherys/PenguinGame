@@ -171,6 +171,7 @@ var initMenu = function() {
     introPenguinDiv.style.height = '200px';
     introPenguinDiv.style.zIndex = '1';
     introPenguinDiv.style.opacity = '0';
+    introPenguinDiv.style.pointerEvents = 'none';
     var introPenguinImgDiv = document.createElement('img');
     introPenguinImgDiv.setAttribute('src','img/penguin.png');
     introPenguinImgDiv.style.height = introPenguinDiv.style.height;
@@ -190,6 +191,7 @@ var initMenu = function() {
     introPresentDiv.style.height = '200px';
     introPresentDiv.style.zIndex = '1';
     introPresentDiv.style.opacity = '0';
+    introPresentDiv.style.pointerEvents = 'none';
     introPresentDiv.style.transition = 'opacity 1s linear';
     var introPresentImgDiv = document.createElement('img');
     introPresentImgDiv.setAttribute('src','img/letter.png');
