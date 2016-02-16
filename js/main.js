@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -288,7 +288,8 @@ var setIntroScreen = function(i) {
             introScreen = true;
             if(i >= introScreenText.length) {
                 introPresentDiv.style.display = 'none';
-                preInitGame(true);
+                forward = true;
+                preInitGame();
                 return;
             }
             introScreenTextDivChild.innerHTML = introScreenText[i];
@@ -320,7 +321,7 @@ var nextIntroScreen = function() {
     setIntroScreen(++introScreenIndex);
 }
 
-var preInitGame = function(forward) {
+var preInitGame = function() {
 //var preInitGame = function() {
     menu = false;
     introScreen = false;
@@ -399,10 +400,11 @@ var preInitGame = function(forward) {
 //    }
 
 //    initGame(true);
-    initGame(forward);
+    forward = true;
+    initGame();
 }
 
-var initGame = function(forward) {
+var initGame = function() {
     game = true;
     inAir = false;
     jumpCount = 0;
@@ -620,7 +622,7 @@ var loop = function() {
     if(roomChangeQueued) {
         pause();
         roomChangeQueued = false;
-        initGame(forward);
+        initGame();
     }
     setTimeout(loop, 17);
 }
@@ -1241,6 +1243,7 @@ var outOfBoundsY = function(y, x) {
 var previousRoom = function() {
     if(!roomChangeQueued) {
         pause();
+        forward = false;
         room--;
         setCookie('room',room+'');
         roomChangeQueued = true;
@@ -1251,6 +1254,7 @@ var previousRoom = function() {
 var nextRoom = function() {
     if(!roomChangeQueued) {
         pause();
+        forward = true;
         room++;
         setCookie('room',room+'');
         if(room > maxRoom) {
@@ -1337,13 +1341,14 @@ var hitCeiling = function() {
 var kill = function() {
     if(!changingRooms) {
         changingRooms = true;
+        changeX = changeY = true;
         movePenguinDiv();
         pause();
 
         killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
         setTimeout(function() {
                 killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
-                initGame(true);
+                initGame();
         },1000);
     }
 }
@@ -1874,7 +1879,8 @@ window.onkeydown = function(e) {
     
     if(introScreen) {
         if(key == 83) {
-            preInitGame(true);
+            forward = true;
+            preInitGame();
         }
         else {
             nextIntroScreen();
