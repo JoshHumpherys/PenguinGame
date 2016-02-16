@@ -1249,15 +1249,17 @@ var hitCeiling = function() {
 }
 
 var kill = function() {
-    changingRooms = true;
-    movePenguinDiv();
-    pause();
-    
-    killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
-    setTimeout(function() {
-            killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
-            initGame(true);
-    },1000);
+    if(!changingRooms) {
+        changingRooms = true;
+        movePenguinDiv();
+        pause();
+
+        killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
+        setTimeout(function() {
+                killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+                initGame(true);
+        },1000);
+    }
 }
 
 var movePenguinDiv = function() {
