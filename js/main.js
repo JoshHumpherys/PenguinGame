@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -603,16 +603,19 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     if(!paused && !changingRooms) {
         var now = Date.now();
-        
+
         for(var i = 0; i < Math.floor((now-last)/17); i++) {
             update((now-last)/Math.floor((now-last)/17));
         }
 
 //        if(step || stepping) {
 //            step = false;
-//            update(17); // TODO not this
+//            update(17);
 //        }
         last = now;
+    }
+    else {
+        last = Date.now();
     }
     if(roomChangeQueued) {
         pause();
@@ -694,120 +697,156 @@ var update = function(delta) {
             blockDownRight = checkCollision(npx, npy, pw, 1, 1);
         }
 
-        if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
-            px = npx;
-            py = npy;
-        }
-        else if(blockDownLeft && blockDownRight && !blockTopLeft && !blockTopRight) {
-            px = npx;
-            shiftYUp(npy);
-        }
-        else if(blockTopLeft && blockTopRight && !blockDownLeft && !blockDownRight) {
-            px = npx;
-            shiftYDown(npy);
-        }
-        else if(blockTopLeft && blockDownLeft && !blockTopRight && !blockDownRight) {
-            shiftXRight(npx);
-            py = npy;
-        }
-        else if(blockTopRight && blockDownRight && !blockTopLeft && !blockDownLeft) {
-            shiftXLeft(npx);
-            py = npy;
-        }
-        else if(blockDownLeft && blockDownRight && blockTopLeft && !blockTopRight) {
-            shiftXRight(npx);
-            shiftYUp(npy);
-        }
-        else if(blockDownLeft && blockDownRight && blockTopRight && !blockTopLeft) {
-            shiftXLeft(npx);
-            shiftYUp(npy);
-        }
-        else if(blockDownLeft && blockTopLeft && blockTopRight && !blockDownRight) {
-            shiftXRight(npx);
-            shiftYDown(npy);
-        }
-        else if(blockDownRight && blockTopLeft && blockTopRight && !blockDownLeft) {
-            shiftXLeft(npx);
-            shiftYDown(npy);
-        }
-        else if(blockDownRight && blockTopLeft) {
-            if(dy > 0) {
-                shiftXRight(npx);
-                shiftYUp(npy);
+        var blockUnderneathLeft = collision(getMapData(Math.floor(npy/20) + 1, Math.floor(npx/20)));
+        var blockUnderneathRight = (Math.floor((npx + pw)/20) > Math.floor(npx/20)) ? collision(getMapData(Math.floor(npy/20) + 1, Math.floor(npx/20) + 1)) : blockUnderneathLeft;
+        var alreadyAdjusted = false;
+        if(!inAir) {
+            if(right && !left && lastBlockUnderneathLeft && !blockUnderneathLeft) {
+                fall();
+                if(blockUnderneathRight || blockTopRight) {
+                    shiftXLeft(npx);
+                }
+                else {
+                    px = npx;
+                }
+                alreadyAdjusted = true;
             }
-            else {
-                shiftXLeft(npx);
-                shiftYDown(npy);
+            if(left && !right && lastBlockUnderneathRight && !blockUnderneathRight) {
+                fall();
+                if(blockUnderneathLeft || blockTopLeft) {
+                    shiftXRight(npx);
+                }
+                else {
+                    px = npx;
+                }
+                alreadyAdjusted = true;
             }
-        }
-        else if(blockDownLeft && blockTopRight) {
-            if(dy > 0) {
-                shiftXLeft(npx);
-                shiftYUp(npy);
-            }
-            else {
-                shiftXRight(npx);
-                shiftYDown(npy);
-            }
+            lastBlockUnderneathLeft = blockUnderneathLeft;
+            lastBlockUnderneathRight = blockUnderneathRight;
         }
         else {
-            var xCollisionBefore = checkXCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
-            var yCollisionBefore = checkYCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
-            if(blockDownLeft) {
-                if(xCollisionBefore && !yCollisionBefore) {
-                    px = npx;
+            lastBlockUnderneathLeft = lastBlockUnderneathRight = false;
+        }
+
+        if(!alreadyAdjusted) {
+            if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
+                px = npx;
+                py = npy;
+            }
+            else if(blockDownLeft && blockDownRight && !blockTopLeft && !blockTopRight) {
+                px = npx;
+                shiftYUp(npy);
+            }
+            else if(blockTopLeft && blockTopRight && !blockDownLeft && !blockDownRight) {
+                px = npx;
+                shiftYDown(npy);
+            }
+            else if(blockTopLeft && blockDownLeft && !blockTopRight && !blockDownRight) {
+                shiftXRight(npx);
+                py = npy;
+            }
+            else if(blockTopRight && blockDownRight && !blockTopLeft && !blockDownLeft) {
+                shiftXLeft(npx);
+                py = npy;
+            }
+            else if(blockDownLeft && blockDownRight && blockTopLeft && !blockTopRight) {
+                shiftXRight(npx);
+                shiftYUp(npy);
+            }
+            else if(blockDownLeft && blockDownRight && blockTopRight && !blockTopLeft) {
+                shiftXLeft(npx);
+                shiftYUp(npy);
+            }
+            else if(blockDownLeft && blockTopLeft && blockTopRight && !blockDownRight) {
+                shiftXRight(npx);
+                shiftYDown(npy);
+            }
+            else if(blockDownRight && blockTopLeft && blockTopRight && !blockDownLeft) {
+                shiftXLeft(npx);
+                shiftYDown(npy);
+            }
+            else if(blockDownRight && blockTopLeft) {
+                if(dy > 0) {
+                    shiftXRight(npx);
                     shiftYUp(npy);
                 }
-                else if(yCollisionBefore && !xCollisionBefore) {
-                    shiftXRight(npx);
-                    py = npy;
-                }
                 else {
-                    adjustAdvanced(npx, npy, dy, 1, -1);
+                    shiftXLeft(npx);
+                    shiftYDown(npy);
                 }
             }
-            else if(blockDownRight) {
-                if(xCollisionBefore && !yCollisionBefore) {
-                    px = npx;
+            else if(blockDownLeft && blockTopRight) {
+                if(dy > 0) {
+                    shiftXLeft(npx);
                     shiftYUp(npy);
                 }
-                else if(yCollisionBefore && !xCollisionBefore) {
-                    shiftXLeft(npx);
-                    py = npy;
-                }
                 else {
-                    adjustAdvanced(npx, npy, dy, -1, -1);
-                }
-            }
-            else if(blockTopLeft) {
-                if(xCollisionBefore && !yCollisionBefore) {
-                    px = npx;
-                    shiftYDown(npy);
-                }
-                else if(yCollisionBefore && !xCollisionBefore) {
                     shiftXRight(npx);
-                    py = npy;
-                }
-                else {
-                    adjustAdvanced(npx, npy, dy, 1, 1);
-                }
-            }
-            else if(blockTopRight) {
-                if(xCollisionBefore && !yCollisionBefore) {
-                    px = npx;
                     shiftYDown(npy);
                 }
-                else if(yCollisionBefore && !xCollisionBefore) {
-                    shiftXLeft(npx);
-                    py = npy;
+            }
+            else {
+                var xCollisionBefore = checkXCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+                var yCollisionBefore = checkYCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+                if(blockDownLeft) {
+                    if(xCollisionBefore && !yCollisionBefore) {
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        shiftXRight(npx);
+                        py = npy;
+                    }
+                    else {
+                        adjustAdvanced(npx, npy, dy, 1, -1);
+                    }
                 }
-                else {
-                    adjustAdvanced(npx, npy, dy, -1, 1);
+                else if(blockDownRight) {
+                    if(xCollisionBefore && !yCollisionBefore) {
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        shiftXLeft(npx);
+                        py = npy;
+                    }
+                    else {
+                        adjustAdvanced(npx, npy, dy, -1, -1);
+                    }
+                }
+                else if(blockTopLeft) {
+                    if(xCollisionBefore && !yCollisionBefore) {
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        shiftXRight(npx);
+                        py = npy;
+                    }
+                    else {
+                        adjustAdvanced(npx, npy, dy, 1, 1);
+                    }
+                }
+                else if(blockTopRight) {
+                    if(xCollisionBefore && !yCollisionBefore) {
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        shiftXLeft(npx);
+                        py = npy;
+                    }
+                    else {
+                        adjustAdvanced(npx, npy, dy, -1, 1);
+                    }
                 }
             }
         }
 
         if(!inAir) {
+            // WARNING: blockUnderneathLeft and blockUnderneathRight are also declared above, and calculated differently.
+            // Make sure to only use their values here if you set them to the new, calculated value, and don't try to use the original values
+            // NOTE: too lazy to change the variable names to something else
             var blockUnderneathLeft = collision(getMapData(Math.floor(py/20) + 1, Math.floor(px/20)));
             if(Math.floor((px+pw)/20) == Math.floor(px/20)) {
                 if(blockUnderneathLeft) {
