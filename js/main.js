@@ -1243,26 +1243,26 @@ var outOfBoundsY = function(y, x) {
 var previousRoom = function() {
     if(!roomChangeQueued) {
         pause();
-        forward = false;
+        changeX = changeY = true;
         room--;
         setCookie('room',room+'');
-        roomChangeQueued = true;
         forward = false;
+        roomChangeQueued = true;
     }
 }
 
 var nextRoom = function() {
     if(!roomChangeQueued) {
         pause();
-        forward = true;
+        changeX = changeY = true;
         room++;
         setCookie('room',room+'');
         if(room > maxRoom) {
             maxRoom = room;
         }
         setCookie('maxRoom',maxRoom+'');
-        roomChangeQueued = true;
         forward = true;
+        roomChangeQueued = true;
     }
 }
 
@@ -1289,7 +1289,6 @@ var goToRoom = function(roomToGoTo) {
 var restart = function() {
         changeX = changeY = true;
         roomChangeQueued = true;
-        forward = true;
 }
 
 var collision = function(i) {
