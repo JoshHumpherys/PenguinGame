@@ -473,9 +473,28 @@ var initContainer = function() {
 }
 
 var initBlocks = function(map, forward) {
+    var mapString;
     if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
-        initMenu();
-        return;
+        if(forward) {
+    //        initMenu();
+    //        return;
+            mapString = 'formal';
+            map = room = lastMap + 1;
+            setCookie('room',room+'');
+        }
+        else {
+            map = lastMap;
+            mapString = 'map'+map;
+        }
+    }
+    else if(map == lastMap) {
+        map = lastMap;
+        mapString = 'map'+map;
+        //changeY = false;
+        //changeX = true;
+    }
+    else {
+        mapString = 'map'+map;
     }
     mapData = new Array(30);
     for(var i = 0; i < 30; i++) {
@@ -483,7 +502,7 @@ var initBlocks = function(map, forward) {
     }
     var blob;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'maps/map'+map);
+    xhr.open('GET', 'maps/'+mapString);
     xhr.responseType = 'blob';
     xhr.onload = function() {
         blob = xhr.response;
