@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -31,10 +31,28 @@ var initMenu = function() {
     changingRooms = true;
     changeX = changeY = true;
     lastMap = 4;
+    lastExpertMap = 4;
     last = Date.now();
     buttons = {};
-    buttonNames = ['story', 'options', 'help', 'about'];
-    expertLocked = true;
+    var expertLockedCookie = getCookie('expertLocked');
+    if(expertLockedCookie == undefined) {
+        setCookie('expertLocked','0');
+        expertLocked = true;
+    }
+    else {
+        if(expertLockedCookie == '0') {
+            expertLocked = false;
+        }
+        else {
+            expertLocked = true;
+        }
+    }
+    if(expertLocked) {
+        buttonNames = ['story', 'options', 'help', 'about'];
+    }
+    else {
+        buttonNames = ['story', 'expert', 'options', 'help', 'about'];
+    }
     for(var i = 0; i < buttonNames.length; i++) {
         buttons[buttonNames[i]] = new Button(buttonNames[i], 50, 50 + 100 * (i + (expertLocked && i >= 1 ? 1 : 0)));
     }
@@ -392,6 +410,25 @@ var preInitGame = function() {
             maxRoom = parseInt(maxRoomCookie);
         }
     }
+    if(roomExpert == undefined) {
+        var roomExpertCookie = getCookie('roomExpert');
+        if(roomExpertCookie == '') {
+            roomExpert = 0;
+            setCookie('roomExpert','0');
+        }
+        else {
+            roomExpert = parseInt(roomExpertCookie);
+        }
+    }
+    if(maxRoomExpert == undefined) {
+        var maxRoomExpertCookie = getCookie('maxRoomExpert');
+        if(maxRoomExpertCookie == '') {
+            maxRoomExpert = roomExpert;
+        }
+        else {
+            maxRoomExpert = parseInt(maxRoomExpertCookie);
+        }
+    }
 //    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
 //        if(room < levels[i]) {
@@ -441,7 +478,7 @@ var initGame = function() {
 //    container.appendChild(killFade);
 
     // init all blocks
-    initBlocks(room, forward);
+    initBlocks(playingExpert ? roomExpert : room, forward);
 //    movePenguinDiv();
 //    unpause();
 //    changingRooms = false;
@@ -476,27 +513,39 @@ var initContainer = function() {
 
 var initBlocks = function(map, forward) {
     var mapString;
-    if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
-        if(forward) {
-    //        initMenu();
-    //        return;
-            mapString = 'formal';
-            map = room = lastMap + 1;
-            setCookie('room',room+'');
+    if(!playingExpert) {
+        if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
+            if(forward) {
+        //        initMenu();
+        //        return;
+                mapString = 'formal';
+                map = room = lastMap + 1;
+                setCookie('room',room+'');
+                setCookie('expertLocked','0');
+                expertLocked = false;
+            }
+            else {
+                map = lastMap;
+                mapString = 'map'+map;
+            }
+        }
+        else if(map == lastMap) {
+            map = lastMap;
+            mapString = 'map'+map;
+            //changeY = false;
+            //changeX = true;
         }
         else {
-            map = lastMap;
             mapString = 'map'+map;
         }
     }
-    else if(map == lastMap) {
-        map = lastMap;
-        mapString = 'map'+map;
-        //changeY = false;
-        //changeX = true;
-    }
     else {
-        mapString = 'map'+map;
+        if(map > lastMap) {
+            alert('congrats you completed expert mode');
+            initMenu();
+            return;
+        }
+        mapString = 'expertMap'+map;
     }
     mapData = new Array(30);
     for(var i = 0; i < 30; i++) {
@@ -1244,8 +1293,14 @@ var previousRoom = function() {
     if(!roomChangeQueued) {
         pause();
         changeX = changeY = true;
-        room--;
-        setCookie('room',room+'');
+        if(!playingExpert) {
+            room--;
+            setCookie('room',room+'');
+        }
+        else {
+            roomExpert++;
+            setCookie('roomExpert',roomExpert);
+        }
         forward = false;
         roomChangeQueued = true;
     }
@@ -1255,29 +1310,52 @@ var nextRoom = function() {
     if(!roomChangeQueued) {
         pause();
         changeX = changeY = true;
-        room++;
-        setCookie('room',room+'');
-        if(room > maxRoom) {
-            maxRoom = room;
+        if(!playingExpert) {
+            room++;
+            setCookie('room',room+'');
+            if(room > maxRoom) {
+                maxRoom = room;
+            }
+            setCookie('maxRoom',maxRoom+'');
         }
-        setCookie('maxRoom',maxRoom+'');
+        else {
+            roomExpert++;
+            setCookie('roomExpert',roomExpert+'');
+            if(roomExpert > maxRoomExpert) {
+                maxRoomExpert = roomExpert;
+            }
+            setCookie('maxRoomExpert',maxRoomExpert+'');
+        }
         forward = true;
         roomChangeQueued = true;
     }
 }
 
 var goToRoom = function(roomToGoTo) {
-    if(roomToGoTo <= maxRoom && roomToGoTo >= 0) {
+    if(roomToGoTo <= (playingExpert ? maxRoomExpert : maxRoom) && roomToGoTo >= 0) {
         changeX = changeY = true;
-        room = roomToGoTo;
-        setCookie('room',room+'');
+        if(!playingExpert) {
+            room = roomToGoTo;
+            setCookie('room',room+'');
+            setCookie('maxRoom',maxRoom+'');
+        }
+        else {
+            roomExpert = roomToGoTo;
+            setCookie('roomExpert',roomExpert+'');
+            setCookie('maxRoomExpert',maxRoomExpert+'');
+        }
         roomChangeQueued = true;
-        setCookie('maxRoom',maxRoom+'');
         forward = true;
     }
     else if(roomToGoTo < 0) {
-        room = 0;
-        setCookie('room',room+'');
+        if(!playingExpert) {
+            room = 0;
+            setCookie('room',room+'');
+        }
+        else {
+            roomExpert = 0;
+            setCookie('roomExpert',roomExpert+'');
+        }
         restart();
     }
     else {
@@ -1287,8 +1365,8 @@ var goToRoom = function(roomToGoTo) {
 }
 
 var restart = function() {
-        changeX = changeY = true;
-        roomChangeQueued = true;
+    changeX = changeY = true;
+    roomChangeQueued = true;
 }
 
 var collision = function(i) {
@@ -1698,10 +1776,13 @@ Button.prototype.select = function() {
         switch(this.name) {
         case 'story':
 //            initIntroScreen();
+            playingExpert = false;
             setIntroScreen(0);
             break;
         case 'expert':
-            switchMenuAlternate('Entering expert mode.', 'Expert');
+            //switchMenuAlternate('Entering expert mode.', 'Expert');
+            playingExpert = true;
+            preInitGame();
             break;
         case 'options':
             switchMenuAlternate('Here are your options.', 'Options');
@@ -1932,10 +2013,10 @@ window.onkeydown = function(e) {
             }
         }
         else if(key == 90) { // z
-            goToRoom(room-1);
+            goToRoom((playingExpert ? roomExpert : room)-1);
         }
         else if(key == 88) { // x
-            goToRoom(room+1);
+            goToRoom((playingExpert ? roomExpert : room)+1);
         }
         else if(key == 77) { // m
             initMenu();
