@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -121,7 +121,7 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    letters = [[{x:36,y:17}],[{x:6,y:8}],[{x:15,y:2},{x:36,y:10}],[{x:8,y:3}],[]];
+    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:2},{x:22,y:7},{x:29,y:10}],[{x:8,y:3}],[]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -359,8 +359,10 @@ var preInitGame = function() {
     // init penguin and add to container
     penguin = document.createElement('div');
     penguin.style.position = 'absolute';
-    pw = 14;
+    pw = 14; // warning set less than 20
+//    pw = 18; // warning set less than 20
     ps = (20 - pw) / 2;
+
 //    px = 100 + ps;
 //    py = 200;
 
@@ -655,14 +657,25 @@ var loop = function() {
     if(!paused && !changingRooms) {
         var now = Date.now();
 
-        for(var i = 0; i < Math.floor((now-last)/17); i++) {
-            update((now-last)/Math.floor((now-last)/17));
+//        for(var i = 0; i < Math.floor((now-last)/17); i++) {
+//            update((now-last)/Math.floor((now-last)/17));
+//        }
+
+        var nowMinusLast = now - last;
+        for(var i = 0; i < Math.ceil((nowMinusLast)/20); i++) {
+            update((nowMinusLast)/Math.ceil((nowMinusLast)/20));
         }
 
-//        if(step || stepping) {
-//            step = false;
-//            update(17);
-//        }
+        /*
+        if(step || stepping) {
+            step = false;
+//            var nowMinusLast = Math.random() > .3 ? 17 : 79;
+            var nowMinusLast = 46 * Math.random() + 17;
+            for(var i = 0; i < Math.ceil((nowMinusLast)/20); i++) {
+                update((nowMinusLast)/Math.ceil((nowMinusLast)/20));
+            }
+        }
+        */
         last = now;
     }
     else {
@@ -779,6 +792,7 @@ var update = function(delta) {
             lastBlockUnderneathLeft = lastBlockUnderneathRight = false;
         }
 
+///*
         if(!alreadyAdjusted) {
             if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
 //                console.log('case 1');
@@ -936,6 +950,172 @@ var update = function(delta) {
                 }
             }
         }
+//*/
+
+/*
+        if(!alreadyAdjusted) {
+            if(!blockDownLeft && !blockDownRight && !blockTopLeft && !blockTopRight) {
+                console.log('case 1');
+                px = npx;
+                py = npy;
+            }
+            else if(blockDownLeft && blockDownRight && !blockTopLeft && !blockTopRight) {
+                console.log('case 2');
+                px = npx;
+                shiftYUp(npy);
+            }
+            else if(blockTopLeft && blockTopRight && !blockDownLeft && !blockDownRight) {
+                console.log('case 3');
+                px = npx;
+                shiftYDown(npy);
+            }
+            else if(blockTopLeft && blockDownLeft && !blockTopRight && !blockDownRight) {
+                console.log('case 4');
+                shiftXRight(npx);
+                py = npy;
+            }
+            else if(blockTopRight && blockDownRight && !blockTopLeft && !blockDownLeft) {
+                console.log('case 5');
+                shiftXLeft(npx);
+                py = npy;
+            }
+            else if(blockDownLeft && blockDownRight && blockTopLeft && !blockTopRight) {
+                console.log('case 6');
+                shiftXRight(npx);
+                shiftYUp(npy);
+            }
+            else if(blockDownLeft && blockDownRight && blockTopRight && !blockTopLeft) {
+                console.log('case 7');
+                shiftXLeft(npx);
+                shiftYUp(npy);
+            }
+            else if(blockDownLeft && blockTopLeft && blockTopRight && !blockDownRight) {
+                console.log('case 8');
+                shiftXRight(npx);
+                shiftYDown(npy);
+            }
+            else if(blockDownRight && blockTopLeft && blockTopRight && !blockDownLeft) {
+                console.log('case 9');
+                shiftXLeft(npx);
+                shiftYDown(npy);
+            }
+            else if(blockDownRight && blockTopLeft) {
+                console.log('case 10');
+                if(dy > 0) {
+                    shiftXRight(npx);
+                    shiftYUp(npy);
+                }
+                else {
+                    shiftXLeft(npx);
+                    shiftYDown(npy);
+                }
+            }
+            else if(blockDownLeft && blockTopRight) {
+                console.log('case 11');
+                if(dy > 0) {
+                    shiftXLeft(npx);
+                    shiftYUp(npy);
+                }
+                else {
+                    shiftXRight(npx);
+                    shiftYDown(npy);
+                }
+            }
+            else {
+                var xCollisionBefore = checkXCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+                var yCollisionBefore = checkYCollisionBefore(npx, npy, pw, (blockTopRight || blockDownRight) ? 1 : 0, (blockDownRight || blockDownLeft) ? 1 : 0);
+                if(blockDownLeft) {
+                    if(lastBlockTopLeft && dy > 0) {
+                        console.log('case 12a0');
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(xCollisionBefore && !yCollisionBefore) {
+                        console.log('case 12a1');
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        console.log('case 12a2');
+                        shiftXRight(npx);
+                        py = npy;
+                    }
+                    else {
+                        console.log('case 12a3');
+                        adjustAdvanced(npx, npy, dy, 1, -1);
+                    }
+                }
+                else if(blockDownRight) {
+                    if(lastBlockTopRight && dy > 0) {
+                        console.log('case 12b0');
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(xCollisionBefore && !yCollisionBefore) {
+                        console.log('case 12b1');
+                        px = npx;
+                        shiftYUp(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        console.log('case 12b2');
+                        shiftXLeft(npx);
+                        py = npy;
+                    }
+                    else {
+                        console.log('case 12b3');
+                        adjustAdvanced(npx, npy, dy, -1, -1);
+                    }
+                }
+                else if(blockTopLeft) {
+                    if(lastBlockDownLeft && dy < 0) {
+                        console.log('case 12c0');
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(xCollisionBefore && !yCollisionBefore) {
+                        console.log('case 12c1');
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        console.log('case 12c2');
+                        shiftXRight(npx);
+                        py = npy;
+                    }
+                    else {
+                        console.log('case 12c3');
+                        adjustAdvanced(npx, npy, dy, 1, 1);
+                    }
+                }
+                else if(blockTopRight) {
+                    if(lastBlockDownRight && dy < 0) {
+                        console.log('case 12d0');
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(xCollisionBefore && !yCollisionBefore) {
+                        console.log('case 12d1');
+                        px = npx;
+                        shiftYDown(npy);
+                    }
+                    else if(yCollisionBefore && !xCollisionBefore) {
+                        console.log('case 12d2');
+                        shiftXLeft(npx);
+                        py = npy;
+                    }
+                    else {
+                        console.log('case 12d3');
+                        adjustAdvanced(npx, npy, dy, -1, 1);
+                    }
+                }
+            }
+        }
+*/
+
+        if(!alreadyAdjusted) {
+            justStartedFalling = false;
+        }
+
         lastBlockDownRight = blockDownRight;
         lastBlockDownLeft = blockDownLeft;
         lastBlockTopRight = blockTopRight;
@@ -1220,7 +1400,7 @@ var adjustAdvanced = function(npx, npy, dy, xDir, yDir) {
     // x = vt
     // t = x / v
     // approximation with constant velocity in y direction for small dt
-    if(Math.abs((px - npx) / dx) < Math.abs((py - npy) / dy)) {
+    if(Math.abs((px - npx) / dx) < Math.abs((py - npy) / dy) || justStartedFalling) {
         py = npy;
         if(xDir > 0) {
             shiftXRight(npx);
@@ -1408,6 +1588,7 @@ var fall = function() {
     // dy/dt = 0 = a * t + v0
     // t = -v0 / a
     msSinceJump = -1000 * v0 / a;
+    justStartedFalling = true;
 }
 
 var hitCeiling = function() {
