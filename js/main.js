@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -514,6 +514,7 @@ var initContainer = function() {
 }
 
 var initBlocks = function(map, forward) {
+    fileLoading = true;
     var mapString;
     if(!playingExpert) {
         if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
@@ -642,6 +643,8 @@ var initBlocks = function(map, forward) {
             movePenguinDiv();
             unpause();
             changingRooms = false;
+            finishedChangingRooms = true;
+            fileLoading = false;
         }
         reader.onerror = function(e) {
             alert('We\re sorry, there was an error!\nReturning to main menu.');
@@ -654,6 +657,7 @@ var initBlocks = function(map, forward) {
 }
 
 var loop = function() {
+    setTimeout(nextLoop, 17);
     loopComplete = false;
     if(!paused && !changingRooms && !roomChangeQueued) {
         var now = Date.now();
@@ -688,7 +692,6 @@ var loop = function() {
         initGame();
     }
     loopComplete = true;
-    setTimeout(nextLoop, 17);
 }
 
 var nextLoop = function() {
@@ -696,7 +699,12 @@ var nextLoop = function() {
         loop();
     }
     else {
-        setTimeout(nextLoop, 1);
+        if(!paused) {
+            setTimeout(nextLoop, 1);
+        }
+        else {
+            setTimeout(nextLoop, 100);
+        }
     }
 }
 
@@ -725,6 +733,20 @@ var update = function(delta) {
         }
     }
     else if(!menu && !introScreen) {
+        if(roomChangeQueued) {
+            console.l
+            return;
+        }
+        if(!finishedChangingRooms) {
+            return;
+        }
+        if(finishedChangingRooms && !finishedChangingRooms2) {
+            finishedChangingRooms2 = true;
+            return;
+        }
+        if(fileLoading) {
+            return;
+        }
         for(var i = 0; i < icicles.length; i++) {
             if(icicles[i] != null) {
                 if(icicles[i].falling) {
@@ -1456,38 +1478,41 @@ var getMapData = function(y, x) {
 }
 
 var outOfBoundsX = function(y, x) {
-    changeX = true;
-    changeY = false;
-    var type = mapData[y][x < 0 ? x + 1 : x - 1];
-    if(type == 3 || type == 5) {
-        previousRoom();
-    }
-    else if(type == 4) {
-        nextRoom();
+    if(!roomChangeQueued) {
+        changeX = true;
+        changeY = false;
+        var type = mapData[y][x < 0 ? x + 1 : x - 1];
+        if(type == 3 || type == 5) {
+            previousRoom();
+        }
+        else if(type == 4) {
+            nextRoom();
+        }
     }
 }
 
 var outOfBoundsY = function(y, x) {
-    console.log(y);
-    console.trace();
-    changeX = false;
-    changeY = true;
-    var type = mapData[y < 0 ? y + 1 : y - 1][x];
-    if(type == 3 || type == 5) {
-        previousRoom();
-    }
-    else if(type == 4) {
-        nextRoom();
+    if(!roomChangeQueued) {
+        changeX = false;
+        changeY = true;
+        var type = mapData[y < 0 ? y + 1 : y - 1][x];
+        if(type == 3 || type == 5) {
+            previousRoom();
+        }
+        else if(type == 4) {
+            nextRoom();
+        }
     }
 }
 
 // warning: ensure first room has no exit or no way of accessing exit
 var previousRoom = function() {
+    finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
         roomChangeQueued = true;
         forward = false;
         pause();
-        changeX = changeY = true;
+//        changeX = changeY = true;
         if(!playingExpert) {
             room--;
             setCookie('room',room+'');
@@ -1500,11 +1525,12 @@ var previousRoom = function() {
 }
 
 var nextRoom = function() {
+    finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
         roomChangeQueued = true;
         forward = true;
         pause();
-        changeX = changeY = true;
+//        changeX = changeY = true;
         if(!playingExpert) {
             room++;
             setCookie('room',room+'');
@@ -1528,6 +1554,7 @@ var goToRoom = function(roomToGoTo) {
     if(!roomChangeQueued) {
         if(roomToGoTo <= (playingExpert ? maxRoomExpert : maxRoom) && roomToGoTo >= 0) {
             roomChangeQueued = true;
+            finishedChangeRooms = finishedChangingRooms2 = false;
             forward = true;
             changeX = changeY = true;
             if(!playingExpert) {
