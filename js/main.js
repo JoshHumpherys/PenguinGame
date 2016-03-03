@@ -230,7 +230,7 @@ var setInstructionsDivText = function() {
         instructionsDiv.innerHTML = 'Click or press right to go to the next screen';
     }
     else { // game
-        instructionsDiv.innerHTML = 'Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu<br /><br />R to restart room';
+        instructionsDiv.innerHTML = '<h2>Instructions:</h2>Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu<br /><br />R to restart room';
     }
 }
 
@@ -1668,7 +1668,7 @@ var updateLettersCurrentString = function() {
         }
     }
 
-    lettersTopDiv.innerHTML = lettersString;
+    lettersTopDiv.innerHTML = '<b>'+lettersString+'</b>';
 }
 
 var youWin = function() {
