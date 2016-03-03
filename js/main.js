@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -654,6 +654,7 @@ var initBlocks = function(map, forward) {
 }
 
 var loop = function() {
+    loopComplete = false;
     if(!paused && !changingRooms && !roomChangeQueued) {
         var now = Date.now();
 
@@ -686,7 +687,17 @@ var loop = function() {
         roomChangeQueued = false;
         initGame();
     }
-    setTimeout(loop, 17);
+    loopComplete = true;
+    setTimeout(nextLoop, 17);
+}
+
+var nextLoop = function() {
+    if(loopComplete) {
+        loop();
+    }
+    else {
+        setTimeout(nextLoop, 1);
+    }
 }
 
 var update = function(delta) {
@@ -1457,6 +1468,8 @@ var outOfBoundsX = function(y, x) {
 }
 
 var outOfBoundsY = function(y, x) {
+    console.log(y);
+    console.trace();
     changeX = false;
     changeY = true;
     var type = mapData[y < 0 ? y + 1 : y - 1][x];
