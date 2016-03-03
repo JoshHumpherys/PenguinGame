@@ -1478,7 +1478,7 @@ var previousRoom = function() {
             setCookie('room',room+'');
         }
         else {
-            roomExpert++;
+            roomExpert--;
             setCookie('roomExpert',roomExpert);
         }
         forward = false;
