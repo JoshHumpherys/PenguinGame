@@ -654,7 +654,7 @@ var initBlocks = function(map, forward) {
 }
 
 var loop = function() {
-    if(!paused && !changingRooms) {
+    if(!paused && !changingRooms && !roomChangeQueued) {
         var now = Date.now();
 
 //        for(var i = 0; i < Math.floor((now-last)/17); i++) {
@@ -1471,6 +1471,8 @@ var outOfBoundsY = function(y, x) {
 // warning: ensure first room has no exit or no way of accessing exit
 var previousRoom = function() {
     if(!roomChangeQueued) {
+        roomChangeQueued = true;
+        forward = false;
         pause();
         changeX = changeY = true;
         if(!playingExpert) {
@@ -1481,13 +1483,13 @@ var previousRoom = function() {
             roomExpert--;
             setCookie('roomExpert',roomExpert);
         }
-        forward = false;
-        roomChangeQueued = true;
     }
 }
 
 var nextRoom = function() {
     if(!roomChangeQueued) {
+        roomChangeQueued = true;
+        forward = true;
         pause();
         changeX = changeY = true;
         if(!playingExpert) {
@@ -1506,41 +1508,41 @@ var nextRoom = function() {
             }
             setCookie('maxRoomExpert',maxRoomExpert+'');
         }
-        forward = true;
-        roomChangeQueued = true;
     }
 }
 
 var goToRoom = function(roomToGoTo) {
-    if(roomToGoTo <= (playingExpert ? maxRoomExpert : maxRoom) && roomToGoTo >= 0) {
-        changeX = changeY = true;
-        if(!playingExpert) {
-            room = roomToGoTo;
-            setCookie('room',room+'');
-            setCookie('maxRoom',maxRoom+'');
+    if(!roomChangeQueued) {
+        if(roomToGoTo <= (playingExpert ? maxRoomExpert : maxRoom) && roomToGoTo >= 0) {
+            roomChangeQueued = true;
+            forward = true;
+            changeX = changeY = true;
+            if(!playingExpert) {
+                room = roomToGoTo;
+                setCookie('room',room+'');
+                setCookie('maxRoom',maxRoom+'');
+            }
+            else {
+                roomExpert = roomToGoTo;
+                setCookie('roomExpert',roomExpert+'');
+                setCookie('maxRoomExpert',maxRoomExpert+'');
+            }
+        }
+        else if(roomToGoTo < 0) {
+            if(!playingExpert) {
+                room = 0;
+                setCookie('room',room+'');
+            }
+            else {
+                roomExpert = 0;
+                setCookie('roomExpert',roomExpert+'');
+            }
+            restart();
         }
         else {
-            roomExpert = roomToGoTo;
-            setCookie('roomExpert',roomExpert+'');
-            setCookie('maxRoomExpert',maxRoomExpert+'');
+            pause();
+            showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', 200, 200, 400, 120);
         }
-        roomChangeQueued = true;
-        forward = true;
-    }
-    else if(roomToGoTo < 0) {
-        if(!playingExpert) {
-            room = 0;
-            setCookie('room',room+'');
-        }
-        else {
-            roomExpert = 0;
-            setCookie('roomExpert',roomExpert+'');
-        }
-        restart();
-    }
-    else {
-        pause();
-        showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', 200, 200, 400, 120);
     }
 }
 
