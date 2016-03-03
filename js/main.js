@@ -450,13 +450,6 @@ var initGame = function() {
     jumpKeyDown = false;
     icicles = new Array(40);
     iciclesUp = [];
-    
-    // init main container
-    document.getElementById('container').remove();
-    container = initContainer();
-    document.body.appendChild(container);
-    container.style.backgroundImage = 'url(img/bg.jpg)';
-    container.appendChild(penguin);
 
     var firstTime = helpTriggers == null;
     var continueString = '<br /><br />Press any key to continue';
@@ -475,15 +468,10 @@ var initGame = function() {
                         {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                         {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
     }
-    
-    // init killFade in preInitGame()
-//    container.appendChild(killFade);
 
     // init all blocks
+    // AND init main container after file load
     initBlocks(playingExpert ? roomExpert : room, forward);
-//    movePenguinDiv();
-//    unpause();
-//    changingRooms = false;
 }
 
 var initContainer = function() {
@@ -559,6 +547,14 @@ var initBlocks = function(map, forward) {
     xhr.open('GET', 'maps/'+mapString);
     xhr.responseType = 'blob';
     xhr.onload = function() {
+        // init main container
+        document.getElementById('container').remove();
+        container = initContainer();
+        document.body.appendChild(container);
+        container.style.backgroundImage = 'url(img/bg.jpg)';
+        container.appendChild(penguin);
+        
+        // read file
         blob = xhr.response;
         var reader = new FileReader();
         reader.onload = function(e) {
