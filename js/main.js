@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -1994,17 +1994,16 @@ Button.prototype.select = function() {
         }
         switch(this.name) {
         case 'story':
-//            initIntroScreen();
             playingExpert = false;
             setIntroScreen(0);
             break;
         case 'expert':
-            //switchMenuAlternate('Entering expert mode.', 'Expert');
             playingExpert = true;
             preInitGame();
             break;
         case 'options':
-            switchMenuAlternate('Here are your options.', 'Options');
+            options = true;
+            switchMenuAlternate('Press R to clear all save data.<br />WARNING: This clears all save data!', 'Options');
             break;
         case 'help':
             switchMenuAlternate('Here is help.', 'Help');
@@ -2098,6 +2097,7 @@ var switchMenuAlternate = function(s, h) {
 }
 
 var switchMenuMain = function() {
+    options = false;
     alternateMenu = false;
     showAllButtons();
     alternateMenuDiv.innerHTML = '';
@@ -2186,7 +2186,13 @@ window.onkeydown = function(e) {
         }
     }
     else if(menu && alternateMenu) {
-        switchMenuMain();
+        if(key == 82 && options) {
+            eraseAllCookies();
+            initMenu();
+        }
+        else {
+            switchMenuMain();
+        }
     }
     else if(menu) {
         switch(key) {
