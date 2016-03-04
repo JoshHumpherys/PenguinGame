@@ -2109,7 +2109,7 @@ Button.prototype.select = function() {
             switchMenuAlternate('Use the left and right arrow keys to move left and right.<br />Press the up key or the spacebar to jump.<br /><br />In order to jump the highest possible, use your double jump when you reach the maximum height from your first jump. If you fall off of a block, you lose a jump.<br /><br />If the game lags, close all other applications.<br /><br />', 'Help');
             break;
         case 'about':
-            switchMenuAlternate('Coded by Josh Humpherys in February of 2016.<br />Why? Play story mode to find out!<br /><br />Special thanks to Nathan Bierema for the ice<br />cubes and Mark Davis for some level design.', 'About');
+            switchMenuAlternate('Coded by Josh Humpherys in February of 2016.<br />Why? Play story mode to find out!<br /><br />Special thanks to Nathan Bierema for help with<br />graphics and Mark Davis for some level design.', 'About');
             break;
         }
     }
