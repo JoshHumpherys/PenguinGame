@@ -393,7 +393,7 @@ var preInitGame = function() {
     container.appendChild(penguin);
     
     // init room, level vars
-    if(room == undefined) {
+//    if(room == undefined) {
         var roomCookie = getCookie('room');
         if(roomCookie == '') {
             room = 0;
@@ -402,8 +402,8 @@ var preInitGame = function() {
         else {
             room = parseInt(roomCookie);
         }
-    }
-    if(maxRoom == undefined) {
+//    }
+//    if(maxRoom == undefined) {
         var maxRoomCookie = getCookie('maxRoom');
         if(maxRoomCookie == '') {
             maxRoom = room;
@@ -411,8 +411,8 @@ var preInitGame = function() {
         else {
             maxRoom = parseInt(maxRoomCookie);
         }
-    }
-    if(roomExpert == undefined) {
+//    }
+//    if(roomExpert == undefined) {
         var roomExpertCookie = getCookie('roomExpert');
         if(roomExpertCookie == '') {
             roomExpert = 0;
@@ -421,8 +421,8 @@ var preInitGame = function() {
         else {
             roomExpert = parseInt(roomExpertCookie);
         }
-    }
-    if(maxRoomExpert == undefined) {
+//    }
+//    if(maxRoomExpert == undefined) {
         var maxRoomExpertCookie = getCookie('maxRoomExpert');
         if(maxRoomExpertCookie == '') {
             maxRoomExpert = roomExpert;
@@ -430,7 +430,7 @@ var preInitGame = function() {
         else {
             maxRoomExpert = parseInt(maxRoomExpertCookie);
         }
-    }
+//    }
 //    levels = [0, 2, 4, 6];
 //    for(var i = 0; i < levels.length; i++) {
 //        if(room < levels[i]) {
@@ -456,17 +456,24 @@ var initGame = function() {
     if(maxRoom > 0) {
         helpTriggers = [];
     }
-    if(helpTriggers != null) {
-        for(var i = 0; i < helpTriggers.length; i++) {
-            helpTriggers[i].alreadyShown = false;
-        }
+//    if(helpTriggers != null) {
+//        for(var i = 0; i < helpTriggers.length; i++) {
+//            helpTriggers[i].alreadyShown = false;
+//        }
+//    }
+    helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move.<br />Try to get all the presents!'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:120},
+                    {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
+                    {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
+                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
+    var helpTriggersPassed = getCookie('helpTriggersPassed');
+    if(helpTriggersPassed == '') {
+        setCookie('helpTriggersPassed', '0');
     }
     else {
-        helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move.<br />Try to get all the presents!'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:120},
-                        {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                        {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
-                        {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                        {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
+        for(var i = 0; i < Math.min(parseInt(helpTriggersPassed), helpTriggers.length); i++) {
+            helpTriggers[i].alreadyShown = true;
+        }
     }
 
     // init all blocks
@@ -503,6 +510,9 @@ var initContainer = function() {
 
 var initBlocks = function(map, forward) {
     fileLoading = true;
+    if(map == 1) {
+        setCookie('helpTriggersPassed', helpTriggers.length);
+    }
     var mapString;
     if(!playingExpert) {
         if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
@@ -1316,6 +1326,9 @@ var update = function(delta) {
                             pause();
                             showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
                             tutorial = true;
+//                            setCookie('helpTriggersPassed', (i == 0 ? 0 : (i-1)) + '');
+                            setCookie('helpTriggersPassed', i+'');
+                            console.log('setting helpTriggersPassed to ' + i);
                             while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
@@ -1327,6 +1340,9 @@ var update = function(delta) {
                             pause();
                             showAlert(helpTriggers[i].text, helpTriggers[i].displayX, helpTriggers[i].displayY, helpTriggers[i].displayW, helpTriggers[i].displayH);
                             tutorial = true;
+//                            setCookie('helpTriggersPassed', (i == 0 ? 0 : (i-1)) + '');
+                            setCookie('helpTriggersPassed', i+'');
+                            console.log('setting helpTriggersPassed to ' + i);
                             while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
@@ -1523,9 +1539,34 @@ var previousRoom = function() {
 var nextRoom = function() {
     finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
-        roomChangeQueued = true;
         forward = true;
         pause();
+        if(room == lastMap) {
+            var allLetters = true;
+            for(i = 0; i < lettersCurrent.length; i++) {
+                if(!lettersCurrent[i]) {
+                    allLetters = false;
+                    break;
+                }
+            }
+            console.log('asdf');
+            if(!allLetters) {
+                console.log('here');
+                pause();
+                showAlert("Sorry!<br />You can't enter this room until you have all the letters!<br /><br />Press Z to go back a room<br />Press X to go forward a room<br /><br />Go get all the letters!", (800-500)/2, 180, 500, 180);
+                tutorial = true;
+                px = 800 - pw - 1;
+                movePenguinDiv();
+                roomChangeQueued = false;
+                return;
+            }
+            else {
+                roomChangeQueued = true;
+            }
+        }
+        else {
+            roomChangeQueued = true;
+        }
 //        changeX = changeY = true;
         if(!playingExpert) {
             room++;
