@@ -175,6 +175,13 @@ var initMenu = function() {
     instructionsDiv.style.height = '600px';
     instructionsDiv.style.color = '#fff';
     instructionsDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
+    instructionsDiv.style.cursor = 'default';
+    instructionsDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    instructionsDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    instructionsDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    instructionsDiv.style.MozUserSelect = 'none';      /* Firefox */
+    instructionsDiv.style.MsUserSelect = 'none';       /* IE/Edge */
+    instructionsDiv.style.userSelect = 'none';
     setInstructionsDivText();
     document.body.appendChild(instructionsDiv);
     
@@ -190,6 +197,12 @@ var initMenu = function() {
     introPenguinDiv.style.zIndex = '1';
     introPenguinDiv.style.opacity = '0';
     introPenguinDiv.style.pointerEvents = 'none';
+    introPenguinDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    introPenguinDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    introPenguinDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    introPenguinDiv.style.MozUserSelect = 'none';      /* Firefox */
+    introPenguinDiv.style.MsUserSelect = 'none';       /* IE/Edge */
+    introPenguinDiv.style.userSelect = 'none';
     var introPenguinImgDiv = document.createElement('img');
     introPenguinImgDiv.setAttribute('src','img/penguin.png');
     introPenguinImgDiv.style.height = introPenguinDiv.style.height;
@@ -211,6 +224,12 @@ var initMenu = function() {
     introPresentDiv.style.opacity = '0';
     introPresentDiv.style.pointerEvents = 'none';
     introPresentDiv.style.transition = 'opacity 1s linear';
+    introPresentDiv.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    introPresentDiv.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    introPresentDiv.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    introPresentDiv.style.MozUserSelect = 'none';      /* Firefox */
+    introPresentDiv.style.MsUserSelect = 'none';       /* IE/Edge */
+    introPresentDiv.style.userSelect = 'none';
     var introPresentImgDiv = document.createElement('img');
     introPresentImgDiv.setAttribute('src','img/letter.png');
     introPresentImgDiv.style.height = introPenguinDiv.style.height;
@@ -1860,6 +1879,12 @@ function Icicle(x, y) {
     icicle.style.top = this.y + 'px';
     icicle.style.width = icicle.style.height = '20px';
     icicle.style.zIndex = '1';
+    icicle.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    icicle.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    icicle.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    icicle.style.MozUserSelect = 'none';      /* Firefox */
+    icicle.style.MsUserSelect = 'none';       /* IE/Edge */
+    icicle.style.userSelect = 'none';
     var icicleImg = document.createElement('img');
     icicleImg.setAttribute('src','img/icicle.png');
     icicleImg.style.height = penguin.style.height;
@@ -1876,6 +1901,12 @@ function IcicleUp(x, y) {
     icicle.style.left = x * 20 + 'px';
     icicle.style.top = y * 20 + 'px';
     icicle.style.width = icicle.style.height = '20px';
+    icicle.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    icicle.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    icicle.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    icicle.style.MozUserSelect = 'none';      /* Firefox */
+    icicle.style.MsUserSelect = 'none';       /* IE/Edge */
+    icicle.style.userSelect = 'none';
     var icicleImg = document.createElement('img');
     icicleImg.setAttribute('src','img/icicleUp.png');
     icicleImg.style.height = penguin.style.height;
