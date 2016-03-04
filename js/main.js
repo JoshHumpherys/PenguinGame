@@ -659,10 +659,13 @@ var initBlocks = function(map, forward) {
                         for(var k = 0; k < letters[room].length; k++) {
                             if(letters[room][k].x == j && letters[room][k].y == i) {
                                 if(!letters[room][k].achieved) {
-                                    obj = new Letter(j, i);
-                                    container.appendChild(obj.letter);
-                                    letters[room][k].ref = obj;
+                                    obj = new Letter(j, i, false);
                                 }
+                                else {
+                                    obj = new Letter(j, i, true);
+                                }
+                                container.appendChild(obj.letter);
+                                letters[room][k].ref = obj;
                                 break;
                             }
                         }
@@ -1331,12 +1334,14 @@ var update = function(delta) {
         // Check if we got a letter
         if(letters[room] != null) {
             for(var i = 0; i < letters[room].length; i++) {
-                if(letters[room][i].ref != null && !letters[room][i].achieved) {
+                if(letters[room][i].ref != null) {
                     if(letters[room][i].ref.collision(npx, npy, pw)) {
                         letters[room][i].ref.letter.style.display = 'none';
-                        letters[room][i].achieved = true;
-                        addLetter(getLetterIndex(room, i));
-                        break;
+                        if(!letters[room][i].achieved) {
+                            letters[room][i].achieved = true;
+                            addLetter(getLetterIndex(room, i));
+                            break;
+                        }
                     }
                 }
             }
@@ -1578,7 +1583,7 @@ var nextRoom = function() {
             if(!allLetters) {
                 console.log('here');
                 pause();
-                showAlert("Sorry!<br />You can't enter this room until you have all the letters!<br /><br />Press Z to go back a room<br />Press X to go forward a room<br /><br />Go get all the letters!", (800-500)/2, 180, 500, 180);
+                showAlert("Sorry!<br />You can't enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!", (800-500)/2, 180, 500, 180);
                 tutorial = true;
                 px = 800 - pw - 1;
                 movePenguinDiv();
@@ -1847,7 +1852,7 @@ var showAllBlocks = function() {
     }
 }
 
-function Letter(x, y) {
+function Letter(x, y, shaded) {
     var letter = this.letter = document.createElement('div');
     this.x = x * 20;
     this.y = y * 20;
@@ -1857,7 +1862,12 @@ function Letter(x, y) {
     letter.style.top = this.y + 'px';
     letter.style.width = letter.style.height = this.w + 'px';
     var letterImg = document.createElement('img');
-    letterImg.setAttribute('src','img/letter.png');
+    if(!shaded) {
+        letterImg.setAttribute('src','img/letter.png');
+    }
+    else {
+        letterImg.setAttribute('src','img/letter6.png');
+    }
     letterImg.style.height = letter.style.height;
     letterImg.style.display = 'block';
     letterImg.style.margin = 'auto';
