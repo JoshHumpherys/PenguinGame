@@ -1815,6 +1815,13 @@ var showAllButtons = function() {
     }
 }
 
+var showAllBlocks = function() {
+    var blocks = document.getElementById('container').getElementsByTagName('div');
+    for(i = 0; i < blocks.length; i++) {
+        blocks[i].style.display = 'block';
+    }
+}
+
 function Letter(x, y) {
     var letter = this.letter = document.createElement('div');
     this.x = x * 20;
