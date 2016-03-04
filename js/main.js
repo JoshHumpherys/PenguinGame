@@ -377,6 +377,7 @@ var preInitGame = function() {
     
     // init penguin and add to container
     penguin = document.createElement('div');
+    penguin.style.zIndex = '1';
     penguin.style.position = 'absolute';
     penguin.style.WebkitTouchCallout =  'none'; /* iOS Safari */
     penguin.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
@@ -1336,8 +1337,12 @@ var update = function(delta) {
             for(var i = 0; i < letters[room].length; i++) {
                 if(letters[room][i].ref != null) {
                     if(letters[room][i].ref.collision(npx, npy, pw)) {
-                        letters[room][i].ref.letter.style.display = 'none';
+//                        letters[room][i].ref.letter.style.display = 'none';
                         if(!letters[room][i].achieved) {
+                            letters[room][i].ref.letterImg.setAttribute('src','img/letter6.png');
+                            letters[room][i].ref.letter.innerHTML = letters[room][i].ref.letterImg.outerHTML;
+//                            console.log(letters[room][i].ref.letterImg);
+//                            console.log(letters[room][i].ref.letter);
                             letters[room][i].achieved = true;
                             addLetter(getLetterIndex(room, i));
                             break;
@@ -1861,7 +1866,7 @@ function Letter(x, y, shaded) {
     letter.style.left = this.x + 'px';
     letter.style.top = this.y + 'px';
     letter.style.width = letter.style.height = this.w + 'px';
-    var letterImg = document.createElement('img');
+    var letterImg = this.letterImg = document.createElement('img');
     if(!shaded) {
         letterImg.setAttribute('src','img/letter.png');
     }
