@@ -359,6 +359,12 @@ var preInitGame = function() {
     // init penguin and add to container
     penguin = document.createElement('div');
     penguin.style.position = 'absolute';
+    penguin.style.WebkitTouchCallout =  'none'; /* iOS Safari */
+    penguin.style.WebkitUserSelect = 'none';   /* Chrome/Safari/Opera */
+    penguin.style.KhtmlUserSelect = 'none';    /* Konqueror */
+    penguin.style.MozUserSelect = 'none';      /* Firefox */
+    penguin.style.MsUserSelect = 'none';       /* IE/Edge */
+    penguin.style.userSelect = 'none';
     pw = 14; // warning set less than 20
 //    pw = 18; // warning set less than 20
     ps = (20 - pw) / 2;
