@@ -123,7 +123,7 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:24,y:26},{x:28,y:26}],[{x:24,y:26},{x:28,y:26}],[{x:28,y:18}],[{x:16,y:2}]];
+    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:19,y:5},{x:35,y:9}],[{x:24,y:26},{x:28,y:26}],[{x:28,y:18}],[{x:16,y:2}]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -421,6 +421,7 @@ var preInitGame = function() {
 
     y0 = py;
 
+    penguin.style.zIndex = '1';
     penguin.style.left = (px - ps) + 'px';
     penguin.style.top = py + 'px';
     penguin.style.width = '20px';
@@ -501,12 +502,14 @@ var initGame = function() {
 //        for(var i = 0; i < helpTriggers.length; i++) {
 //            helpTriggers[i].alreadyShown = false;
 //        }
-//    }
+//    }{x:36,y:17}
     helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move.<br />Try to get all the presents!'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:120},
                     {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
                     {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:10*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
+                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:10*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120},
+                    {text:'Whenever you get a present you unlock a letter at the top of the screen!'+continueString,x:36*20,y:17*20,w:2*20,h:2*20,land:false,displayX:(800-400)/2,displayY:200,displayW:400,displayH:120},
+                    {text:'Nice work! You\'re almost done with the first room!<br /><br />Keep getting all the presents!<br />If you get stuck, try reading the instructions on the right.'+continueString,x:28*20,y:(28+1)*20,w:11*20,h:20,land:true,displayX:(800-500)/2,displayY:200,displayW:500,displayH:150}];
     var helpTriggersPassed = getCookie('helpTriggersPassed');
     if(helpTriggersPassed == '') {
         setCookie('helpTriggersPassed', '0');
@@ -1354,8 +1357,10 @@ var update = function(delta) {
                     if(letters[room][i].ref.collision(npx, npy, pw)) {
 //                        letters[room][i].ref.letter.style.display = 'none';
                         if(!letters[room][i].achieved) {
-                            letters[room][i].ref.letterImg.setAttribute('src','img/letter6.png');
-                            letters[room][i].ref.letter.innerHTML = letters[room][i].ref.letterImg.outerHTML;
+//                            letters[room][i].ref.letterImg.setAttribute('src','img/letter6.png');
+//                            letters[room][i].ref.letter.innerHTML = letters[room][i].ref.letterImg.outerHTML;
+                            letters[room][i].ref.animatePresent();
+//                            animatePresent(letters[room][i].ref.x, letters[room][i].ref.y);
 //                            console.log(letters[room][i].ref.letterImg);
 //                            console.log(letters[room][i].ref.letter);
                             letters[room][i].achieved = true;
@@ -1787,6 +1792,20 @@ var getLetterIndex = function(room, di) {
 }
 
 var updateLettersCurrentString = function() {
+    /*
+    var lettersString = '';
+    for(var i = 0; i < lettersFinal.length; i++) {
+        if(lettersCurrent[i]) {
+            lettersString += '<div style="float:left"><b>'+lettersFinal[i]+'</b></div>';
+        }
+        else {
+            lettersString += '<div style="float:left"><b>&nbsp;</b></div>';
+        }
+    }
+
+    lettersTopDiv.innerHTML = lettersString;
+    */
+
     var lettersString = '';
     for(var i = 0; i < lettersFinal.length; i++) {
         if(lettersCurrent[i]) {
@@ -1801,7 +1820,7 @@ var updateLettersCurrentString = function() {
 }
 
 var youWin = function() {
-    alert('congrats');
+    // maybe do something with this later
 }
 
 var getCookie = function(name) {
@@ -1881,22 +1900,67 @@ function Letter(x, y, shaded) {
     letter.style.left = this.x + 'px';
     letter.style.top = this.y + 'px';
     letter.style.width = letter.style.height = this.w + 'px';
+    letter.style.transition = 'width 1s ease-out, height 1s ease-out, opacity 1s ease-out, left 1s ease-out, top 1s ease-out';
     var letterImg = this.letterImg = document.createElement('img');
-    if(!shaded) {
-        letterImg.setAttribute('src','img/letter.png');
-    }
-    else {
-        letterImg.setAttribute('src','img/letter6.png');
+    letterImg.setAttribute('src','img/letter.png');
+    if(shaded) {
+        letter.style.display = 'none';
     }
     letterImg.style.height = letter.style.height;
     letterImg.style.display = 'block';
     letterImg.style.margin = 'auto';
     letter.innerHTML = letterImg.outerHTML;
     container.appendChild(letter);
+
+    var letter2 = this.letter2 = document.createElement('div');
+    this.x = x * 20;
+    this.y = y * 20;
+    this.w = this.h = 40;
+    letter2.style.position = 'absolute';
+    letter2.style.left = this.x + 'px';
+    letter2.style.top = this.y + 'px';
+    letter2.style.width = letter2.style.height = this.w + 'px';
+    var letter2Img = this.letter2Img = document.createElement('img');
+    letter2Img.setAttribute('src','img/letter6.png');
+    if(!shaded) {
+        letter2Img.style.display = 'none';
+    }
+    letter2Img.style.height = letter.style.height;
+    letter2Img.style.display = 'block';
+    letter2Img.style.margin = 'auto';
+    letter2.innerHTML = letter2Img.outerHTML;
+    container.appendChild(letter2);
+
+/*
+    var animation = this.animation = document.createElement('div');
+    animation.style.display = 'none';
+    animation.style.zIndex = '1';
+    animation.style.position = 'absolute';
+    animation.style.left = this.x + 'px';
+    animation.style.top = this.y + 'px';
+    animation.style.width = animation.style.height = this.w + 'px';
+    animation.style.transition = 'width 1s ease-out, height 1s ease-out, opacity 1s ease-out';
+    var animationImg = document.createElement('img');
+    animationImg.setAttribute('src','img/letter.png');
+    animationImg.style.height = animation.style.height;
+    animationImg.style.display = 'block';
+    animationImg.style.margin = 'auto';
+    animation.innerHTML = animationImg.outerHTML;
+    container.appendChild(animation);
+*/
 }
 
 Letter.prototype.collision = function(x, y, w) {
     return x < this.x + this.w && x + w > this.x && y < this.y + this.h && y + 20 > this.y;
+}
+
+Letter.prototype.animatePresent = function() {
+    this.letter2.style.display = 'block';
+    this.letter.style.left = (this.x - this.w / 2) + 'px';
+    this.letter.style.top = (this.y - this.h / 2) + 'px';
+    this.letter.style.width = this.letter.style.height = (2 * this.w) + 'px';
+    this.letter.style.opacity = '0';
+//    setTimeout(function() {animation.remove();}, 1000);
 }
 
 function Icicle(x, y) {
