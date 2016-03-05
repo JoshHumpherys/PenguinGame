@@ -30,8 +30,8 @@ var initMenu = function() {
     game = false;
     changingRooms = true;
     changeX = changeY = true;
-    lastMap = 4;
-    lastExpertMap = 4;
+    lastMap = 8;
+    lastExpertMap = 8;
     last = Date.now();
     buttons = {};
     var expertLockedCookie = getCookie('expertLocked');
@@ -121,7 +121,7 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:2},{x:22,y:7},{x:29,y:10}],[{x:8,y:3}],[]];
+    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:24,y:26},{x:28,y:26}],[{x:24,y:26},{x:28,y:26}],[{x:28,y:18}],[{x:16,y:2}]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -491,7 +491,7 @@ var initGame = function() {
                     {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
                     {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:2*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
+                    {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:10*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120}];
     var helpTriggersPassed = getCookie('helpTriggersPassed');
     if(helpTriggersPassed == '') {
         setCookie('helpTriggersPassed', '0');
@@ -2277,13 +2277,7 @@ window.onkeydown = function(e) {
     }
     
     if(introScreen) {
-        if(key == 83) {
-            forward = true;
-            preInitGame();
-        }
-        else {
-            nextIntroScreen();
-        }
+        nextIntroScreen();
     }
     else if(menu && alternateMenu) {
         if(key == 82 && options) {
