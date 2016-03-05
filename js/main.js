@@ -1383,7 +1383,6 @@ var update = function(delta) {
                             tutorial = true;
 //                            setCookie('helpTriggersPassed', (i == 0 ? 0 : (i-1)) + '');
                             setCookie('helpTriggersPassed', i+'');
-                            console.log('setting helpTriggersPassed to ' + i);
                             while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
@@ -1397,7 +1396,6 @@ var update = function(delta) {
                             tutorial = true;
 //                            setCookie('helpTriggersPassed', (i == 0 ? 0 : (i-1)) + '');
                             setCookie('helpTriggersPassed', i+'');
-                            console.log('setting helpTriggersPassed to ' + i);
                             while(i > 0) {
                                 helpTriggers[--i].removed = true;
                             }
@@ -1597,22 +1595,9 @@ var nextRoom = function() {
         forward = true;
         pause();
         if(room == lastMap) {
-            var allLetters = true;
-            for(i = 0; i < lettersCurrent.length; i++) {
-                if(!lettersCurrent[i]) {
-                    allLetters = false;
-                    break;
-                }
-            }
-            console.log('asdf');
+            var allLetters = hasAllLetters();
             if(!allLetters) {
-                console.log('here');
-                pause();
-                showAlert("Sorry!<br />You can't enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!", (800-500)/2, 180, 500, 180);
-                tutorial = true;
-                px = 800 - pw - 1;
-                movePenguinDiv();
-                roomChangeQueued = false;
+                needToGetLettersAlert(true);
                 return;
             }
             else {
@@ -1671,10 +1656,50 @@ var goToRoom = function(roomToGoTo) {
             }
             restart();
         }
+        else if((!playingExpert && roomToGoTo == lastMap + 1) || (playingExpert && roomToGoTo == lastExpertMap + 1)) {
+            if(!playingExpert) {
+                needToGetLettersAlert(false);
+                return;
+            }
+            else {
+                // do nothing
+            }
+        }
         else {
             pause();
-            showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', 200, 200, 400, 120);
+            showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', (800-420)/2, 200, 420, 120);
         }
+    }
+}
+
+var needToGetLettersAlert = function(adjustX) {
+    pause();
+    if(!hasAllLetters()) {
+        showAlert("Sorry!<br />You can't enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!", (800-500)/2, 180, 500, 180);
+        tutorial = true;
+        if(adjustX) {
+            px = 800 - pw - 1;
+        }
+        movePenguinDiv();
+        roomChangeQueued = false;
+    }
+    else {
+        showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', (800-420)/2, 200, 420, 120);
+    }
+}
+
+var hasAllLetters = function() {
+    for(i = 0; i < lettersCurrent.length; i++) {
+        if(!lettersCurrent[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+var getAllLetters = function() {
+    for(i = 0; i < lettersCurrent.length; i++) {
+        addLetter(i);
     }
 }
 
