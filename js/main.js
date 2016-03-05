@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options, initMenuQueued;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -123,7 +123,7 @@ var initMenu = function() {
     //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
-    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:19,y:5},{x:35,y:9}],[{x:24,y:26},{x:28,y:26}],[{x:28,y:18}],[{x:16,y:2}]];
+    letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:19,y:5},{x:35,y:9}],[{x:5,y:2},{x:33,y:23}],[{x:33,y:12}],[{x:16,y:2}]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -585,9 +585,12 @@ var initBlocks = function(map, forward) {
         }
     }
     else {
-        if(map > lastMap) {
-            alert('congrats you completed expert mode');
-            initMenu();
+        if(map > lastExpertMap) {
+            pause();
+            showAlert('Nice job!! You completed expert mode!<br /><br />Press any key to continue', (800-400)/2, 200, 400, 100);
+            initMenuQueued = true;
+            roomExpert = 0;
+            setCookie('roomExpert','0');
             return;
         }
         mapString = 'expertMap'+map;
@@ -712,7 +715,11 @@ var initBlocks = function(map, forward) {
 var loop = function() {
     setTimeout(nextLoop, 17);
     loopComplete = false;
-    if(!paused && !changingRooms && !roomChangeQueued) {
+    if(!paused && initMenuQueued) {
+        initMenuQueued = false;
+        initMenu();
+    }
+    else if(!paused && !changingRooms && !roomChangeQueued) {
         var now = Date.now();
 
 //        for(var i = 0; i < Math.floor((now-last)/17); i++) {
