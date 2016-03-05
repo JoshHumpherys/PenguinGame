@@ -3,6 +3,8 @@ var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
 var initMenu = function() {
+    cacheImages();
+
     permContainerX = (document.body.clientWidth-800)/2 + 'px';
     permContainerY = '50px';
     container = document.getElementById('container');
@@ -239,6 +241,19 @@ var initMenu = function() {
     document.body.appendChild(introPresentDiv);
     
     changingRooms = false;
+}
+
+var cacheImages = function() {
+    new Image().src = 'img/bg.jpg';
+    new Image().src = 'img/clouds.jpg';
+    new Image().src = 'img/glass_light_blue.png';
+    new Image().src = 'img/icecave.jpg';
+    new Image().src = 'img/icicle.png';
+    new Image().src = 'img/icicleUp.png';
+    new Image().src = 'img/intro0.jpg';
+    new Image().src = 'img/letter.png';
+    new Image().src = 'img/letter6.png';
+    new Image().src = 'img/penguin.png';
 }
 
 var setInstructionsDivText = function() {
