@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options, initMenuQueued;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options, initMenuQueued, lettersExpert, lettersCurrentExpert, lettersExpertThisRoom, expertNoRestart, oneUpdate, twoUdates;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -26,6 +26,7 @@ var initMenu = function() {
     containerIntroBG2= initContainer();
     containerIntroBG2.style.backgroundImage = 'url(img/icecave.jpg)';
     paused = false;
+    oneUpdate = twoUpdates = true;
     mouseDown = false;
     menu = true;
     introScreen = false;
@@ -120,10 +121,10 @@ var initMenu = function() {
     lettersTopDiv.style.cursor = 'default';
     lettersTopDiv.style.fontFamily = 'Verdana, Geneva, sans-serif';
     
-    //    letters = [{i:13,c:'S'},{i:14,c:'P'},{i:15,c:'R'},{i:16,c:'I'},{i:17,c:'N'},{i:18,c:'G'},{i:19,c:' '},{i:20,c:'F'},{i:21,c:'O'},{i:22,c:'R'},{i:23,c:'M'},{i:24,c:'A'},{i:25,c:'L'},{i:26,c:'?'}];
     lettersFinal = ['S','p','r','i','n','g',' ','F','o','r','m','a','l','?'];
     lettersOrder = [6,4,11,13,5,8,1,10,7,0,9,3,12,2];
     letters = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:19,y:5},{x:35,y:9}],[{x:5,y:2},{x:33,y:23}],[{x:33,y:12}],[{x:16,y:2}]];
+    lettersExpert = [[{x:36,y:17}],[{x:6,y:7},{x:36,y:26}],[{x:15,y:7},{x:22,y:3}],[{x:8,y:3}],[{x:9,y:2}],[{x:19,y:5},{x:35,y:9}],[{x:5,y:2},{x:33,y:23}],[{x:33,y:12}],[{x:16,y:2}]];
     var lettersCurrentCookie = getCookie('lettersCurrent');
     if(lettersCurrentCookie == '') {
         lettersCurrent = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -138,6 +139,15 @@ var initMenu = function() {
         for(var i = 0; i < lettersCurrentCookie.length / 2; i++) {
             lettersCurrent[i] = lettersCurrentCookie.charAt(i * 2) == '0' ? false : true;
         }
+        updateLettersCurrentString();
+    }
+    var lettersCurrentExpertCookie = getCookie('lettersCurrentExpert');
+    if(lettersCurrentExpertCookie == '') {
+        lettersCurrentExpert = 0;
+        setLettersCurrentExpertCookie();
+    }
+    else {
+        lettersCurrent = parseInt(lettersCurrentExpertCookie);
         updateLettersCurrentString();
     }
     
@@ -264,7 +274,12 @@ var setInstructionsDivText = function() {
         instructionsDiv.innerHTML = 'Click or press any key to go to the next screen';
     }
     else { // game
-        instructionsDiv.innerHTML = '<h2>Instructions:</h2>Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu<br /><br />R to restart room';
+        if(!playingExpert) {
+            instructionsDiv.innerHTML = '<h2>Instructions:</h2>Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />X to go to the next room<br /><br />Z to go to the previous room<br /><br />M to return to the main menu<br /><br />R to restart room';
+        }
+        else {
+           instructionsDiv.innerHTML = '<h2>Instructions:</h2>Left/right to move<br /><br />Up or space to jump<br />(Twice to double jump)<br /><br />P to pause<br /><br />M to return to the main menu<br /><br />R to restart room';
+        }
     }
 }
 
@@ -492,6 +507,24 @@ var initGame = function() {
     jumpKeyDown = false;
     icicles = new Array(40);
     iciclesUp = [];
+    lettersExpertThisRoom = 0;
+
+    lettersCurrentExpert = 0;
+    for(i = 0; i <= Math.min(roomExpert, lettersExpert.length); i++) {
+        if(lettersExpert[i] != null) {
+            for(j = 0; j < lettersExpert[i].length; j++) {
+                if(i != roomExpert) {
+                    lettersExpert[i][j].achieved = true;
+                    lettersCurrentExpert++;
+                }
+                else {
+                    lettersExpert[i][j].achieved = false;
+                }
+            }
+        }
+    }
+
+    updateLettersCurrentString();
 
     var firstTime = helpTriggers == null;
     var continueString = '<br /><br />Press any key to continue';
@@ -615,87 +648,120 @@ var initBlocks = function(map, forward) {
         blob = xhr.response;
         var reader = new FileReader();
         reader.onload = function(e) {
-            array = e.target.result.split('n');
-            for(var i = 0; i < array.length; i++) {
-                mapData[i] = array[i].split('');
-            }
-            mapReferences = new Array(30);
-            for(var i = 0; i < 30; i++) {
-                mapReferences[i] = new Array(40);
-            }
-            for(var i = 0; i < mapData.length; i++) {
-                for(var j = 0; j < mapData[i].length; j++) {
-                    var obj;
-                    switch(parseInt(mapData[i][j])) {
-                    case 0:
-                        // empty
-                        break;
-                    case 1:
-                        // visible block
-                        container.appendChild((obj = new Block(j, i, 20, true)).block);
-                        break;
-                    case 2:
-                        // invisible block
-                        container.appendChild((obj = new Block(j, i, 20, false)).block);
-                        break;
-                    case 3:
-                        // previous room
-                        break;
-                    case 4:
-                        // next room
-                        break;
-                    case 5:
-                        // initial penguin position for next level or game start
-                        if(forward) {
-                            if(changeX) {
-                                px = j * 20 + ps;
-                            }
-                            if(changeY) {
-                                py = i * 20;
-                            }
-                        }
-                        break;
-                    case 6:
-                        // initial penguin position for previous level
-                        if(!forward) {
-                            if(changeX) {
-                                px = j * 20 + ps;
-                            }
-                            if(changeY) {
-                                py = i * 20;
-                            }
-                        }
-                        break;
-                    case 7:
-                        obj = new Icicle(j, i);
-                        icicles[j] = obj; // WARNING: assumes only one icicle per column
-                        container.appendChild(obj.icicle);
-                        break;
-                    case 8:
-                        container.appendChild((obj = new IcicleUp(j, i)).icicle);
-                        break;
-                    case 9:
-                        if(letters[room] == null) {
+//            if(twoUpdates) {
+                array = e.target.result.split('n');
+                for(var i = 0; i < array.length; i++) {
+                    mapData[i] = array[i].split('');
+                }
+                mapReferences = new Array(30);
+                for(var i = 0; i < 30; i++) {
+                    mapReferences[i] = new Array(40);
+                }
+                for(var i = 0; i < mapData.length; i++) {
+                    for(var j = 0; j < mapData[i].length; j++) {
+                        var obj;
+                        switch(parseInt(mapData[i][j])) {
+                        case 0:
+                            // empty
                             break;
-                        }
-                        for(var k = 0; k < letters[room].length; k++) {
-                            if(letters[room][k].x == j && letters[room][k].y == i) {
-                                if(!letters[room][k].achieved) {
-                                    obj = new Letter(j, i, false);
+                        case 1:
+                            // visible block
+                            container.appendChild((obj = new Block(j, i, 20, true)).block);
+                            break;
+                        case 2:
+                            // invisible block
+                            container.appendChild((obj = new Block(j, i, 20, false)).block);
+                            break;
+                        case 3:
+                            // previous room
+                            break;
+                        case 4:
+                            // next room
+                            break;
+                        case 5:
+                            // initial penguin position for next level or game start
+                            if(forward) {
+                                if(changeX) {
+                                    px = j * 20 + ps;
                                 }
-                                else {
-                                    obj = new Letter(j, i, true);
+                                if(changeY) {
+                                    if(i == 0) {
+                                        py = 1;
+                                    }
+                                    else {
+                                        py = i * 20;
+                                    }
                                 }
-                                container.appendChild(obj.letter);
-                                letters[room][k].ref = obj;
+                            }
+                            break;
+                        case 6:
+                            // initial penguin position for previous level
+                            if(!forward) {
+                                if(changeX) {
+                                    px = j * 20 + ps;
+                                }
+                                if(changeY) {
+                                    if(i == 0) {
+                                        py = 1;
+                                    }
+                                    else {
+                                        py = i * 20;
+                                    }
+                                }
+                            }
+                            break;
+                        case 7:
+                            obj = new Icicle(j, i);
+                            icicles[j] = obj; // WARNING: assumes only one icicle per column
+                            container.appendChild(obj.icicle);
+                            break;
+                        case 8:
+                            container.appendChild((obj = new IcicleUp(j, i)).icicle);
+                            break;
+                        case 9:
+                            if(!playingExpert) {
+                                if(letters[room] == null) {
+                                    break;
+                                }
+                                for(var k = 0; k < letters[room].length; k++) {
+                                    if(letters[room][k].x == j && letters[room][k].y == i) {
+                                        if(!letters[room][k].achieved) {
+                                            obj = new Letter(j, i, false);
+                                        }
+                                        else {
+                                            obj = new Letter(j, i, true);
+                                        }
+                                        container.appendChild(obj.letter);
+                                        letters[room][k].ref = obj;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                            else {
+                                if(lettersExpert[roomExpert] == null) {
+                                    break;
+                                }
+                                for(var k = 0; k < lettersExpert[roomExpert].length; k++) {
+                                    if(lettersExpert[roomExpert][k].x == j && lettersExpert[roomExpert][k].y == i) {
+                                        if(!lettersExpert[roomExpert][k].achieved) {
+                                            obj = new Letter(j, i, false);
+                                        }
+                                        else {
+                                            obj = new Letter(j, i, true);
+                                        }
+                                        container.appendChild(obj.letter);
+                                        lettersExpert[roomExpert][k].ref = obj;
+                                        break;
+                                    }
+                                }
                                 break;
                             }
                         }
-                        break;
+                        mapReferences[i][j] = obj;
                     }
-                    mapReferences[i][j] = obj;
                 }
-            }
+//            }
             movePenguinDiv();
             unpause();
             changingRooms = false;
@@ -745,8 +811,10 @@ var loop = function() {
     else {
         last = Date.now();
     }
-    if(roomChangeQueued) {
+    if(roomChangeQueued && !tutorial) {
         pause();
+        oneUpdate = false;
+        twoUpdates = false;
         roomChangeQueued = false;
         initGame();
     }
@@ -793,7 +861,6 @@ var update = function(delta) {
     }
     else if(!menu && !introScreen) {
         if(roomChangeQueued) {
-            console.l
             return;
         }
         if(!finishedChangingRooms) {
@@ -812,6 +879,16 @@ var update = function(delta) {
                     icicles[i].update(delta);
                 }
             }
+        }
+
+        if(!oneUpdate) {
+            oneUpdate = true;
+            if(npy < 0) {
+                npy = 0;
+            }
+        }
+        else {
+            twoUpdates = true;
         }
     
         // store updated x and y
@@ -1257,12 +1334,14 @@ var update = function(delta) {
                 }
             }
             
-            if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20)))) {
-                mapReferences[Math.floor(py/20) - 1][Math.floor(px/20)].show();
-            }
-            if(Math.floor((px+pw)/20) > Math.floor(px/20)) {
-                if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20) + 1))) {
-                    mapReferences[Math.floor(py/20) - 1][Math.floor(px/20) + 1].show();
+            if(py >= 20) {
+                if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20)))) {
+                    mapReferences[Math.floor(py/20) - 1][Math.floor(px/20)].show();
+                }
+                if(Math.floor((px+pw)/20) > Math.floor(px/20)) {
+                    if(collision(getMapData(Math.floor(py/20) - 1, Math.floor(px/20) + 1))) {
+                        mapReferences[Math.floor(py/20) - 1][Math.floor(px/20) + 1].show();
+                    }
                 }
             }
         }
@@ -1305,9 +1384,9 @@ var update = function(delta) {
 
         // check if they're up icicles, if so kill
 
-        var blockTopLeft = true;
+        var blockTopLeft = npy >= 0;
         var blockDownLeft = npy % 20 != 0;
-        var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
+        var blockTopRight = blockTopLeft && Math.floor((npx + pw)/20) > Math.floor(npx/20);
         var blockDownRight = blockDownLeft && blockTopRight;
 
 /*
@@ -1416,21 +1495,39 @@ var update = function(delta) {
         moveIcicleDivs();
         
         // Check if we got a letter
-        if(letters[room] != null) {
-            for(var i = 0; i < letters[room].length; i++) {
-                if(letters[room][i].ref != null) {
-                    if(letters[room][i].ref.collision(npx, npy, pw)) {
-//                        letters[room][i].ref.letter.style.display = 'none';
-                        if(!letters[room][i].achieved) {
-//                            letters[room][i].ref.letterImg.setAttribute('src','img/letter6.png');
-//                            letters[room][i].ref.letter.innerHTML = letters[room][i].ref.letterImg.outerHTML;
-                            letters[room][i].ref.animatePresent();
-//                            animatePresent(letters[room][i].ref.x, letters[room][i].ref.y);
-//                            console.log(letters[room][i].ref.letterImg);
-//                            console.log(letters[room][i].ref.letter);
-                            letters[room][i].achieved = true;
-                            addLetter(getLetterIndex(room, i));
-                            break;
+        if(!playingExpert) {
+            if(letters[room] != null) {
+                for(var i = 0; i < letters[room].length; i++) {
+                    if(letters[room][i].ref != null) {
+                        if(letters[room][i].ref.collision(npx, npy, pw)) {
+    //                        letters[room][i].ref.letter.style.display = 'none';
+                            if(!letters[room][i].achieved) {
+    //                            letters[room][i].ref.letterImg.setAttribute('src','img/letter6.png');
+    //                            letters[room][i].ref.letter.innerHTML = letters[room][i].ref.letterImg.outerHTML;
+                                letters[room][i].ref.animatePresent();
+    //                            animatePresent(letters[room][i].ref.x, letters[room][i].ref.y);
+    //                            console.log(letters[room][i].ref.letterImg);
+    //                            console.log(letters[room][i].ref.letter);
+                                letters[room][i].achieved = true;
+                                addLetter(getLetterIndex(room, i));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if(lettersExpert[roomExpert] != null) {
+                for(var i = 0; i < lettersExpert[roomExpert].length; i++) {
+                    if(lettersExpert[roomExpert][i].ref != null) {
+                        if(lettersExpert[roomExpert][i].ref.collision(npx, npy, pw)) {
+                            if(!lettersExpert[roomExpert][i].achieved) {
+                                lettersExpert[roomExpert][i].ref.animatePresent();
+                                lettersExpert[roomExpert][i].achieved = true;
+                                lettersExpertThisRoom++;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1613,33 +1710,57 @@ var outOfBoundsX = function(y, x) {
         changeY = false;
         var type = mapData[y][x < 0 ? x + 1 : x - 1];
         if(type == 3 || type == 5) {
-            previousRoom();
+            previousRoom(true);
         }
         else if(type == 4) {
-            nextRoom();
+            nextRoom(true);
         }
     }
 }
 
 var outOfBoundsY = function(y, x) {
+    console.trace();
     if(!roomChangeQueued) {
         changeX = false;
         changeY = true;
         var type = mapData[y < 0 ? y + 1 : y - 1][x];
         if(type == 3 || type == 5) {
-            previousRoom();
+            previousRoom(false);
         }
         else if(type == 4) {
-            nextRoom();
+            nextRoom(false);
         }
     }
 }
 
 // warning: ensure first room has no exit or no way of accessing exit
-var previousRoom = function() {
+var previousRoom = function(adjustX) {
+    if(!roomChangeQueued) {
+        if(playingExpert && twoUpdates) {
+            roomChangeQueued = true;
+            pause();
+            if(adjustX) {
+                changeX = true;
+                changeY = false;
+                px = 0;
+            }
+            else {
+                changeX = false;
+                changeY = true;
+                py = 10;
+            }
+            forward = true;
+            movePenguinDiv();
+            showAlert('Sorry!<br />You can\'t go backwards in expert mode!<br /><br />Press any key to continue', (800-400)/2, 180, 400, 120);
+            tutorial = true;
+            restart();
+            return;
+        }
+    }
     finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
         roomChangeQueued = true;
+        console.trace();
         forward = false;
         pause();
 //        changeX = changeY = true;
@@ -1647,30 +1768,55 @@ var previousRoom = function() {
             room--;
             setCookie('room',room+'');
         }
-        else {
+        else if(twoUpdates) {
             roomExpert--;
             setCookie('roomExpert',roomExpert);
         }
     }
 }
 
-var nextRoom = function() {
+var nextRoom = function(adjustX) {
     finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
         forward = true;
         pause();
-        if(room == lastMap) {
-            var allLetters = hasAllLetters();
-            if(!allLetters) {
-                needToGetLettersAlert(true);
-                return;
+        if(!playingExpert) {
+            if(room == lastMap) {
+                var allLetters = hasAllLetters();
+                if(!allLetters) {
+                    needToGetLettersAlert(true);
+                    return;
+                }
+                else {
+                    roomChangeQueued = true;
+                }
             }
             else {
                 roomChangeQueued = true;
             }
         }
         else {
-            roomChangeQueued = true;
+            if(lettersExpertThisRoom < lettersExpert[roomExpert].length) {
+                needToGetLettersExpertAlert(adjustX);
+                if(!adjustX) {
+                    expertNoRestart = true;
+//                    restart();
+//                    return;
+                    for(i = 0; i < mapData.length; i++) {
+                        for(j = 0; j < mapData[i].length; j++) {
+                            if(mapData[i][j] == '6') {
+                                px = j * 20;
+                                py = i * 20;
+                                return;
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+            else {
+                roomChangeQueued = true;
+            }
         }
 //        changeX = changeY = true;
         if(!playingExpert) {
@@ -1740,7 +1886,7 @@ var goToRoom = function(roomToGoTo) {
 var needToGetLettersAlert = function(adjustX) {
     pause();
     if(!hasAllLetters()) {
-        showAlert("Sorry!<br />You can't enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!", (800-500)/2, 180, 500, 180);
+        showAlert('Sorry!<br />You can\'t enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!', (800-500)/2, 180, 500, 180);
         tutorial = true;
         if(adjustX) {
             px = 800 - pw - 1;
@@ -1751,6 +1897,21 @@ var needToGetLettersAlert = function(adjustX) {
     else {
         showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', (800-420)/2, 200, 420, 120);
     }
+}
+
+var needToGetLettersExpertAlert = function(adjustX) {
+    pause();
+    showAlert('Sorry!<br /><br />In expert mode you have to get all the presents<br />to enter the next room!<br /><br />Press any key to continue', (800-420)/2, 180, 420, 160);
+    tutorial = true;
+    if(adjustX) {
+        px = 800 - pw - 1;
+    }
+    else {
+        py = 600 - 20 - 1;
+        changeX = changeY = true;
+    }
+    movePenguinDiv();
+    roomChangeQueued = false;
 }
 
 var hasAllLetters = function() {
@@ -1769,7 +1930,17 @@ var getAllLetters = function() {
 }
 
 var restart = function() {
-    changeX = changeY = true;
+//    if(expertNoRestart) {
+//        expertNoRestart = false;
+//        forward = false;
+//    }
+//    else if(playingExpert) {
+    if(playingExpert) {
+        forward = true;
+    }
+    else {
+        changeX = changeY = true;
+    }
     roomChangeQueued = true;
 }
 
@@ -1827,6 +1998,13 @@ var hitCeiling = function() {
 var kill = function() {
     if(!changingRooms) {
         changingRooms = true;
+        if(expertNoRestart) {
+            expertNoRestart = false;
+            forward = false;    
+        }
+        else if(playingExpert) {
+            forward = true;
+        }
         changeX = changeY = true;
         movePenguinDiv();
         pause();
@@ -1900,17 +2078,22 @@ var updateLettersCurrentString = function() {
     lettersTopDiv.innerHTML = lettersString;
     */
 
-    var lettersString = '';
-    for(var i = 0; i < lettersFinal.length; i++) {
-        if(lettersCurrent[i]) {
-            lettersString += lettersFinal[i];
+    if(!playingExpert) {
+        var lettersString = '';
+        for(var i = 0; i < lettersFinal.length; i++) {
+            if(lettersCurrent[i]) {
+                lettersString += lettersFinal[i];
+            }
+            else {
+                lettersString += '&nbsp;';
+            }
         }
-        else {
-            lettersString += '&nbsp;';
-        }
-    }
 
-    lettersTopDiv.innerHTML = '<b>'+lettersString+'</b>';
+        lettersTopDiv.innerHTML = '<b>'+lettersString+'</b>';
+    }
+    else {
+        lettersTopDiv.innerHTML = '<b>'+lettersCurrentExpert+' of '+(lettersOrder.length-1)+'</b>';
+    }
 }
 
 var youWin = function() {
@@ -1956,6 +2139,14 @@ var setLettersCurrentCookie = function() {
         s += lettersCurrent[i] ? '1,' : '0,';
     }
     setCookie('lettersCurrent',s);
+}
+
+var setLettersCurrentExpertCookie = function() {
+    var s = '';
+    for(var i = 0; i < lettersCurrentExpert.length; i++) {
+        s += lettersCurrentExpert[i] ? '1,' : '0,';
+    }
+    setCookie('lettersCurrentExpert',s);
 }
 
 var removeAllButtons = function() {
@@ -2268,6 +2459,7 @@ Button.prototype.select = function() {
         switch(this.name) {
         case 'story':
             playingExpert = false;
+            updateLettersCurrentString();
             setIntroScreen(0);
             break;
         case 'expert':
@@ -2505,10 +2697,14 @@ window.onkeydown = function(e) {
             }
         }
         else if(key == 90) { // z
-            goToRoom((playingExpert ? roomExpert : room)-1);
+            if(!playingExpert) {
+                goToRoom((playingExpert ? roomExpert : room)-1);
+            }
         }
         else if(key == 88) { // x
-            goToRoom((playingExpert ? roomExpert : room)+1);
+            if(!playingExpert) {
+                goToRoom((playingExpert ? roomExpert : room)+1);
+            }
         }
         else if(key == 77) { // m
             initMenu();
