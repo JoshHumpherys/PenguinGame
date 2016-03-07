@@ -1996,11 +1996,12 @@ var hitCeiling = function() {
 var kill = function() {
     if(!changingRooms) {
         changingRooms = true;
-        if(expertNoRestart) {
-            expertNoRestart = false;
-            forward = false;    
-        }
-        else if(playingExpert) {
+//        if(expertNoRestart) {
+//            expertNoRestart = false;
+//            forward = false;    
+//        }
+//        else if(playingExpert) {
+        if(playingExpert) {
             forward = true;
         }
         changeX = changeY = true;
