@@ -856,8 +856,23 @@ var update = function(delta) {
 
         var blockUnderneathLeft = collision(getMapData(Math.floor(npy/20) + 1, Math.floor(npx/20)));
         var blockUnderneathRight = (Math.floor((npx + pw)/20) > Math.floor(npx/20)) ? collision(getMapData(Math.floor(npy/20) + 1, Math.floor(npx/20) + 1)) : blockUnderneathLeft;
+
         var alreadyAdjusted = false;
-        if(!inAir) {
+
+        // check if on block with icicle, if so kill
+        if(blockUnderneathLeft) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20), Math.floor(npx/20)))) {
+                kill();
+                alreadyAdjusted = true;
+            }
+        }
+        if(blockUnderneathRight) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20), Math.floor(npx/20) + 1))) {
+                kill();
+                alreadyAdjusted = true;
+            }
+        }
+        if(!inAir && !alreadyAdjusted) {
             if(right && !left && lastBlockUnderneathLeft && !blockUnderneathLeft) {
                 fall();
                 if(blockUnderneathRight || blockTopRight) {
@@ -1717,6 +1732,10 @@ var restart = function() {
 
 var collision = function(i) {
     return i == 1 || i == 2;
+}
+
+var isIcicleUp = function(i) {
+    return i == 8;
 }
 
 var pause = function() {
