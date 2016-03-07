@@ -1719,7 +1719,6 @@ var outOfBoundsX = function(y, x) {
 }
 
 var outOfBoundsY = function(y, x) {
-    console.trace();
     if(!roomChangeQueued) {
         changeX = false;
         changeY = true;
@@ -1760,7 +1759,6 @@ var previousRoom = function(adjustX) {
     finishedChangeRooms = finishedChangingRooms2 = false;
     if(!roomChangeQueued) {
         roomChangeQueued = true;
-        console.trace();
         forward = false;
         pause();
 //        changeX = changeY = true;
