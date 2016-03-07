@@ -1526,6 +1526,7 @@ var update = function(delta) {
                                 lettersExpert[roomExpert][i].ref.animatePresent();
                                 lettersExpert[roomExpert][i].achieved = true;
                                 lettersExpertThisRoom++;
+                                updateLettersCurrentString();
                                 break;
                             }
                         }
@@ -2091,7 +2092,7 @@ var updateLettersCurrentString = function() {
         lettersTopDiv.innerHTML = '<b>'+lettersString+'</b>';
     }
     else {
-        lettersTopDiv.innerHTML = '<b>'+lettersCurrentExpert+' of '+(lettersOrder.length-1)+'</b>';
+        lettersTopDiv.innerHTML = '<b>'+(lettersCurrentExpert+lettersExpertThisRoom)+' of '+(lettersOrder.length-1)+'</b>';
     }
 }
 
