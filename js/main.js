@@ -734,8 +734,7 @@ var loop = function() {
         /*
         if(step || stepping) {
             step = false;
-//            var nowMinusLast = Math.random() > .3 ? 17 : 79;
-            var nowMinusLast = 46 * Math.random() + 17;
+            var nowMinusLast = 17;
             for(var i = 0; i < Math.ceil((nowMinusLast)/20); i++) {
                 update((nowMinusLast)/Math.ceil((nowMinusLast)/20));
             }
@@ -860,18 +859,19 @@ var update = function(delta) {
         var alreadyAdjusted = false;
 
         // check if on block with icicle, if so kill
-        if(blockUnderneathLeft) {
+        if(blockUnderneathLeft && !inAir && !blockUnderneathRight) {
             if(isIcicleUp(getMapData(Math.floor(npy/20), Math.floor(npx/20)))) {
                 kill();
                 alreadyAdjusted = true;
             }
         }
-        if(blockUnderneathRight) {
+        if(blockUnderneathRight && !inAir && !blockUnderneathLeft) {
             if(isIcicleUp(getMapData(Math.floor(npy/20), Math.floor(npx/20) + 1))) {
                 kill();
                 alreadyAdjusted = true;
             }
         }
+
         if(!inAir && !alreadyAdjusted) {
             if(right && !left && lastBlockUnderneathLeft && !blockUnderneathLeft) {
                 fall();
@@ -1310,33 +1310,76 @@ var update = function(delta) {
         var blockTopRight = Math.floor((npx + pw)/20) > Math.floor(npx/20);
         var blockDownRight = blockDownLeft && blockTopRight;
 
+/*
+//        if(blockTopLeft && !blockTopRight && !blockDownLeft) {
         if(blockTopLeft) {
-            if(getMapData(Math.floor(npy/20),Math.floor(npx/20)) == 8) {
+//            if(isIcicleUp(getMapData(Math.floor(npy/20),Math.floor(npx/20))) && (blockTopRight && !collision(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1))) && !collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)))) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20),Math.floor(npx/20))) && !(!blockTopRight && collision(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1)))) {
                 if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)].collision(npx, npy, pw)) {
                     kill();
                     return;
                 }
             }
         }
+//        if(blockDownLeft && !blockDownRight && !blockTopLeft) {
         if(blockDownLeft) {
-            if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)) == 8) {
+//            if(isIcicleUp(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20))) && (blockDownRight && !collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1))) && !collision(getMapData(Math.floor(npy/20),Math.floor(npx/20)))) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20))) && !(!blockDownRight && collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1)))) {
                 if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)].collision(npx, npy, pw)) {
                     kill();
                     return;
                 }
             }
         }
+//        if(blockTopRight && !blockTopLeft && !blockDownRight) {
         if(blockTopRight) {
-            if(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1) == 8) {
+//            if(isIcicleUp(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1)) && !collision(getMapData(Math.floor(npy/20),Math.floor(npx/20))) && (blockDownRight && !collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1)))) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1)) && !collision(getMapData(Math.floor(npy/20),Math.floor(npx/20)))) {
                 if(mapReferences[Math.floor(npy/20)][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
                     kill();
                     return;
                 }
             }
         }
+//        if(blockDownRight && !blockDownLeft && !blockTopRight) {
         if(blockDownRight) {
-            if(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1) == 8) {
+//            if(isIcicleUp(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1)) && !collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20))) && (blockTopRight && !collision(getMapData(Math.floor(npy/20),Math.floor(npx/20)+1)))) {
+            if(isIcicleUp(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)+1)) && !collision(getMapData(Math.floor(npy/20)+1,Math.floor(npx/20)))) {
                 if(mapReferences[Math.floor(npy/20)+1][Math.floor(npx/20)+1].collision(npx, npy, pw)) {
+                    kill();
+                    return;
+                }
+            }
+        }
+*/
+
+        if(blockTopLeft) {
+            if(isIcicleUp(getMapData(Math.floor(py/20),Math.floor(px/20))) && !(!blockTopRight && collision(getMapData(Math.floor(py/20),Math.floor(px/20)+1)))) {
+                if(mapReferences[Math.floor(py/20)][Math.floor(px/20)].collision(px, py, pw)) {
+                    kill();
+                    return;
+                }
+            }
+        }
+        if(blockDownLeft) {
+            if(isIcicleUp(getMapData(Math.floor(py/20)+1,Math.floor(px/20))) && !(!blockDownRight && collision(getMapData(Math.floor(py/20)+1,Math.floor(px/20)+1)))) {
+                if(mapReferences[Math.floor(py/20)+1][Math.floor(px/20)].collision(npx, npy, pw)) {
+                    kill();
+                    return;
+                }
+            }
+        }
+        if(blockTopRight) {
+            if(isIcicleUp(getMapData(Math.floor(py/20),Math.floor(px/20)+1)) && !collision(getMapData(Math.floor(py/20),Math.floor(px/20)))) {
+                if(mapReferences[Math.floor(py/20)][Math.floor(px/20)+1].collision(npx, npy, pw)) {
+                    kill();
+                    return;
+                }
+            }
+        }
+        if(blockDownRight) {
+            if(isIcicleUp(getMapData(Math.floor(py/20)+1,Math.floor(px/20)+1)) && !collision(getMapData(Math.floor(py/20)+1,Math.floor(px/20)))) {
+                if(mapReferences[Math.floor(py/20)+1][Math.floor(px/20)+1].collision(npx, npy, pw)) {
                     kill();
                     return;
                 }
