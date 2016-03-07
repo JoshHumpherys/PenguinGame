@@ -505,7 +505,7 @@ var initGame = function() {
 //    }{x:36,y:17}
     helpTriggers = [{text:'Welcome! Press LEFT and RIGHT to move.<br />Try to get all the presents!'+continueString,x:20*20,y:7*20,w:20,h:20,displayX:200,displayY:200,displayW:400,displayH:120},
                     {text:'Press SPACE or UP to jump'+continueString,x:34*20,y:(14+1)*20,w:5*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
-                    {text:'You can jump while in the air to double jump!'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-440)/2,displayY:320,displayW:440,displayH:100},
+                    {text:'You can jump while in the air to double jump!<br /><br />Tip: To jump really high, use your second jump when<br />you reach the maximum height from your first jump.<br /><br />Note: If you fall off a block, you lose your first jump.'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-460)/2,displayY:320,displayW:460,displayH:190},
                     {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:10*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120},
                     {text:'Whenever you get a present you unlock a letter at the top of the screen!'+continueString,x:36*20,y:17*20,w:2*20,h:2*20,land:false,displayX:(800-400)/2,displayY:200,displayW:400,displayH:120},
