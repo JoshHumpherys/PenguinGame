@@ -527,7 +527,7 @@ var initGame = function() {
     updateLettersCurrentString();
 
     var firstTime = helpTriggers == null;
-    var continueString = '<br /><br />Press any key to continue';
+    var continueString = '<br /><br />Press C to continue';
     if(maxRoom > 0) {
         helpTriggers = [];
     }
@@ -541,7 +541,7 @@ var initGame = function() {
                     {text:'You can jump while in the air to double jump!<br /><br />Tip: To jump really high, use your second jump when<br />you reach the maximum height from your first jump.<br /><br />Note: If you fall off a block, you lose your first jump.'+continueString,x:13*20,y:(13+1)*20,w:8*20,h:20,land:true,displayX:(800-460)/2,displayY:320,displayW:460,displayH:190},
                     {text:'Beware of icicles falling from above!'+continueString,x:1*20,y:(28+1)*20,w:4*20,h:20,land:true,displayX:200,displayY:200,displayW:400,displayH:100},
                     {text:'Some blocks are invisible until you touch them!<br />Try walking forwards! It\'s safe!'+continueString,x:17*20,y:(23+1)*20,w:10*20,h:20,land:true,displayX:(800-440)/2,displayY:200,displayW:440,displayH:120},
-                    {text:'Whenever you get a present you unlock a letter at the top of the screen!'+continueString,x:36*20,y:17*20,w:2*20,h:2*20,land:false,displayX:(800-400)/2,displayY:200,displayW:400,displayH:120},
+                    {text:'Whenever you get a present you unlock a letter at the top of the screen!'+continueString,x:36*20,y:17*20,w:2*20,h:2*20,land:false,displayX:(800-410)/2,displayY:200,displayW:410,displayH:120},
                     {text:'Nice work! You\'re almost done with the first room!<br /><br />Keep getting all the presents!<br />If you get stuck, try reading the instructions on the right.'+continueString,x:28*20,y:(28+1)*20,w:11*20,h:20,land:true,displayX:(800-500)/2,displayY:200,displayW:500,displayH:150}];
     var helpTriggersPassed = getCookie('helpTriggersPassed');
     if(helpTriggersPassed == '') {
@@ -620,7 +620,7 @@ var initBlocks = function(map, forward) {
     else {
         if(map > lastExpertMap) {
             pause();
-            showAlert('Nice job!! You completed expert mode!<br /><br />Press any key to continue', (800-400)/2, 200, 400, 100);
+            showAlert('Nice job!! You completed expert mode!<br /><br />Press C to continue', (800-400)/2, 200, 400, 100);
             initMenuQueued = true;
             roomExpert = 0;
             setCookie('roomExpert','0');
@@ -1735,7 +1735,7 @@ var outOfBoundsY = function(y, x) {
 
 // warning: ensure first room has no exit or no way of accessing exit
 var previousRoom = function(adjustX) {
-    if(!roomChangeQueued) {
+    if(!roomChangeQueued && !paused) {
         if(playingExpert && twoUpdates) {
             roomChangeQueued = true;
             pause();
@@ -1751,7 +1751,7 @@ var previousRoom = function(adjustX) {
             }
             forward = true;
             movePenguinDiv();
-            showAlert('Sorry!<br />You can\'t go backwards in expert mode!<br /><br />Press any key to continue', (800-400)/2, 180, 400, 120);
+            showAlert('Sorry!<br />You can\'t go backwards in expert mode!<br /><br />Press C to continue', (800-400)/2, 180, 400, 120);
             tutorial = true;
             restart();
             return;
@@ -1838,7 +1838,7 @@ var nextRoom = function(adjustX) {
 }
 
 var goToRoom = function(roomToGoTo) {
-    if(!roomChangeQueued) {
+    if(!roomChangeQueued && !paused) {
         if(roomToGoTo <= (playingExpert ? maxRoomExpert : maxRoom) && roomToGoTo >= 0) {
             roomChangeQueued = true;
             finishedChangeRooms = finishedChangingRooms2 = false;
@@ -1877,7 +1877,7 @@ var goToRoom = function(roomToGoTo) {
         }
         else {
             pause();
-            showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', (800-420)/2, 200, 420, 120);
+            showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press C to continue', (800-420)/2, 200, 420, 120);
         }
     }
 }
@@ -1885,7 +1885,7 @@ var goToRoom = function(roomToGoTo) {
 var needToGetLettersAlert = function(adjustX) {
     pause();
     if(!hasAllLetters()) {
-        showAlert('Sorry!<br />You can\'t enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!', (800-500)/2, 180, 500, 180);
+        showAlert('Sorry!<br />You can\'t enter this room until you have all the presents!<br /><br />Press Z to go to the previous room<br />Press X to go to the next room<br /><br />Go get all the presents!<br /><br />Press C to continue.', (800-500)/2, 180, 500, 220);
         tutorial = true;
         if(adjustX) {
             px = 800 - pw - 1;
@@ -1894,13 +1894,13 @@ var needToGetLettersAlert = function(adjustX) {
         roomChangeQueued = false;
     }
     else {
-        showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press any key to continue', (800-420)/2, 200, 420, 120);
+        showAlert('Sorry! You can only skip to a room if you\'ve been there before!<br /><br />Press C to continue', (800-420)/2, 200, 420, 120);
     }
 }
 
 var needToGetLettersExpertAlert = function(adjustX) {
     pause();
-    showAlert('Sorry!<br /><br />In expert mode you have to get all the presents<br />to enter the next room!<br /><br />Press any key to continue', (800-420)/2, 180, 420, 160);
+    showAlert('Sorry!<br /><br />In expert mode you have to get all the presents<br />to enter the next room!<br /><br />Press C to continue', (800-420)/2, 180, 420, 160);
     tutorial = true;
     if(adjustX) {
         px = 800 - pw - 1;
@@ -2578,6 +2578,10 @@ window.onmousedown = function(e) {
             else if(alternateMenu) {
                 switchMenuMain();
             }
+            else if(game) {
+                hideAlert();
+                unpause();
+            }
         }
     }
     mouseDown = true;
@@ -2673,12 +2677,17 @@ window.onkeydown = function(e) {
         }
     }
     else { // game
-        if(!paused && key == 80) {
-            pause();
-            showAlert('Game paused<br /><br />Press any key to continue', 200, 200, 400, 100);
+        if(key == 80) { // p
+            if(!paused) {
+                pause();
+                showAlert('Game paused<br /><br />Press P to unpause', 200, 200, 400, 100);
+            }
+            else {
+                unpause();
+            }
         }
 //        else if(paused && (tutorial == (key == 13))) {
-        else if(paused && leftAndRightReleased) {
+        else if(paused && leftAndRightReleased && key == 67) { // c
             hideAlert();
             unpause();
         }
