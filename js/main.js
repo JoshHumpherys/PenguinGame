@@ -1960,8 +1960,6 @@ var pause = function() {
 
 var unpause = function() {
     if(paused) {
-        left = right = false;
-        container.focus();
         paused = false;
         last = Date.now();
     }
@@ -2757,12 +2755,7 @@ window.onkeyup = function(e) {
     }
 }
 
-document.onblur = function(e) {
-    right = left = false;
-}
-
 window.onfocus = function(e) {
-    left = right = false;
     if(!alertShowing) {
         unpause();
     }
@@ -2770,7 +2763,7 @@ window.onfocus = function(e) {
 
 window.onblur = function(e) {
     pause();
-    right = left = false;
+//    right = left = false;
 }
 
 initMenu();
