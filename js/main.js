@@ -595,6 +595,12 @@ var initBlocks = function(map, forward) {
         setCookie('helpTriggersPassed', helpTriggers.length);
     }
     var mapString;
+    if(letters[room] == null) {
+        break;
+    }
+    for(var i = 0; i < letters[room].length; i++) {
+        letters[room][i].ref.letter.remove();
+    }
     if(!playingExpert) {
         if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
             if(forward) {
