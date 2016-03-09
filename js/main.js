@@ -595,11 +595,23 @@ var initBlocks = function(map, forward) {
         setCookie('helpTriggersPassed', helpTriggers.length);
     }
     var mapString;
-    if(letters[room] == null) {
-        break;
+    if(!playingExpert) {
+        if(letters[map] != null) {
+            for(var i = 0; i < letters[map].length; i++) {
+                if(letters[map][i].ref != null) {
+                    letters[map][i].ref.letter.remove();
+                }
+            }
+        }
     }
-    for(var i = 0; i < letters[room].length; i++) {
-        letters[room][i].ref.letter.remove();
+    else {
+        if(lettersExpert[map] != null) {
+            for(var i = 0; i < letters[map].length; i++) {
+                if(lettersExpert[map][i] != null) {
+                    letters[map][i].ref.letter.remove();
+                }
+            }
+        }
     }
     if(!playingExpert) {
         if(map > lastMap) { // should probably catch 404 instead of breaking out before and hardcoding last map value
@@ -725,39 +737,37 @@ var initBlocks = function(map, forward) {
                     break;
                 case 9:
                     if(!playingExpert) {
-                        if(letters[room] == null) {
-                            break;
-                        }
-                        for(var k = 0; k < letters[room].length; k++) {
-                            if(letters[room][k].x == j && letters[room][k].y == i) {
-                                if(!letters[room][k].achieved) {
-                                    obj = new Letter(j, i, false);
+                        if(letters[map] != null) {
+                            for(var k = 0; k < letters[map].length; k++) {
+                                if(letters[map][k].x == j && letters[map][k].y == i) {
+                                    if(!letters[map][k].achieved) {
+                                        obj = new Letter(j, i, false);
+                                    }
+                                    else {
+                                        obj = new Letter(j, i, true);
+                                    }
+                                    container.appendChild(obj.letter);
+                                    letters[map][k].ref = obj;
+                                    break;
                                 }
-                                else {
-                                    obj = new Letter(j, i, true);
-                                }
-                                container.appendChild(obj.letter);
-                                letters[room][k].ref = obj;
-                                break;
                             }
                         }
                         break;
                     }
                     else {
-                        if(lettersExpert[roomExpert] == null) {
-                            break;
-                        }
-                        for(var k = 0; k < lettersExpert[roomExpert].length; k++) {
-                            if(lettersExpert[roomExpert][k].x == j && lettersExpert[roomExpert][k].y == i) {
-                                if(!lettersExpert[roomExpert][k].achieved) {
-                                    obj = new Letter(j, i, false);
+                        if(lettersExpert[map] != null) {
+                            for(var k = 0; k < lettersExpert[map].length; k++) {
+                                if(lettersExpert[map][k].x == j && lettersExpert[map][k].y == i) {
+                                    if(!lettersExpert[map][k].achieved) {
+                                        obj = new Letter(j, i, false);
+                                    }
+                                    else {
+                                        obj = new Letter(j, i, true);
+                                    }
+                                    container.appendChild(obj.letter);
+                                    lettersExpert[map][k].ref = obj;
+                                    break;
                                 }
-                                else {
-                                    obj = new Letter(j, i, true);
-                                }
-                                container.appendChild(obj.letter);
-                                lettersExpert[roomExpert][k].ref = obj;
-                                break;
                             }
                         }
                         break;
