@@ -630,7 +630,6 @@ var initBlocks = function(map, forward) {
         mapString = 'expertMap'+map;
     }
     if(!skipReadFile) {
-        skipReadFile = false;
         mapData = new Array(30);
         for(var i = 0; i < 30; i++) {
             mapData[i] = new Array(40);
@@ -664,6 +663,7 @@ var initBlocks = function(map, forward) {
         xhr.send();
     }
     else {
+        skipReadFile = false;
         populateLevelFromMapData();
     }
 }
@@ -2005,14 +2005,9 @@ var hitCeiling = function() {
 }
 
 var kill = function() {
-    skipReadFile = true;
     if(!changingRooms) {
+        skipReadFile = true;
         changingRooms = true;
-//        if(expertNoRestart) {
-//            expertNoRestart = false;
-//            forward = false;    
-//        }
-//        else if(playingExpert) {
         if(playingExpert) {
             forward = true;
         }
@@ -2022,8 +2017,8 @@ var kill = function() {
 
         killFade.style.backgroundColor = 'rgba(0,0,0,1.0)';
         setTimeout(function() {
-                killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
-                initGame();
+            killFade.style.backgroundColor = 'rgba(0,0,0,0.0)';
+            roomChangeQueued = true;
         },1000);
     }
 }
