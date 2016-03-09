@@ -1960,6 +1960,8 @@ var pause = function() {
 
 var unpause = function() {
     if(paused) {
+        left = right = false;
+        container.focus();
         paused = false;
         last = Date.now();
     }
@@ -2677,7 +2679,19 @@ window.onkeydown = function(e) {
         }
     }
     else { // game
-        if(key == 80) { // p
+        if(key == 18) { // alt
+            if(paused) {
+                left = right = false;
+                container.focus();
+                paused = false;
+                last = Date.now();
+            }
+            else {
+                pause();
+            }
+            return;
+        }
+        else if(key == 80) { // p
             if(!paused) {
                 pause();
                 showAlert('Game paused<br /><br />Press P to unpause', 200, 200, 400, 100);
@@ -2691,7 +2705,7 @@ window.onkeydown = function(e) {
             hideAlert();
             unpause();
         }
-        if(key == 37) {
+        else if(key == 37) {
             left = true;
         }
         else if(key == 39) {
@@ -2743,15 +2757,20 @@ window.onkeyup = function(e) {
     }
 }
 
+document.onblur = function(e) {
+    right = left = false;
+}
+
 window.onfocus = function(e) {
+    left = right = false;
     if(!alertShowing) {
         unpause();
-        left = right = false;
     }
 }
 
 window.onblur = function(e) {
     pause();
+    right = left = false;
 }
 
 initMenu();
