@@ -606,9 +606,9 @@ var initBlocks = function(map, forward) {
     }
     else {
         if(lettersExpert[map] != null) {
-            for(var i = 0; i < letters[map].length; i++) {
+            for(var i = 0; i < lettersExpert[map].length; i++) {
                 if(lettersExpert[map][i] != null) {
-                    letters[map][i].ref.letter.remove();
+                    lettersExpert[map][i].ref.letter.remove();
                 }
             }
         }
