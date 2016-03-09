@@ -640,13 +640,6 @@ var initBlocks = function(map, forward) {
         xhr.open('GET', 'maps/'+mapString);
         xhr.responseType = 'blob';
         xhr.onload = function() {
-            // init main container
-            document.getElementById('container').remove();
-            container = initContainer();
-            document.body.appendChild(container);
-            container.style.backgroundImage = 'url(img/bg.jpg)';
-            container.appendChild(penguin);
-
             // read file
             blob = xhr.response;
             var reader = new FileReader();
@@ -676,6 +669,13 @@ var initBlocks = function(map, forward) {
 }
 
 var populateLevelFromMapData = function() {
+    // init main container
+    document.getElementById('container').remove();
+    container = initContainer();
+    document.body.appendChild(container);
+    container.style.backgroundImage = 'url(img/bg.jpg)';
+    container.appendChild(penguin);
+
     for(var i = 0; i < mapData.length; i++) {
         for(var j = 0; j < mapData[i].length; j++) {
             var obj;
@@ -1938,6 +1938,7 @@ var getAllLetters = function() {
 }
 
 var restart = function() {
+    skipReadFile = true;
 //    if(expertNoRestart) {
 //        expertNoRestart = false;
 //        forward = false;
@@ -2004,6 +2005,7 @@ var hitCeiling = function() {
 }
 
 var kill = function() {
+    skipReadFile = true;
     if(!changingRooms) {
         changingRooms = true;
 //        if(expertNoRestart) {
