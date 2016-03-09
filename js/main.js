@@ -607,7 +607,7 @@ var initBlocks = function(map, forward) {
     else {
         if(lettersExpert[map] != null) {
             for(var i = 0; i < lettersExpert[map].length; i++) {
-                if(lettersExpert[map][i] != null) {
+                if(lettersExpert[map][i].ref != null) {
                     lettersExpert[map][i].ref.letter.remove();
                 }
             }
