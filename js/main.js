@@ -2701,6 +2701,7 @@ window.onkeydown = function(e) {
                 showAlert('Game paused<br /><br />Press P to unpause', 200, 200, 400, 100);
             }
             else {
+                hideAlert();
                 unpause();
             }
         }
