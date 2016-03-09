@@ -1,4 +1,4 @@
-var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options, initMenuQueued, lettersExpert, lettersCurrentExpert, lettersExpertThisRoom, expertNoRestart, oneUpdate, twoUdates, skipReadFile;
+var container, paused, menu, last, buttons, buttonNames, buttonIndex, menuControlledbyMouse, expertLocked, expertButton, alternateMenu, alternateMenuDiv, introScreen, introScreenIndex, introScreenText, introScreenTextDiv, room, level, levels, penguin, right, left, px, py, dx, y0, a, v0, inAir, mapData, mapReferences, jumpCount, jumpStartTime, pauseStartTime, msSinceJump, pw, ps, jumpKeyDown, roomChangeQueued, forward, icicles, alertBox, innerBox, shade, alertShowing, helpTriggers, tutorial, iciclesUp, letters, lettersCurrent, lettersFinal, lettersTopDiv, lettersOrder, letterPlaces, killFade, mouseDown, instructionsDiv, alternateMenuHeadingDiv, leftAndRightReleased, maxRoom, lastMap, dy, changeX, changeY, introPenguinDiv, introPresentDiv, containerIntroBG1, containerIntroBG2, permContainerX, permContainerY, lastBlockUnderneathLeft, lastBlockUnderneathRight, lastBlockDownRight, lastBlockDownLeft, lastBlockTopRight, lastBlockTopLeft, forward, lastExpertMap, maxRoomExpert, roomExpert, playingExpert, justStartedFalling, loopComplete, finishedChangingRooms, finishedChangingRooms2, fileLoading, options, initMenuQueued, lettersExpert, lettersCurrentExpert, lettersExpertThisRoom, expertNoRestart, oneUpdate, twoUdates, skipReadFile, listOfBlocks, listOfIcicles, listOfUpIcicles;
 var step = false; // TODO remove this
 var stepping = false; // TODO remove this also
 
@@ -38,6 +38,9 @@ var initMenu = function() {
     skipReadFile = false;
     last = Date.now();
     buttons = {};
+    listOfBlocks = [];
+    listOfIcicles = [];
+    listOfUpIcicles = [];
     var expertLockedCookie = getCookie('expertLocked');
     if(expertLockedCookie == undefined) {
         setCookie('expertLocked','0');
@@ -630,6 +633,9 @@ var initBlocks = function(map, forward) {
         mapString = 'expertMap'+map;
     }
     if(!skipReadFile) {
+        listOfBlocks = [];
+        listOfIcicles = [];
+        listOfUpIcicles = [];
         mapData = new Array(30);
         for(var i = 0; i < 30; i++) {
             mapData[i] = new Array(40);
@@ -664,7 +670,101 @@ var initBlocks = function(map, forward) {
     }
     else {
         skipReadFile = false;
-        populateLevelFromMapData();
+
+        for(i = 0; i < listOfBlocks.length; i++) {
+            listOfBlocks[i].refresh();
+        }
+        for(i = 0; i < listOfIcicles.length; i++) {
+            listOfIcicles[i].refresh();
+            icicles[listOfIcicles[i].x/20] = listOfIcicles[i];
+        }
+        for(i = 0; i < listOfUpIcicles.length; i++) {
+            listOfUpIcicles[i].refresh();
+        }
+
+        for(i = 0; i < mapData.length; i++) {
+            for(j = 0; j < mapData[i].length; j++) {
+                switch(parseInt(mapData[i][j])) {
+                case 5:
+                    // initial penguin position for next level or game start
+                    if(forward) {
+                        if(changeX) {
+                            px = j * 20 + ps;
+                        }
+                        if(changeY) {
+                            if(i == 0) {
+                                py = 1;
+                            }
+                            else {
+                                py = i * 20;
+                            }
+                        }
+                    }
+                    break;
+                case 6:
+                    // initial penguin position for previous level
+                    if(!forward) {
+                        if(changeX) {
+                            px = j * 20 + ps;
+                        }
+                        if(changeY) {
+                            if(i == 0) {
+                                py = 1;
+                            }
+                            else {
+                                py = i * 20;
+                            }
+                        }
+                    }
+                    break;
+                case 9:
+                    if(!playingExpert) {
+                        if(letters[room] == null) {
+                            break;
+                        }
+                        for(var k = 0; k < letters[room].length; k++) {
+                            if(letters[room][k].x == j && letters[room][k].y == i) {
+                                if(!letters[room][k].achieved) {
+                                    obj = new Letter(j, i, false);
+                                }
+                                else {
+                                    obj = new Letter(j, i, true);
+                                }
+                                container.appendChild(obj.letter);
+                                letters[room][k].ref = obj;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    else {
+                        if(lettersExpert[roomExpert] == null) {
+                            break;
+                        }
+                        for(var k = 0; k < lettersExpert[roomExpert].length; k++) {
+                            if(lettersExpert[roomExpert][k].x == j && lettersExpert[roomExpert][k].y == i) {
+                                if(!lettersExpert[roomExpert][k].achieved) {
+                                    obj = new Letter(j, i, false);
+                                }
+                                else {
+                                    obj = new Letter(j, i, true);
+                                }
+                                container.appendChild(obj.letter);
+                                lettersExpert[roomExpert][k].ref = obj;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        movePenguinDiv();
+        unpause();
+        changingRooms = false;
+        finishedChangingRooms = true;
+        fileLoading = false;
     }
 }
 
@@ -686,10 +786,12 @@ var populateLevelFromMapData = function() {
             case 1:
                 // visible block
                 container.appendChild((obj = new Block(j, i, 20, true)).block);
+                listOfBlocks[listOfBlocks.length] = obj;
                 break;
             case 2:
                 // invisible block
                 container.appendChild((obj = new Block(j, i, 20, false)).block);
+                listOfBlocks[listOfBlocks.length] = obj;
                 break;
             case 3:
                 // previous room
@@ -733,9 +835,11 @@ var populateLevelFromMapData = function() {
                 obj = new Icicle(j, i);
                 icicles[j] = obj; // WARNING: assumes only one icicle per column
                 container.appendChild(obj.icicle);
+                listOfIcicles[listOfIcicles.length] = obj;
                 break;
             case 8:
                 container.appendChild((obj = new IcicleUp(j, i)).icicle);
+                listOfUpIcicles[listOfUpIcicles.length] = obj;
                 break;
             case 9:
                 if(!playingExpert) {
@@ -2258,6 +2362,7 @@ function Icicle(x, y) {
     var icicle = this.icicle = document.createElement('div');
     this.x = x * 20;
     this.y = y * 20;
+    this.initY = y * 20;
     this.falling = false;
     icicle.style.position = 'absolute';
     icicle.style.left = this.x + 'px';
@@ -2282,6 +2387,7 @@ function IcicleUp(x, y) {
     var icicle = this.icicle = document.createElement('div');
     this.x = x * 20;
     this.y = y * 20;
+    this.initY = y * 20;
     icicle.style.position = 'absolute';
     icicle.style.left = x * 20 + 'px';
     icicle.style.top = y * 20 + 'px';
@@ -2300,6 +2406,17 @@ function IcicleUp(x, y) {
     icicle.innerHTML = icicleImg.outerHTML;
 }
 
+IcicleUp.prototype.refresh = function() {
+    // do nothing
+}
+
+IcicleUp.prototype.refreshNew = function(x, y) {
+    this.x = x * 20;
+    this.y = y * 20;
+    this.icicle.style.left = x * 20 + 'px';
+    this.icicle.style.top = y * 20 + 'px';
+}
+
 Icicle.prototype.fall = function() {
     this.falling = true;
 }
@@ -2307,8 +2424,10 @@ Icicle.prototype.fall = function() {
 Icicle.prototype.update = function(delta) {
     if(this.falling) {
         if(collision(getMapData(Math.floor(this.y/20)+1, Math.floor(this.x/20)))) {
-        // || this.y + 20 >= (mapData.length - 1) * 20
-            icicles[Math.floor(this.x/20)].icicle.remove();
+            //icicles[Math.floor(this.x/20)].icicle.remove();
+            icicles[Math.floor(this.x/20)].icicle.style.display = 'none';
+            this.falling = false;
+            this.y = this.initY;
             icicles[Math.floor(this.x/20)] = null;
         }
         else {
@@ -2329,6 +2448,22 @@ Icicle.prototype.shouldFall = function(x, y, w) {
     return x < this.x + 20 && x + w > this.x && y > this.y;
 }
 
+Icicle.prototype.refresh = function() {
+    this.falling = false;
+    this.y = this.initY;
+    this.icicle.style.top = this.y + 'px';
+    this.icicle.style.display = 'block';
+}
+
+Icicle.prototype.refreshNew = function(x, y) {
+    this.falling = false;
+    this.x = x * 20;
+    this.y = y * 20;
+    this.icicle.style.left = x * 20 + 'px';
+    this.icicle.style.top = y * 20 + 'px';
+    this.icicle.style.display = 'block';
+}
+
 function Block(x, y, w, visible) {
     var block = this.block = document.createElement('div');
     this.visible = visible;
@@ -2337,8 +2472,6 @@ function Block(x, y, w, visible) {
     block.style.left = x * w + 'px';
     block.style.top = y * w + 'px';
     block.style.width = block.style.height = w + 'px';
-//    block.style.backgroundColor = '#008080';
-//    block.style.backgroundColor = '#7ec0ee';
     block.style.backgroundImage = 'url(img/glass_light_blue.png)';
     block.style.display = visible ? 'block' : 'none';
 }
@@ -2351,6 +2484,23 @@ Block.prototype.show = function() {
 Block.prototype.hide = function() {
     this.visible = false;
     this.block.style.display = 'none';
+}
+
+Block.prototype.refresh = function() {
+    if(this.initVisible && !this.visible) {
+        this.show();
+    }
+    else if(!this.initVisible && this.visible) {
+        this.hide();
+    }
+}
+
+Block.prototype.refreshNew = function(x, y) {
+    this.x = x;
+    this.y = y;
+    this.block.style.left = x * this.w + 'px';
+    this.block.style.top = y * this.w + 'px';
+    this.refresh();
 }
 
 function ButtonLocked(name, x, y) {
